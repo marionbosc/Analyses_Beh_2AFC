@@ -58,7 +58,7 @@ if Modality==1
         ['Side Bias toward left = ' num2str(round(Biais,2))]},'fontsize',12);
     xlabel('% odor A','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
-    clearvars -except SessionData
+    clearvars -except SessionData Modality nb_raw_fig nb_col_fig positn_fig
 end
 
 %% Psyc Auditory Auditory modality

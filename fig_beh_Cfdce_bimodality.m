@@ -26,13 +26,13 @@ if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | Sess
     [SessionData] = Psychometric_fig(SessionData, 2,2,4,2);
 end
 %% Vevaiometric olfactory trials (3)
-
-Vevaiometric_fig(SessionData, 1,2,4,3);
-
+try
+    Vevaiometric_fig(SessionData, 1,2,4,3);
+end
 %% Vevaiometric auditory trials (4)
-
-Vevaiometric_fig(SessionData, 2,2,4,4);
-
+try 
+    Vevaiometric_fig(SessionData, 2,2,4,4);
+end
 %% Distribution des WT for correct vs error trials (5) --> Olfactory trials
 
 if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1

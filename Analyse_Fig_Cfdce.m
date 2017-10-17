@@ -5,13 +5,13 @@ function f2=Analyse_Fig_Cfdce(SessionData, Modality)
 f2=figure('units','normalized','position',[0,0,0.5,1]);
 
 %% Psychometric performance (1)
-
-[SessionData] = Psychometric_fig(SessionData, Modality,2,2,1);
-
+try
+    [SessionData] = Psychometric_fig(SessionData, Modality,2,2,1);
+end
 %% Vevaiometric (2)
-
-Vevaiometric_fig(SessionData, Modality,2,2,2);
-
+try
+    Vevaiometric_fig(SessionData, Modality,2,2,2);
+end
 %% PerfperWT (3)
 
 if SessionData.DayvsWeek == 1
