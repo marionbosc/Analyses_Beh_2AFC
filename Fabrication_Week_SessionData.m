@@ -1,15 +1,33 @@
+%% Script recup datas pour plusieurs jours, implementatn data/analyses par jour puis analyses globales par pop
+%
+% - Recup donnee animal a analyser
+% - GUI selection manip a conserver pour redef une nouvelle pop plus
+% restreinte
+% - Script fabrication dataset periode restreinte (suite et fin)
+% - Construction structure datas population
+%   * Chargement manip
+%   * Implementation des donnees manquantes pour l'analyse
+%   * Figures analyses donnees par session
+%   * Concatenation des donnees de toutes les sessions
+% - Enregistrement superstructure de donnees creee
+% - Figures analyses donnees dataset
+% 
+%
+
 %% Recup donnee animal a analyser
-cd('/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Dual2AFC');
+pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Dual2AFC';
+cd(pathdatalocal);
 prompt = {'Nom= '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; Nom = char(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt  
 
+%% Suite
 prompt = {'N = '}; dlg_title = 'Nombre de manips'; numlines = 1;
-def = {'18'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+def = {'5'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
 clear def dlg_title numlines prompt  
 
 for jour = 1:N
-    [filename{jour},pathname{jour}] = uigetfile([cd '/' Nom '/Session Data/*.mat']);
+    [filename{jour},pathname{jour}] = uigetfile([pathdatalocal '/' Nom '/Session Data/*.mat']);
 end
 
 % GUI pour renseigner si enregistrement ou non du dataset cree
@@ -82,35 +100,56 @@ for manip= 1 : size(pathname,2)
     %% Implementation des donnees manquantes pour l'analyse
     Implementatn_SessionData_Offline
         
-    %% Figure analyse donnee journee
+    %% Figure analyse donnee journee de manip
     
-    if exist([SessionData.filename(1:end-13) '.png'],'file')~=2
+    % Redirection vers dossier figures animal:
+    pathfigures = [pathdatalocal '/' Nom '/Session Figures'];
+    cd(pathfigures);
+    faireunepause = false;
+    
+    if exist([SessionData.filename(1:end-4) 'Analysis1.png'],'file')~=2
         Session = fig_beh(SessionData); % Analyse globale session comportement
-        FigurePathSession = fullfile(pathname{manip},[SessionData.filename(1:end-13) '.png']);
-        saveas(Session,FigurePathSession,'png');
-        if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-            % Plus de 10% d'essais olf
-            if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-                % Plus de 10% d'essais olf et Plus de 10% d'essais audit
+        FigurePathSession = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Analysis1.png']);
+        saveas(Session,FigurePathSession,'png'); faireunepause = true;
+    end
+    if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
+        if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
+            % Plus de 10% d'essais olf et Plus de 10% d'essais audit
+            if exist([SessionData.filename(1:end-4) 'Cfdce.png'],'file')~=2
                 Cfdce = fig_beh_Cfdce_bimodality(SessionData);  % Analyse confidence both modality
-                FigurePathCfdce = fullfile(pathname{manip},[SessionData.filename(1:end-13) 'Cfdce.png']);
-                saveas(Cfdce,FigurePathCfdce,'png');
-            else
-                % Plus de 10% d'essais olf et Moins de 10% d'essais audit
-                CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analyse confidence Olf only
-                FigurePathCfdceOlf = fullfile(pathname{manip},[SessionData.filename(1:end-13) 'CfdceOlf.png']);
-                saveas(CfdceOlf,FigurePathCfdceOlf,'png');
+                FigurePathCfdce = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Cfdce.png']);
+                saveas(Cfdce,FigurePathCfdce,'png'); faireunepause = true;
             end
-        else
-            % Moins de 10% d'essais olf
-            if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-                % Moins de 10% d'essais olf et Plus de 10% d'essais audit
-                CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analyse confidence Aud only
-                FigurePathCfdceAud = fullfile(pathname{manip},[SessionData.filename(1:end-13) 'CfdceAud.png']);
-                saveas(CfdceAud,FigurePathCfdceAud,'png');
+            if sum(SessionData.Custom.CatchTrial)>10
+                if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
+                    CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analyse confidence Olf only
+                    FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
+                    saveas(CfdceOlf,FigurePathCfdceOlf,'png'); faireunepause = true;
+                end
+                if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
+                    CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analyse confidence Aud only
+                    FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
+                    saveas(CfdceAud,FigurePathCfdceAud,'png'); faireunepause = true;
+                end
+            end
+        else % Plus de 10% d'essais olf et moins de 10% d'essais audit 
+            if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
+                CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analyse confidence Olf only
+                FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
+                saveas(CfdceOlf,FigurePathCfdceOlf,'png'); faireunepause = true;
             end
         end
-        pause
+    elseif sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
+        % Moins de 10% d'essais olf mais Plus de 10% d'essais audit
+        if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
+            CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analyse confidence Aud only
+            FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
+            saveas(CfdceAud,FigurePathCfdceAud,'png'); faireunepause = true;
+        end
+    end
+    
+    if faireunepause
+        pause; faireunepause = false;    
     end
     
     close all
@@ -174,29 +213,30 @@ clear def dlg_title numlines prompt
 
 % Si enregistrement
 if saving==1
-    % GUI pour recup date du dataset compose
+    %% GUI pour recup nom (date) du dataset compose
     prompt = {'Nom dataset = '}; dlg_title = 'Semaine'; numlines = 1;
     def = {'17'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt 
 
     SessionDataWeek.SessionDate = Nomdataset;
-
+    
+    %% Enregistrement dataset
     cd(SessionDataWeek.pathname)
     save(['SessionDataWeek_' Nomdataset],'SessionDataWeek')   
 end
 
-%% Figures dataset
+%% Figures analyses donnees dataset
+cd(pathfigures);
 
 fig_beh(SessionDataWeek);
 
-if sum(SessionDataWeek.Custom.CatchTrial)>10
-    if sum(SessionDataWeek.Custom.Modality==2)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
-        Analyse_Fig_Cfdce(SessionDataWeek, 2);
-        if sum(SessionDataWeek.Custom.Modality==1)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
-            fig_beh_Cfdce_bimodality(SessionDataWeek);
-            Analyse_Fig_Cfdce(SessionDataWeek, 1);
-        end
-    elseif sum(SessionDataWeek.Custom.Modality==1)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
+if sum(SessionDataWeek.Custom.Modality==2)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
+    Analyse_Fig_Cfdce(SessionDataWeek, 2);
+    if sum(SessionDataWeek.Custom.Modality==1)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
+        fig_beh_Cfdce_bimodality(SessionDataWeek);
         Analyse_Fig_Cfdce(SessionDataWeek, 1);
-    end        
-end
+    end
+elseif sum(SessionDataWeek.Custom.Modality==1)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
+    Analyse_Fig_Cfdce(SessionDataWeek, 1);
+end        
+

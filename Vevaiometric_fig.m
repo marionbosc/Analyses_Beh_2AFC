@@ -3,8 +3,9 @@
 %
 % Input:
 % - Dataset --> SessionData
-% - Modalite sensorielle: 1 = Olfaction / 2 = Audition --> Modality
-% - Coordonnees subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
+% - Sensory modality : 1 = Olfactory / 2 = Auditory --> Modality
+% - Coordinates subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
+%
 
 function [SessionData] = Vevaiometric_fig(SessionData, Modality,nb_raw_fig,nb_col_fig,positn_fig)
 %% Paramètres de la figure:

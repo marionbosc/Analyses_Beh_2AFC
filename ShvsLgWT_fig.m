@@ -1,4 +1,14 @@
 %% f(WT) = accuracy for catch trials only 
+%
+% Input:
+% - Dataset --> SessionData
+% - Sensory modality : 1 = Olfactory / 2 = Auditory --> Modality
+% - WT data raw (0) or normalized per session (1)
+% - Coordonnees subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
+% - Extra text in the title
+% - Percentile used to determine Short vs Long WT
+% - Nb of bin to discretize data (Auditory only)
+%
 
 function ShvsLgWT_fig(SessionData, Modality, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Percentile,nbBin)
 %% Parametres de la figures:
@@ -109,7 +119,7 @@ p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
 % Legendes et axes
 ylim([-.05 1.05]);
 xlim ([xmin, xmax]);
-leg = legend(['Long WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT))],'Location','NorthWest');
+leg = legend(['Long WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT))],'Location','SouthEast');
 title({['Psychometric ' Sensory_Modality  ' ' TitleExtra]; [num2str(Percentile) 'th percentile catch trials WT = ' num2str(round(Percentile_WT,2))]},'fontsize',12);
 leg.FontSize = 10; legend('boxoff');
 p.Parent.XLabel.String = xlabel; p.Parent.XLabel.FontSize =14;

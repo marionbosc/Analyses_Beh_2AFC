@@ -15,15 +15,21 @@ end
 %% PerfperWT (3)
 
 if SessionData.DayvsWeek == 1
-    PerfperWT_fig(SessionData, Modality, 0,2,2,3,SessionData.SessionDate,0);
+    try
+        PerfperWT_fig(SessionData, Modality, 0,2,2,3,SessionData.SessionDate,0);
+    end
 else
-    PerfperWT_fig(SessionData, Modality, 0,2,2,3,SessionData.SessionDate,1);
+    try
+        PerfperWT_fig(SessionData, Modality, 0,2,2,3,SessionData.SessionDate,1);
+    end
 end
 
 %% Psychometric Sh vs Lg WT (4)
 
 if SessionData.DayvsWeek == 2
-    ShvsLgWT_fig(SessionData, Modality, 0,2,2,4,SessionData.Custom.Subject,70,8);   
+    try
+        ShvsLgWT_fig(SessionData, Modality, 0,2,2,4,SessionData.Custom.Subject,70,8);
+    end
 end
 
 %% A implementer: Confidence Report Index

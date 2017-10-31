@@ -209,7 +209,7 @@ if ~isfield(SessionData.Custom, 'MissedChoice') ...
     end                
 end
 
-% Calcul des WT normalises par le WT catch moyen de la session
+%% Calcul des WT normalises par le WT catch moyen de la session
 SessionData = normWT(SessionData,1);
 
 % Calcul de l'index DVlog (distrib logaritmq des index de difficulte

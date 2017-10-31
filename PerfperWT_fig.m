@@ -1,4 +1,13 @@
 %% f(WT) = accuracy for catch trials only 
+%
+% Input:
+% - Dataset --> SessionData
+% - Minimum WT (in sec)
+% - WT data raw (0) or normalized per session (1)
+% - Coordonnees subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
+% - Extra text in the title
+% - Statistic (1) or not (0)
+%
 
 function PerfperWT_fig(SessionData, BorneMin, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Statornot)
 
