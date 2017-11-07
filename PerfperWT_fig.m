@@ -94,4 +94,4 @@ h=histogram(X_binWT,'BinWidth',1); %
 h.FaceAlpha = 0.2; h.BinEdges=PsycX-0.5;
 h.Parent.YLabel.String = 'Trials count';h.Parent.YLabel.FontSize = 14;
 h.Parent.YLabel.Rotation=270; h.Parent.YLabel.Position(1) = BorneMax+1.5;
-title({[SessionData.Custom.Subject '  ' TitleExtra]; Stat_title},'fontsize',14);
+title({[SessionData.Custom.Subject '  ' TitleExtra]; Stat_title},'fontsize',12);
