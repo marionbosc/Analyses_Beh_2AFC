@@ -42,7 +42,12 @@ if Modality==1
     
     % Calcul biais dans la modalite
     Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
-
+    
+    % Calcul performance par port de reponse (gauche/droite):
+    Perf_Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf_Right = sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf_globale = sum(SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    
     % Figure perf olfaction: f(% Odor A)= % left
     subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on;% f1=figure('units','normalized','position',[0,0,0.5,0.7]); hold on;
     % Points perf/DV
@@ -55,7 +60,10 @@ if Modality==1
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim (100*[-.05 1.05]);
     title({['Psychometric Olf  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Biais,2))]},'fontsize',12);
+        ['Side Bias toward left = ' num2str(round(Biais,2))];...
+        ['% Success L = ' num2str(round(Perf_Left,2)) ...
+        ' / R = ' num2str(round(Perf_Right,2)) ...
+        ' / all = ' num2str(round(Perf_globale,2))]},'fontsize',12);
     xlabel('% odor A','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
     clearvars -except SessionData Modality nb_raw_fig nb_col_fig positn_fig
@@ -89,7 +97,12 @@ if Modality==2
     
     % Calcul biais dans la modalite
     Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
-
+    
+    % Calcul performance par port de reponse (gauche/droite):
+    Perf_Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf_Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf_globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    
     % Figure perf audition: f(beta)= % left
     subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
@@ -104,7 +117,10 @@ if Modality==2
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim ([-1.6, 1.6]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Biais,2))]},'fontsize',12);
+        ['Side Bias toward left = ' num2str(round(Biais,2))];...
+        ['% Success L = ' num2str(round(Perf_Left,2)) ...
+        ' / R = ' num2str(round(Perf_Right,2)) ...
+        ' / all = ' num2str(round(Perf_globale,2))]},'fontsize',12);
     xlabel('DV ','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
 %     clear ndx* Psyc* Aud* BinIdx
