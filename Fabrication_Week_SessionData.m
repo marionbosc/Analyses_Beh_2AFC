@@ -23,7 +23,7 @@ clear def dlg_title numlines prompt
 
 %% Suite
 prompt = {'N = '}; dlg_title = 'Nombre de manips'; numlines = 1;
-def = {'5'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+def = {'4'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
 clear def dlg_title numlines prompt  
 
 for jour = 1:N
@@ -32,7 +32,7 @@ end
 
 % GUI pour renseigner si enregistrement ou non du dataset cree
 prompt = {'Enregistrement? = '}; dlg_title = 'Superstructure cree'; numlines = 1;
-def = {'1'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
 clear def dlg_title numlines prompt
 
 % Si enregistrement
@@ -226,7 +226,7 @@ if saving==1
 end
 
 %% Figures analyses donnees dataset
-cd(pathfigures);
+cd(pathfigures); 
 
 fig_beh(SessionDataWeek);
 

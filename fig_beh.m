@@ -200,6 +200,15 @@ if sum(ndxCatch)>10
     leg.FontSize = 10; legend('boxoff');
     title({'Feedback delay';['Proba skip FB Left= ' LeftSkip '/Right= ' RightSkip ' %']},'fontsize',12);
     xlabel('Time (s)','fontsize',14);ylabel('correct catch trial counts','fontsize',14);hold off;
+else
+    %% Psyc Olfactory (1)
+    if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1 
+        [SessionData] = Psychometric_fig(SessionData, 1,2,4,5);  
+    end
+    %% Psyc Auditory (2)
+    if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
+        [SessionData] = Psychometric_fig(SessionData, 2,2,4,5);
+    end
 end
 
 clearvars -except SessionData f1
