@@ -5,9 +5,9 @@ figure('units','normalized','position',[0,0,0.7,1]); hold on;
 for manip= 1 : size(pathname,2)
     % Chargement manip
     load([pathname{manip} '/' filename{manip}])
-    Nom = SessionData.filename(1:3);
+    Nom = SessionData.Custom.Subject;
     
-    if ~isfield(SessionData.Custom, 'TrialStart')
+    if ~isfield(SessionData.Custom, 'TrialStart') || ~isfield(SessionData.Custom, 'TrialStartSec')
         % Get and format time of each trial begining in time value
         Trialstart_sessiondata=(SessionData.TrialStartTimestamp-SessionData.TrialStartTimestamp(1));
         t = datetime(Trialstart_sessiondata,'ConvertFrom','epochtime','Epoch','2000-01-01');
@@ -48,8 +48,8 @@ title({['Correlation: r = ' num2str(round(r(2),2)) ' / p = '  num2str(round(p(2)
 
 
 %% Skipped Correct FB
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = '~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial&SessionData.Custom.ChoiceCorrect==1';
 id_Total_code = '~SessionData.Custom.CatchTrial&SessionData.Custom.ChoiceCorrect==1';
 type_variable = 'ratio';
@@ -57,10 +57,10 @@ bin_size = 100;
 epoch = '';
 Titre_parametre_analyse ='Skipped Correct Feedback (%)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% Correct trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
@@ -70,57 +70,68 @@ Titre_parametre_analyse =' Correct trials (%)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% EWD trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.EarlyWithdrawal==1;';
 id_Total_code = 'SessionData.Custom.FixBroke==0 ';
 bin_size = 100;
 type_variable = 'ratio';
 epoch = '';
 Titre_parametre_analyse =' EWD trials (%)';
-%fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% WT Correct trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
 type_variable = 'duration';
 epoch = 'FeedbackTime';
 Titre_parametre_analyse =' FB Waiting Time correct trials (s)';
-%fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% WT Error trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
 type_variable = 'duration';
 epoch = 'FeedbackTime';
 Titre_parametre_analyse =' FB Waiting Time error trials (s)';
-%fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+%% WT Correct Catch trials
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
+id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1 & SessionData.Custom.CatchTrial;';
+id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
+bin_size = 100;
+type_variable = 'duration';
+epoch = 'FeedbackTime';
+Titre_parametre_analyse =' FB Waiting Time correct catched trials (s)';
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% RT Correct trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
 type_variable = 'duration';
 epoch = 'ST';
 Titre_parametre_analyse =' Sampling Time correct trials (s)';
-%fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% RT Error trials
-load('AllDatafilename_171003_1027.mat')
-load('AllDatapathname_171003_1027.mat')
+load('AllDatafilename_171114_1129.mat')
+load('AllDatapathname_171114_1129.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
 type_variable = 'duration';
 epoch = 'ST';
 Titre_parametre_analyse =' Sampling Time error trials (s)';
-%fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
-fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
+%fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);

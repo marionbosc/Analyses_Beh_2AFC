@@ -16,7 +16,7 @@ Perf_per_demiH = nan(size(pathname,2),20);
 for manip= 1 : size(pathname,2)
     % Chargement manip
     load([pathname{manip} '/' filename{manip}])
-    Nom = SessionData.filename(1:3);
+    Nom = SessionData.Custom.Subject;
     
     % Fabrication vecteur temps debut de chaque essai
     if ~isfield(SessionData.Custom, 'TrialStart') ||  ~isfield(SessionData.Custom, 'TrialStartSec')
@@ -59,7 +59,7 @@ for manip= 1 : size(pathname,2)
         
         % Calcul taux pour le bin de temps considere
         nb_id_in_bin(bin) = id_fin-id_debut;
-        if nb_id_in_bin(bin)>5 || (Xplot(bin)==Xplot(bin-1))==0
+        if nb_id_in_bin(bin)>5 || bin>1 && (Xplot(bin)==Xplot(bin-1))==0
             if strcmp(type_variable,'ratio')
                 % Recup des ratio par bin d'essai 
                 Pct_Interet(bin) = sum(ndxInteret(id_debut:id_fin))/sum(ndxAllDone(id_debut:id_fin))*100;
@@ -92,7 +92,7 @@ end
 %ylim([0 100]);
 xlim ([temps_min temps_max]);
 title([Titre_parametre_analyse ' across session ' Nom],'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
-xlabel('Time from beginning session','fontsize',16);ylabel(Titre_parametre_analyse,'fontsize',16);hold off;    
+xlabel('Time from beginning session','fontsize',14);ylabel(Titre_parametre_analyse,'fontsize',14);hold off;    
 
 %% Representation des perf moyennes par tranche de 30 minutes:
 
@@ -137,7 +137,7 @@ if p<0.06
         post_hoc_res = 'ns';
     end
 else
-   post_hoc_res = ''; 
+   post_hoc_res = '-'; 
    signif_idx = [];
 end
 
@@ -149,9 +149,10 @@ errorbar(PsyX,PsycY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','Mark
     'MarkerSize',6,'Visible','on');hold on
 max_fig = max(PsycY + semY);
 xlim ([0.25 4]); %ylim([0 max_fig*1.2 ]);
-title({[Titre_parametre_analyse ' across session ' Nom]; ['One-w ANOVA: p = ' num2str(round(p,3)) '/ Bonferroni post-hoc: ' post_hoc_res]},'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
-xlabel('Time from beginning session(h)','fontsize',16);
-ylabel(['Mean ' Titre_parametre_analyse ' (+/-SEM)'],'fontsize',16);
+title({[Titre_parametre_analyse ' across session ' Nom],...
+    [' One-w ANOVA: p = ' num2str(round(p,3)) '/ Bonferroni post-hoc: ' post_hoc_res]},'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
+xlabel('Time from beginning session (h)','fontsize',14);
+ylabel(['Mean ' Titre_parametre_analyse ' (+/-SEM)'],'fontsize',14);
 if ~isempty(signif_idx)
     for i = 1:size(X1,1)
         plot([X1(i) X2(i)],[max_fig+1+(i*0.15) max_fig+1+(i*0.15)],'k','LineStyle','-','Marker','+');
