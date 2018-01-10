@@ -112,6 +112,8 @@ for manip= 1 : size(pathname,2)
         FigurePathSession = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Analysis1.png']);
         saveas(Session,FigurePathSession,'png'); faireunepause = true;
     end
+    
+% Manip Dual2AFC Click version
     if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
         if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
             % Plus de 10% d'essais olf et Plus de 10% d'essais audit
@@ -148,6 +150,13 @@ for manip= 1 : size(pathname,2)
         end
     end
     
+% % Manip Dual2AFC Frequency version
+%     if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
+%         CfdceAud = Analyse_Fig_Cfdce(SessionData, 3); % Analyse confidence Aud only
+%         FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
+%         saveas(CfdceAud,FigurePathCfdceAud,'png'); faireunepause = true;
+%     end
+
     if faireunepause
         pause; faireunepause = false;    
     end
@@ -176,12 +185,14 @@ for manip= 1 : size(pathname,2)
          SessionDataWeek.Custom.RewardMagnitude = [SessionDataWeek.Custom.RewardMagnitude SessionData.Custom.RewardMagnitude];
          SessionDataWeek.Custom.TrialNumber = [SessionDataWeek.Custom.TrialNumber SessionData.Custom.TrialNumber];
          SessionDataWeek.Custom.AuditoryTrial = [SessionDataWeek.Custom.AuditoryTrial SessionData.Custom.AuditoryTrial];
-         SessionDataWeek.Custom.AuditoryOmega = [SessionDataWeek.Custom.AuditoryOmega SessionData.Custom.AuditoryOmega];
-         SessionDataWeek.Custom.LeftClickRate = [SessionDataWeek.Custom.LeftClickRate SessionData.Custom.LeftClickRate];
-         SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate];
-         SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain];
-         SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain];
-         SessionDataWeek.Custom.MoreLeftClicks = [SessionDataWeek.Custom.MoreLeftClicks SessionData.Custom.MoreLeftClicks];
+         if isfield(SessionDataWeek.Custom,'AuditoryOmega')
+            SessionDataWeek.Custom.AuditoryOmega = [SessionDataWeek.Custom.AuditoryOmega SessionData.Custom.AuditoryOmega];
+            SessionDataWeek.Custom.LeftClickRate = [SessionDataWeek.Custom.LeftClickRate SessionData.Custom.LeftClickRate];
+            SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate];
+            SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain];
+            SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain];
+            SessionDataWeek.Custom.MoreLeftClicks = [SessionDataWeek.Custom.MoreLeftClicks SessionData.Custom.MoreLeftClicks];
+         end
          SessionDataWeek.Custom.DV = [SessionDataWeek.Custom.DV SessionData.Custom.DV];
          SessionDataWeek.Custom.StimDelay = [SessionDataWeek.Custom.StimDelay SessionData.Custom.StimDelay];
          SessionDataWeek.Custom.FeedbackDelay = [SessionDataWeek.Custom.FeedbackDelay SessionData.Custom.FeedbackDelay];

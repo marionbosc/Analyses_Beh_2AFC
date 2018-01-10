@@ -6,6 +6,7 @@
 % - Sensory modality : 1 = Olfactory / 2 = Auditory --> Modality
 % - Coordinates subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
 %
+%
 
 function [SessionData] = Vevaiometric_fig(SessionData, Modality,nb_raw_fig,nb_col_fig,positn_fig)
 %% Paramètres de la figure:
@@ -23,6 +24,15 @@ elseif Modality ==2
     xlimL = [0 1.5]; xlimR = [-1.5 0];
     xmin = -1.6; xmax = 1.6;
     xlabel = 'DVlog';
+    Frequency = 0;
+elseif Modality == 3
+    Sensory_Modality = 'Auditory';
+    % Limites plot figures
+    xlimL = [0 1]; xlimR = [-1 0];
+    xmin = -1; xmax = 1;
+    xlabel = 'DV';
+    Modality =2;
+    Frequency = 1;
 end
 
 % Figure vevaiometric f(DV)=WT
@@ -43,18 +53,23 @@ if sum(ndxError&ndxMinWT&ndxModality&ndxLeft)>9 || sum(ndxError&ndxMinWT&ndxModa
         DVerrLeft = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
         DVerrRight = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
     elseif Modality ==2
-        DVerrLeft = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
-        DVerrRight = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
+        if Frequency ==0
+            DVerrLeft = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
+            DVerrRight = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
+        else
+            DVerrLeft = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
+            DVerrRight = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
+        end
     end
     
-    if SessionData.DayvsWeek == 1
+    if SessionData.DayvsWeek == 2 && isfield(SessionData.Custom,'FeedbackTimeNorm')
+        WTerrLeft = SessionData.Custom.FeedbackTimeNorm(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup WT erreur pointees a droite (essais a gauche) 
+        WTerrRight = SessionData.Custom.FeedbackTimeNorm(ndxError&ndxMinWT&ndxModality&ndxLeft); % Recup WT erreur pointees a gauche (essais a droite) 
+        ylabel = 'Normalized WT (s)';  
+    else
         WTerrLeft = SessionData.Custom.FeedbackTime(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup WT erreur pointees a droite (essais a gauche) 
         WTerrRight = SessionData.Custom.FeedbackTime(ndxError&ndxMinWT&ndxModality&ndxLeft); % Recup WT erreur pointees a gauche (essais a droite) 
         ylabel = 'WT (s)';
-    elseif SessionData.DayvsWeek == 2
-        WTerrLeft = SessionData.Custom.FeedbackTimeNorm(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup WT erreur pointees a droite (essais a gauche) 
-        WTerrRight = SessionData.Custom.FeedbackTimeNorm(ndxError&ndxMinWT&ndxModality&ndxLeft); % Recup WT erreur pointees a gauche (essais a droite) 
-        ylabel = 'Normalized WT (s)';    
     end
         
     % Data sorting: (reorg des WT selon classement DV croissant pour que DV soit continu):
@@ -100,18 +115,23 @@ if sum(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft)>10 || sum(ndxCorrectCatch&n
         DVcatchLeft = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
         DVcatchRight = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
     elseif Modality ==2
-        DVcatchLeft = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
-        DVcatchRight = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
+        if Frequency ==0
+            DVcatchLeft = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
+            DVcatchRight = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
+        else
+            DVcatchLeft = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
+            DVcatchRight = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
+        end
      end
      
-     if SessionData.DayvsWeek==1
-        WTcatchLeft = SessionData.Custom.FeedbackTime(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup WT essais catch pointage a gauche
-        WTcatchRight = SessionData.Custom.FeedbackTime(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup WT essais catch pointage a droite
-        ylabel = ' WT (s)';
-    else
+     if SessionData.DayvsWeek == 2 && isfield(SessionData.Custom,'FeedbackTimeNorm')
         WTcatchLeft = SessionData.Custom.FeedbackTimeNorm(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup WT essais catch pointage a gauche
         WTcatchRight = SessionData.Custom.FeedbackTimeNorm(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup WT essais catch pointage a droite
         ylabel = 'Normalized WT (s)';
+     else
+        WTcatchLeft = SessionData.Custom.FeedbackTime(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup WT essais catch pointage a gauche
+        WTcatchRight = SessionData.Custom.FeedbackTime(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup WT essais catch pointage a droite
+        ylabel = ' WT (s)'; 
     end
 
     % Data sorting: (reorg des WT selon classement DV croissant pour que DV soit continu):
@@ -162,7 +182,8 @@ if Affichage_figure == 1
     title({['Vevaiometric ' Sensory_Modality ' trials ' ];Title_error;Title_catch},'fontsize',11);
     s.Parent.XLabel.String = xlabel;s.Parent.YLabel.String = ylabel; 
     s.Parent.XLabel.FontSize = 14;s.Parent.YLabel.FontSize = 14; 
-    xlim([xmin xmax]); hold off;
+    xlim([xmin xmax]); 
+    hold off; % ylim([-6 8]);
     % clear Scatter* WT* DV* ndx* CorrCoeff Fit pdint Veva* 
 end
 clearvars -except SessionData

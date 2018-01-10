@@ -65,7 +65,7 @@ SessionData.DayvsWeek = 1;
 %% (2) Ajustement de la taille de chaque champ de Custom
 
 % Ajustement de la taille des champs de SessionData.Custom
-if size(SessionData.Custom.ChoiceLeft,2) < SessionData.nTrials
+if size(SessionData.Custom.ChoiceLeft,2) < SessionData.nTrials || size(SessionData.Custom.ChoiceLeft,2) < size(SessionData.Custom.DV,2)
     SessionData.nTrials = size(SessionData.Custom.ChoiceLeft,2);
     SessionData.Custom.BlockNumber = SessionData.Custom.BlockNumber(1:SessionData.nTrials);
     SessionData.Custom.BlockTrial = SessionData.Custom.BlockTrial(1:SessionData.nTrials);
@@ -86,12 +86,14 @@ if size(SessionData.Custom.ChoiceLeft,2) < SessionData.nTrials
     SessionData.Custom.RewardMagnitude = SessionData.Custom.RewardMagnitude(1:SessionData.nTrials,:)';
     SessionData.Custom.TrialNumber = SessionData.Custom.TrialNumber(1:SessionData.nTrials);
     SessionData.Custom.AuditoryTrial = SessionData.Custom.AuditoryTrial(1:SessionData.nTrials);
-    SessionData.Custom.AuditoryOmega = SessionData.Custom.AuditoryOmega(1:SessionData.nTrials);
-    SessionData.Custom.LeftClickRate = SessionData.Custom.LeftClickRate(1:SessionData.nTrials);
-    SessionData.Custom.RightClickRate = SessionData.Custom.RightClickRate(1:SessionData.nTrials);
-    SessionData.Custom.LeftClickTrain = SessionData.Custom.LeftClickTrain(1:SessionData.nTrials);
-    SessionData.Custom.RightClickTrain = SessionData.Custom.RightClickTrain(1:SessionData.nTrials);
-    SessionData.Custom.MoreLeftClicks = SessionData.Custom.MoreLeftClicks(1:SessionData.nTrials);
+    if ~isfield(SessionData.Custom,'ClickTask')
+        SessionData.Custom.AuditoryOmega = SessionData.Custom.AuditoryOmega(1:SessionData.nTrials);
+        SessionData.Custom.LeftClickRate = SessionData.Custom.LeftClickRate(1:SessionData.nTrials);
+        SessionData.Custom.RightClickRate = SessionData.Custom.RightClickRate(1:SessionData.nTrials);
+        SessionData.Custom.LeftClickTrain = SessionData.Custom.LeftClickTrain(1:SessionData.nTrials);
+        SessionData.Custom.RightClickTrain = SessionData.Custom.RightClickTrain(1:SessionData.nTrials);
+        SessionData.Custom.MoreLeftClicks = SessionData.Custom.MoreLeftClicks(1:SessionData.nTrials);
+    end
     SessionData.Custom.DV = SessionData.Custom.DV(1:SessionData.nTrials);
     SessionData.Custom.StimDelay = SessionData.Custom.StimDelay(1:SessionData.nTrials);
     SessionData.Custom.FeedbackDelay = SessionData.Custom.FeedbackDelay(1:SessionData.nTrials);
@@ -213,8 +215,11 @@ end
 SessionData = normWT(SessionData,1);
 
 % Calcul de l'index DVlog (distrib logaritmq des index de difficulte
-SessionData = DVlog(SessionData);
-
+if ~isfield(SessionData.Custom,'ClickTask')
+    SessionData = DVlog(SessionData);
+else
+    SessionData.Custom.DVlog = SessionData.Custom.DV;
+end
 % Get and format time of each trial begining in time value
 if ~isfield(SessionData.Custom, 'TrialStart')
         Trialstart_sessiondata=(SessionData.TrialStartTimestamp-SessionData.TrialStartTimestamp(1));

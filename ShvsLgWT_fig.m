@@ -24,6 +24,12 @@ elseif Modality ==2
     xlimL = [0 1.5]; xlimR = [-1.5 0];
     xmin = -1.6; xmax = 1.6;
     xlabel = 'DVlog';
+elseif Modality == 3
+    Sensory_Modality = 'Auditory';
+    % Limites plot figures
+    xlimL = [0 1]; xlimR = [-1 0]; 
+    xmin = -1; xmax = 1;
+    xlabel = 'DV';
 end
 
 % Figure vevaiometric f(DV)=WT
@@ -34,15 +40,18 @@ ShvsLg = subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 % Recup DV 
 if Modality ==1
     DV = SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft));
-else
+    ndxModality = SessionData.Custom.Modality==Modality;
+elseif Modality ==2
     DV = SessionData.Custom.DVlog(1:numel(SessionData.Custom.ChoiceLeft));
     % Calculs Bins de difficulte
-    %nbBin = 12;
     BinIdx = discretize(DV,linspace(-1.6,1.6,nbBin+1));
+    ndxModality = SessionData.Custom.Modality==Modality;
+elseif Modality == 3
+    DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
+    ndxModality = SessionData.Custom.Modality==2;
 end
 
 % Index essais 
-ndxModality = SessionData.Custom.Modality==Modality; % Audit
 ndxNan = isnan(SessionData.Custom.ChoiceLeft); % Essais non repondu
 ndxCatch = SessionData.Custom.CatchTrial;
 
@@ -58,7 +67,7 @@ else
 end
 
 % Calcul pourcent choix gauche par type d'essai
-if Modality ==1
+if Modality ==1 || Modality == 3
     % Long WT
     PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
     PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT));
@@ -68,7 +77,7 @@ if Modality ==1
     PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
     PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT));
     PsycX_S = PsycX(~isnan(PsycX));
-else
+elseif Modality == 2
     % Long WT
     PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
     PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*3.2-1.6-1/nbBin;
@@ -77,7 +86,7 @@ else
     % Short WT
     PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
     PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*3.2-1.6-1/nbBin;
-    PsycX_S = PsycX(~isnan(PsycX));
+    PsycX_S = PsycX(~isnan(PsycX));    
 end
 
 % Donnees plot (courbe fit points)
