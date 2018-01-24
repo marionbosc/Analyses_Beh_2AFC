@@ -92,7 +92,6 @@ if size(SessionData.Custom.ChoiceLeft,2) < SessionData.nTrials || size(SessionDa
         SessionData.Custom.RightClickRate = SessionData.Custom.RightClickRate(1:SessionData.nTrials);
         SessionData.Custom.LeftClickTrain = SessionData.Custom.LeftClickTrain(1:SessionData.nTrials);
         SessionData.Custom.RightClickTrain = SessionData.Custom.RightClickTrain(1:SessionData.nTrials);
-        SessionData.Custom.MoreLeftClicks = SessionData.Custom.MoreLeftClicks(1:SessionData.nTrials);
     end
     SessionData.Custom.DV = SessionData.Custom.DV(1:SessionData.nTrials);
     SessionData.Custom.StimDelay = SessionData.Custom.StimDelay(1:SessionData.nTrials);
@@ -215,11 +214,8 @@ end
 SessionData = normWT(SessionData,1);
 
 % Calcul de l'index DVlog (distrib logaritmq des index de difficulte
-if ~isfield(SessionData.Custom,'ClickTask')
-    SessionData = DVlog(SessionData);
-else
-    SessionData.Custom.DVlog = SessionData.Custom.DV;
-end
+SessionData = DVlog(SessionData);
+
 % Get and format time of each trial begining in time value
 if ~isfield(SessionData.Custom, 'TrialStart')
         Trialstart_sessiondata=(SessionData.TrialStartTimestamp-SessionData.TrialStartTimestamp(1));

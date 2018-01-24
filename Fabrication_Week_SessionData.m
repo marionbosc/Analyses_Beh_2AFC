@@ -191,7 +191,6 @@ for manip= 1 : size(pathname,2)
             SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate];
             SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain];
             SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain];
-            SessionDataWeek.Custom.MoreLeftClicks = [SessionDataWeek.Custom.MoreLeftClicks SessionData.Custom.MoreLeftClicks];
          end
          SessionDataWeek.Custom.DV = [SessionDataWeek.Custom.DV SessionData.Custom.DV];
          SessionDataWeek.Custom.StimDelay = [SessionDataWeek.Custom.StimDelay SessionData.Custom.StimDelay];
