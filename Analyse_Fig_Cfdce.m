@@ -1,12 +1,12 @@
 
-function f2=Analyse_Fig_Cfdce(SessionData, Modality)
+function [f2,Perf]=Analyse_Fig_Cfdce(SessionData, Modality)
 %% Figure:
 
 f2=figure('units','normalized','position',[0,0,0.5,1]);
 
 %% Psychometric performance (1)
 try
-    [SessionData] = Psychometric_fig(SessionData, Modality,2,2,1);
+    [SessionData,Perf] = Psychometric_fig(SessionData, Modality,2,2,1);
 end
 %% Vevaiometric (2)
 try

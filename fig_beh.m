@@ -10,7 +10,7 @@
 % (8)
 %
 
-function f1 = fig_beh(SessionData)
+function [f1,Error] = fig_beh(SessionData)
 %% Figures:
 
 f1=figure('units','normalized','position',[0,0,1,1]);
@@ -26,29 +26,44 @@ Nbbin = size(Xplot,2);
 ndxAllDone = SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1;
 ndxCorrect = SessionData.Custom.ChoiceCorrect==1;
 ndxFalse = SessionData.Custom.ChoiceCorrect==0; % False = wrong response port
-ndxError = SessionData.Custom.MissedChoice==1 | SessionData.Custom.EarlyWithdrawal==1 | SessionData.Custom.FixBroke==1; % Error = other beh mistake 
-ndxCatch = SessionData.Custom.CatchTrial(1:end);
-Pct_False = [];Pct_Error = [];    
+ndxError = isnan(SessionData.Custom.ChoiceCorrect); % Error = other beh mistake 
+ndxCatch = SessionData.Custom.CatchTrial;
+ndxLeft = SessionData.Custom.ChoiceLeft == 1;
+ndxRight = SessionData.Custom.ChoiceLeft == 0;
+ndxSkippedFB = SessionData.Custom.SkippedFeedback;
+
+Pct_WS = [];Pct_Error = [];    
 for i=1:Nbbin
     debut = Xplot(i)+1; 
     if debut + 49 < size(SessionData.Custom.ChoiceLeft,2)
-        fin = debut+49;
+       fin = debut+49;
     else
-        fin = size(SessionData.Custom.ChoiceLeft,2);
+       fin = size(SessionData.Custom.ChoiceLeft,2);
     end
-    Pct_False = [Pct_False sum(ndxFalse(debut:fin))/sum(ndxAllDone(debut:fin))*100];
+    Pct_WS = [Pct_WS sum(ndxFalse(debut:fin))/sum(ndxAllDone(debut:fin))*100];
     Pct_Error = [Pct_Error sum(ndxError(debut:fin))/size(debut:fin,2)*100];
 end
 
 % Donnees moyenne:
-Tot_False = num2str(sum(ndxFalse)/sum(ndxAllDone)*100);
-Tot_Error = num2str(sum(ndxError)/sum(ndxAllDone)*100);
+Error.WS = num2str(round(sum(ndxFalse)/sum(ndxAllDone)*100));
+Error.Total = num2str(round(sum(ndxError)/SessionData.nTrials*100));
+Error.FixBroke = num2str(round(sum(SessionData.Custom.FixBroke)/SessionData.nTrials*100));
+Error.EWD  = num2str(round(sum(SessionData.Custom.EarlyWithdrawal)/SessionData.nTrials*100));
+Error.SkippedFB  = num2str(round(sum(ndxSkippedFB)/sum(ndxAllDone)*100));
+Error.SkippedPosFB  = num2str(round(sum((ndxSkippedFB&ndxCorrect&~ndxCatch))/sum(ndxCorrect&~ndxCatch)*100));
+if SessionData.Settings.GUI.CatchError == 0
+    Error.SkippedNegFB  = num2str(round(sum((ndxSkippedFB&ndxFalse))/sum(ndxFalse)*100));
+else
+    Error.SkippedNegFB  = num2str(round(sum(ndxFalse&SessionData.Custom.FeedbackTime<0.5)/sum(ndxFalse)*100));
+end
+Error.SkippedLeftFB  = num2str(round(sum((ndxSkippedFB&ndxLeft&ndxCorrect))/sum(ndxLeft&ndxCorrect)*100));
+Error.SkippedRightFB  = num2str(round(sum((ndxSkippedFB&ndxRight&ndxCorrect))/sum(ndxRight&ndxCorrect)*100));
 
 % Figure pourcentage d'erreur et d'essais faux au fur et a mesure de la session
 subplot(2,3,1); hold on;
 yyaxis left
 % ligne moyenne essais faux (mauvais port de reponse)
-plot(Xplot,Pct_False, 'LineStyle','-','Color','r','Visible','on','LineWidth',2); 
+plot(Xplot,Pct_WS, 'LineStyle','-','Color','r','Visible','on','LineWidth',2); 
 % ligne moyenne essais correct catch 
 p=plot(Xplot,Pct_Error,'LineStyle','-','Color','k','Visible','on','LineWidth',2);
 ylim([0 100]); 
@@ -85,15 +100,14 @@ else
     yyaxis right
     p.Parent.YColor = [1 1 1];
 end
-title({['Performance  ' SessionData.SessionDate];['WS = ' Tot_False '% /Error = ' Tot_Error ' %']},'fontsize',12);    
+title({['Performance  ' SessionData.SessionDate];['WS = ' Error.WS '% /Error = ' Error.Total ' %']},'fontsize',12);    
 xlabel('Trial number','fontsize',14);hold off;    
 
-clear ndx* Tot*
 %%  Composition of the training session (2)
 
-Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.ChoiceCorrect==1);
-Biais_Olf = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==1)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==1);
-Biais_Aud = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
+Biais = sum(ndxLeft&ndxCorrect)/sum(ndxCorrect);
+Biais_Olf = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==1)/sum(ndxCorrect&SessionData.Custom.Modality==1);
+Biais_Aud = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==2)/sum(ndxCorrect&SessionData.Custom.Modality==2);
 
 % Figure distribution des essais de la session par Niveaux de difficulte par modalite
 subplot(2,3,2); hold on;
@@ -101,18 +115,18 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     yyaxis left
     h=histogram(SessionData.Custom.DV(SessionData.Custom.Modality==1),'BinWidth',0.01,...
         'FaceColor','w','EdgeColor',[0.3 0.75 0.93]);hold on
-	Nb_EWD_Olf = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==1);
-    Nb_MissedChoice_Olf = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==1);
-    Nb_SkippedFB_Olf = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==1);
+% 	Nb_EWD_Olf = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==1);
+%     Nb_MissedChoice_Olf = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==1);
+%     Nb_SkippedFB_Olf = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==1);
     ylabel('Olfactory trial counts','fontsize',14);
 end
 if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
     yyaxis right
     histogram(SessionData.Custom.DVlog(SessionData.Custom.Modality==2),'BinWidth',0.01,...
        'FaceColor','w','EdgeColor',[1 0.5 0.2]);
-    Nb_EWD_Aud = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==2);
-    Nb_MissedChoice_Aud = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==2);
-    Nb_SkippedFB_Aud = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==2);
+%     Nb_EWD_Aud = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==2);
+%     Nb_MissedChoice_Aud = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==2);
+%     Nb_SkippedFB_Aud = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==2);
     ylabel('Auditory trial counts','fontsize',14);
 end
 xlim ([-1.05, 1.05]);
@@ -133,12 +147,6 @@ end
 title({'Trials DV';['Biais olf = ' num2str(Biais_Olf) ' /aud = ' num2str(Biais_Aud)]},'fontsize',12);    
 xlabel('DV','fontsize',14);hold off;
 
-% Datas:
-Nb_FixBroke = sum(SessionData.Custom.FixBroke==1);
-Nb_EWD = sum(SessionData.Custom.EarlyWithdrawal==1);
-Nb_MissedChoice = sum(SessionData.Custom.MissedChoice==1);
-Nb_SkippedFB = sum(SessionData.Custom.SkippedFeedback==1);
-Nb_CatchTrials= sum(SessionData.Custom.CatchTrial==1);
 %% Distribution des Reward Grace Delay de la session pour verif si grace delay suffisamment long (3)
 
 % Recup des datas:
@@ -157,28 +165,12 @@ title('Distribution of grace period ','fontsize',12);
 xlabel('Grace period (s)','fontsize',14);
 ylabel('trial counts','fontsize',14);
 
-clearvars -except SessionData f1
+clearvars -except SessionData f1 ndx* Error
 
 %% Distribution des WT for left vs right side for correct catch trials (4)
 
-% id des essais
-ndxCorrect = SessionData.Custom.ChoiceCorrect==1;
-ndxCatch = SessionData.Custom.CatchTrial==1;
-ndxLeft = SessionData.Custom.ChoiceLeft == 1;
-ndxRight = SessionData.Custom.ChoiceLeft == 0;
-
 if sum(ndxCatch)>10
-    % Recup datas à exclure de l'analyse:
-    if SessionData.Settings.GUI.CatchError ==1
-        ndxExclude = SessionData.Custom.ChoiceCorrect == 0; %exclude error trials if they are set on catch
-    else
-        ndxExclude = false(1,size(SessionData.Custom.ChoiceLeft,2));
-    end
-
-    % Proba to skip the FB for each side:
-    LeftSkip = num2str(round(sum(~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial&~ndxExclude&SessionData.Custom.ChoiceLeft==1)/sum(~SessionData.Custom.CatchTrial&~ndxExclude&SessionData.Custom.ChoiceLeft==1)*100,2));
-    RightSkip = num2str(round(sum(~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial&~ndxExclude&SessionData.Custom.ChoiceLeft==0)/sum(~SessionData.Custom.CatchTrial&~ndxExclude&SessionData.Custom.ChoiceLeft==0)*100,2));
-
+    
     subplot(2,4,5); hold on;
     % Essais correct pointes a gauche
     C = histogram(SessionData.Custom.FeedbackTime(ndxCorrect&ndxCatch&ndxLeft),...
@@ -198,7 +190,7 @@ if sum(ndxCatch)>10
     leg = legend('Left port','Right port',...
                 'Location','NorthEast');
     leg.FontSize = 10; legend('boxoff');
-    title({'Feedback delay';['Proba skip FB Left= ' LeftSkip '/Right= ' RightSkip ' %']},'fontsize',12);
+    title({'Feedback delay';['Proba skip FB Left= ' Error.SkippedLeftFB '/Right= ' Error.SkippedRightFB ' %']},'fontsize',12);
     xlabel('Time (s)','fontsize',14);ylabel('correct catch trial counts','fontsize',14);hold off;
 else
     %% Psyc Olfactory (1)
@@ -211,7 +203,7 @@ else
     end
 end
 
-clearvars -except SessionData f1
+clearvars -except SessionData f1 ndx* Error
 
 %% Distribution des durees de sampling (RT) selon DV essais olfactifs corrects (5)
 
@@ -231,22 +223,22 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     % Figure distribution temps d'attente recompense essais recompense ou non
     subplot(2,4,6); hold on;
     % Essais FACILES
-    A = histogram(SessionData.Custom.ST(ndxL&SessionData.Custom.ChoiceCorrect==1)*1000,...
+    A = histogram(SessionData.Custom.ST(ndxL&ndxCorrect)*1000,...
         'BinWidth',50); hold on; %'FaceColor','g','EdgeColor','g',
     JA = get(A,'child');
     set(JA,'FaceAlpha',0.2)
     % Essais INTERMEDIAIRES
-    B = histogram(SessionData.Custom.ST(ndxM&SessionData.Custom.ChoiceCorrect==1)*1000,...
+    B = histogram(SessionData.Custom.ST(ndxM&ndxCorrect)*1000,...
         'BinWidth',50); hold on; %'FaceColor','y','EdgeColor','y',
     JB = get(B,'child');
     set(JB,'FaceAlpha',0.2)
     % Essais DIFFICILES
-    C = histogram(SessionData.Custom.ST(ndxH&SessionData.Custom.ChoiceCorrect==1)*1000,...
+    C = histogram(SessionData.Custom.ST(ndxH&ndxCorrect)*1000,...
         'BinWidth',50); hold on; %'FaceColor',[1 0.5 0.2],'EdgeColor',[1 0.5 0.2],
     JC = get(C,'child');
     set(JC,'FaceAlpha',0.2)
     % Essais Fifty50
-    D = histogram(SessionData.Custom.ST(ndxF&SessionData.Custom.ChoiceCorrect==1)*1000,...
+    D = histogram(SessionData.Custom.ST(ndxF&ndxCorrect)*1000,...
         'FaceColor','k','EdgeColor','k','BinWidth',50); hold on; %
     JD = get(D,'child');
     set(JD,'FaceAlpha',0.2)
@@ -272,7 +264,7 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     end
     xlabel('Time (ms)','fontsize',14);ylabel('trial counts','fontsize',14);hold off;
     
-    clearvars -except SessionData f1
+    clearvars -except SessionData f1 ndx* Error
 end
 %% Distribution des durees de sampling (RT) selon DV essais auditifs corrects (6)
 
@@ -294,22 +286,22 @@ end
 %     % Figure distribution temps d'attente recompense essais recompense ou non
 %     subplot(2,4,7); hold on;
 %     % Essais FACILES
-%     A = histogram(SessionData.Custom.ST(ndxL&SessionData.Custom.ChoiceCorrect==1)*1000,...
+%     A = histogram(SessionData.Custom.ST(ndxL&ndxCorrect)*1000,...
 %         'BinWidth',50); hold on; %'FaceColor','g','EdgeColor','g',
 %     JA = get(A,'child');
 %     set(JA,'FaceAlpha',0.2)
 %     % Essais INTERMEDIAIRES
-%     B = histogram(SessionData.Custom.ST(ndxM&SessionData.Custom.ChoiceCorrect==1)*1000,...
+%     B = histogram(SessionData.Custom.ST(ndxM&ndxCorrect)*1000,...
 %         'BinWidth',50); hold on; %'FaceColor','y','EdgeColor','y',
 %     JB = get(B,'child');
 %     set(JB,'FaceAlpha',0.2)
 %     % Essais DIFFICILES
-%     C = histogram(SessionData.Custom.ST(ndxH&SessionData.Custom.ChoiceCorrect==1)*1000,...
+%     C = histogram(SessionData.Custom.ST(ndxH&ndxCorrect)*1000,...
 %         'BinWidth',50); hold on; %'FaceColor',[1 0.5 0.2],'EdgeColor',[1 0.5 0.2],
 %     JC = get(C,'child');
 %     set(JC,'FaceAlpha',0.2)
 %     % Essais Fifty50
-%     D = histogram(SessionData.Custom.ST(ndxF&SessionData.Custom.ChoiceCorrect==1)*1000,...
+%     D = histogram(SessionData.Custom.ST(ndxF&ndxCorrect)*1000,...
 %         'FaceColor','k','EdgeColor','k','BinWidth',50); hold on; %
 %     JD = get(D,'child');
 %     set(JD,'FaceAlpha',0.2)
@@ -340,27 +332,10 @@ end
 
 %% Distribution des WT for correct (rewarded, catched and skipped) vs error trials (7)
 
-% id des essais
-ndxCorrect = SessionData.Custom.ChoiceCorrect==1;
-ndxFalse = SessionData.Custom.ChoiceCorrect==0;
-
 maxXlim = max(SessionData.Custom.FeedbackTime)*1.05;
 if maxXlim>12
     maxXlim=12;
 end
-
-% Recup datas à exclure de l'analyse:
-if SessionData.Settings.GUI.CatchError ==0
-    ndxExclude = SessionData.Custom.ChoiceCorrect == 0; % exclude error trials if they are not set on catch
-else
-    ndxExclude = false(1,size(SessionData.Custom.ChoiceLeft,2));
-end
-
-% Proba to skip the FB for correct trials and error trials:
-CorrectSkip = num2str(round(sum(~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial&~ndxExclude&ndxCorrect)...
-    /sum(~SessionData.Custom.CatchTrial&~ndxExclude&ndxCorrect),2)*100);
-ErrorSkip = num2str(round(sum(SessionData.Custom.FeedbackTime<0.5&~ndxExclude&ndxFalse)...
-    /sum(~SessionData.Custom.CatchTrial&~ndxExclude&ndxFalse),2)*100);
 
 % Figure distribution temps d'attente recompense essais recompense ou non
 subplot(2,4,8); hold on;
@@ -386,8 +361,8 @@ legend(['Correct rewarded n= ' num2str(sum(ndxCorrect&SessionData.Custom.Feedbac
     ['Correct Skipped FB n= ' num2str(sum(ndxCorrect&~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial))],...
     ['Correct Catched n= ' num2str(sum(ndxCorrect&SessionData.Custom.CatchTrial))],...
         'Location','NorthEast');
-title({'Feedback delay';['Proba skip FB Correct trials= ' CorrectSkip ' % / Wrong side trials= ' ErrorSkip ' %']},'fontsize',12);
+title({'Feedback delay';['Proba skip FB Correct trials= ' Error.SkippedPosFB ' % / Wrong side trials= ' Error.SkippedNegFB ' %']},'fontsize',12);
 xlabel('Time (s)','fontsize',14);ylabel('trial counts','fontsize',14);
 xlim([0 maxXlim]);hold off;
 
-clearvars -except SessionData f1
+clearvars -except SessionData f1 Error

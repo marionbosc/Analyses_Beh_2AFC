@@ -23,7 +23,7 @@ elseif Modality ==2
     % Limites plot figures
     xlimL = [0 1.5]; xlimR = [-1.5 0];
     xmin = -1.6; xmax = 1.6;
-    xlabel = 'DVlog';
+    xlabel = '-log(DV)';
 elseif Modality == 3
     Sensory_Modality = 'Auditory';
     % Limites plot figures

@@ -214,6 +214,7 @@ for manip= 1 : size(pathname,2)
 end
 
 SessionDataWeek.DayvsWeek = 2;
+SessionDataWeek.nTrials = size(SessionDataWeek.Custom.ChoiceLeft,2);
 %% Enregistrement superstructure de donnees creee
 
 % GUI pour renseigner si enregistrement ou non du dataset cree

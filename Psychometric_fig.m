@@ -6,7 +6,7 @@
 % - Modalite sensorielle: 1 = Olfaction / 2 = Audition --> Modality
 % - Coordonnees subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
 
-function [SessionData] = Psychometric_fig(SessionData, Modality,nb_row_fig,nb_col_fig,positn_fig)
+function [SessionData,Perf] = Psychometric_fig(SessionData, Modality,nb_row_fig,nb_col_fig,positn_fig)
 %% Psyc Olfactory (1)
 
 if Modality==1
@@ -41,12 +41,12 @@ if Modality==1
     end
     
     % Calcul biais dans la modalite
-    Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     
     % Calcul performance par port de reponse (gauche/droite):
-    Perf_Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_Right = sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_globale = sum(SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Right = sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     
     % Figure perf olfaction: f(% Odor A)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;% f1=figure('units','normalized','position',[0,0,0.5,0.7]); hold on;
@@ -60,16 +60,16 @@ if Modality==1
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim (100*[-.05 1.05]);
     title({['Psychometric Olf  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Biais,2))];...
-        ['% Success L = ' num2str(round(Perf_Left,2)) ...
-        ' / R = ' num2str(round(Perf_Right,2)) ...
-        ' / all = ' num2str(round(Perf_globale,2))]},'fontsize',12);
+        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['% Success L = ' num2str(round(Perf.Left,2)) ...
+        ' / R = ' num2str(round(Perf.Right,2)) ...
+        ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
     xlabel('% odor A','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
-    clearvars -except SessionData Modality nb_raw_fig nb_col_fig positn_fig
+    clearvars -except SessionData Modality nb_raw_fig nb_col_fig positn_fig Perf
 end
 
-%% Psyc Auditory Auditory modality
+%% Psyc Auditory modality
 if Modality==2
     % Recup DV essais audit
     AudDV = SessionData.Custom.DVlog(1:numel(SessionData.Custom.ChoiceLeft));
@@ -96,12 +96,12 @@ if Modality==2
     end
     
     % Calcul biais dans la modalite
-    Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     
     % Calcul performance par port de reponse (gauche/droite):
-    Perf_Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     
     % Figure perf audition: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
@@ -117,14 +117,14 @@ if Modality==2
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim ([-1.6, 1.6]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Biais,2))];...
-        ['% Success L = ' num2str(round(Perf_Left,2)) ...
-        ' / R = ' num2str(round(Perf_Right,2)) ...
-        ' / all = ' num2str(round(Perf_globale,2))]},'fontsize',12);
-    xlabel('DV ','fontsize',14);ylabel('% left','fontsize',14);hold off;
+        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['% Success L = ' num2str(round(Perf.Left,2)) ...
+        ' / R = ' num2str(round(Perf.Right,2)) ...
+        ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
+    xlabel('-log(DV)','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
 %     clear ndx* Psyc* Aud* BinIdx
-    clearvars -except SessionData Modality
+    clearvars -except SessionData Modality Perf
 end
 
 %% Psyc Auditory modality Frequency task 
@@ -149,12 +149,12 @@ if Modality==3
     end
     
     % Calcul biais dans la modalite
-    Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
+    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
     
     % Calcul performance par port de reponse (gauche/droite):
-    Perf_Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf_globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     
     % Figure perf audition: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
@@ -170,12 +170,12 @@ if Modality==3
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim ([-1, 1]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Biais,2))];...
-        ['% Success L = ' num2str(round(Perf_Left,2)) ...
-        ' / R = ' num2str(round(Perf_Right,2)) ...
-        ' / all = ' num2str(round(Perf_globale,2))]},'fontsize',12);
+        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['% Success L = ' num2str(round(Perf.Left,2)) ...
+        ' / R = ' num2str(round(Perf.Right,2)) ...
+        ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
     xlabel('DV ','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
 %     clear ndx* Psyc* Aud* BinIdx
-    clearvars -except SessionData
+    clearvars -except SessionData Perf
 end
