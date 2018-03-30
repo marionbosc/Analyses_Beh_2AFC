@@ -115,21 +115,15 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     yyaxis left
     h=histogram(SessionData.Custom.DV(SessionData.Custom.Modality==1),'BinWidth',0.01,...
         'FaceColor','w','EdgeColor',[0.3 0.75 0.93]);hold on
-% 	Nb_EWD_Olf = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==1);
-%     Nb_MissedChoice_Olf = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==1);
-%     Nb_SkippedFB_Olf = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==1);
     ylabel('Olfactory trial counts','fontsize',14);
 end
 if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
     yyaxis right
-    histogram(SessionData.Custom.DVlog(SessionData.Custom.Modality==2),'BinWidth',0.01,...
+    h2 = histogram(SessionData.Custom.DVlog(SessionData.Custom.Modality==2),'BinWidth',0.01,...
        'FaceColor','w','EdgeColor',[1 0.5 0.2]);
-%     Nb_EWD_Aud = sum(SessionData.Custom.EarlyWithdrawal==1&SessionData.Custom.Modality==2);
-%     Nb_MissedChoice_Aud = sum(SessionData.Custom.MissedChoice==1&SessionData.Custom.Modality==2);
-%     Nb_SkippedFB_Aud = sum(SessionData.Custom.SkippedFeedback==1&SessionData.Custom.Modality==2);
     ylabel('Auditory trial counts','fontsize',14);
 end
-xlim ([-1.05, 1.05]);
+xlim ([h2.BinLimits(1)-0.05,h2.BinLimits(2)+0.05]);
 
 % Legendes et axes
 if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
@@ -144,7 +138,7 @@ else
     legend('Auditory trials',...
         'Location','North');
 end
-title({'Trials DV';['Biais olf = ' num2str(Biais_Olf) ' /aud = ' num2str(Biais_Aud)]},'fontsize',12);    
+title({'Trials DV';['Biais aud = ' num2str(Biais_Aud)]},'fontsize',12); % olf = ' num2str(Biais_Olf) ' /
 xlabel('DV','fontsize',14);hold off;
 
 %% Distribution des Reward Grace Delay de la session pour verif si grace delay suffisamment long (3)

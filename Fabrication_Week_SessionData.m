@@ -39,7 +39,7 @@ clear def dlg_title numlines prompt
 if saving==1
     % GUI pour recup date du dataset compose
     prompt = {'Nom dataset = '}; dlg_title = 'Semaine'; numlines = 1;
-    def = {'17'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {'18'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt 
 
     SessionDataWeek.SessionDate = Nomdataset;
@@ -80,7 +80,7 @@ clear def dlg_title numlines prompt
 if saving==1
     % GUI pour recup date du dataset compose
     prompt = {'Nom dataset = '}; dlg_title = 'Semaine'; numlines = 1;
-    def = {'17'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {'18'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt 
 
     SessionDataWeek.SessionDate = Nomdataset;
@@ -226,7 +226,7 @@ clear def dlg_title numlines prompt
 if saving==1
     %% GUI pour recup nom (date) du dataset compose
     prompt = {'Nom dataset = '}; dlg_title = 'Semaine'; numlines = 1;
-    def = {'17'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {'18'}; Nomdataset = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt 
 
     SessionDataWeek.SessionDate = Nomdataset;

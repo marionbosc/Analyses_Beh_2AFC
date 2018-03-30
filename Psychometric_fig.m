@@ -51,7 +51,7 @@ if Modality==1
     % Figure perf olfaction: f(% Odor A)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;% f1=figure('units','normalized','position',[0,0,0.5,0.7]); hold on;
     % Points perf/DV
-    plot(PsycOlf.XData,PsycOlf.YData, 'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k', 'MarkerSize',6,'Visible','on');
+    p=plot(PsycOlf.XData,PsycOlf.YData, 'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k', 'MarkerSize',6,'Visible','on');
     % Courbe fittee donnees perf  
     plot(PsycOlfFit.XData,PsycOlfFit.YData,'color','k','Visible','on');
     plot([0, 100],[0.5 0.5],'--','color',[.7,.7 .7]);
@@ -79,7 +79,7 @@ if Modality==2
     ndxNan = isnan(SessionData.Custom.ChoiceLeft);
     % Calculs Bins de difficulte
     AudBin = 12;
-    BinIdx = discretize(AudDV,linspace(-1.6,1.6,AudBin+1));
+    BinIdx = discretize(AudDV,linspace(min(AudDV),max(AudDV),AudBin+1));
 
     % Calcul pourcent choix gauche par type d'essai
     PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),BinIdx(ndxAud&~ndxNan),'mean');
@@ -96,26 +96,34 @@ if Modality==2
     end
     
     % Calcul biais dans la modalite
-    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    ndxModality = SessionData.Custom.AuditoryTrial(1:iTrial);
+    ndxLeftRewd = SessionData.Custom.ChoiceCorrect(1:iTrial) == 1  & SessionData.Custom.ChoiceLeft(1:iTrial) == 1;
+    ndxLeftRewDone = SessionData.Custom.LeftRewarded(1:iTrial)==1 & ~isnan(SessionData.Custom.ChoiceLeft(1:iTrial));
+    ndxRightRewd = SessionData.Custom.ChoiceCorrect(1:iTrial) == 1  & SessionData.Custom.ChoiceLeft(1:iTrial) == 0;
+    ndxRightRewDone = SessionData.Custom.LeftRewarded(1:iTrial)==0 & ~isnan(SessionData.Custom.ChoiceLeft(1:iTrial));
+    Perf.Left = sum(ndxModality & ndxLeftRewd)/sum(ndxModality & ndxLeftRewDone);
+    Perf.Right = sum(ndxModality & ndxRightRewd)/sum(ndxModality & ndxRightRewDone);
+    Perf.Bias = (PerfL-PerfR)/2 + 0.5;
+    %Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     
     % Calcul performance par port de reponse (gauche/droite):
-    Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf.Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+%     Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+%     Perf.Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     
     % Figure perf audition: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
-    plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
+    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
         'MarkerSize',3,'Visible','on');
     
     % Courbe fittee donnees perf 
     plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');
-    plot([-1.6, 1.6],[0.5 0.5],'--','color',[.7,.7 .7]);
-    p=plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
+    plot([min(p.XData)-0.05, max(p.XData)+0.05],[0.5 0.5],'--','color',[.7,.7 .7]);
+    plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
     % Legendes et axes
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([-.05 1.05]);xlim ([-1.6, 1.6]);
+    ylim([-.05 1.05]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
