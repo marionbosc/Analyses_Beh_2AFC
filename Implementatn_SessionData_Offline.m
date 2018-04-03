@@ -58,6 +58,15 @@ if exist('pathname','var')
     end
 end
 
+% Ajout du champ Protocol dans SessionData s'il n'existe pas encore:
+if ~isfield(SessionData,'Protocol')
+    % GUI pour renseigner si enregistrement ou non du dataset cree
+    prompt = {'Bpod protocol = '}; dlg_title = 'Protocol?'; numlines = 1;
+    def = {'Dual2AFC'}; 
+    SessionData.Protocol = cell2mat(inputdlg(prompt,dlg_title,numlines,def)); 
+    clear def dlg_title numlines prompt
+end
+
 % Ajout de l'index manip DayvsWeek pour distinguer les datas par jour
 % ou combinees sur plusieurs jours
 SessionData.DayvsWeek = 1;
@@ -128,7 +137,8 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
             || ~isfield(SessionData.Custom, 'StimulusDuration') ...
             || ~isfield(SessionData.Custom, 'Modality') ... %|| ~isfield(SessionData.Custom, 'TrialTypes') ...     
             || ~isfield(SessionData.Custom, 'SkippedFeedback') ...
-            || ~isfield(SessionData.Custom, 'GracePeriod')
+            || ~isfield(SessionData.Custom, 'GracePeriod')...
+            || ~isfield(SessionData.Custom, 'LeftRewarded')
 
         if isfield(SessionData.Custom,'OdorFracA')
             % Calcul des pourcentages d'odeur utilises pendant la session:
@@ -208,9 +218,24 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
                     end
                 else 
                 end          
-
+                
                 clear statesThisTrial
             end 
+            
+            % Implementation LeftRewarded field is nonexistent
+            if ~isfield(SessionData.Custom, 'LeftRewarded')
+                for iTrial = 1 : SessionData.nTrials
+                    SessionData.Custom.LeftRewarded(iTrial) = NaN;
+                    if length(SessionData.Custom.LeftClickTrain{iTrial}) > length(SessionData.Custom.RightClickTrain{iTrial})
+                        SessionData.Custom.LeftRewarded(iTrial) = 1;
+                    elseif length(SessionData.Custom.LeftClickTrain{iTrial}) < length(SessionData.Custom.RightClickTrain{iTrial})
+                        SessionData.Custom.LeftRewarded(iTrial) = 0;
+                    else
+                        SessionData.Custom.LeftRewarded(iTrial) = rand<0.5;
+                    end
+                end
+            end
+            
         elseif strcmp(SessionData.Protocol, {'Mouse2AFC'})
             for iTrial = 1 : SessionData.nTrials     
                 %% Standard values
