@@ -98,7 +98,7 @@ for manip= 1 : size(pathname,2)
     load([pathname{manip} '/' filename{manip}])
     
     %% Implementation des donnees manquantes pour l'analyse
-    Implementatn_SessionData_Offline
+    SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,manip);
         
     %% Figure analyse donnee journee de manip
     
@@ -167,50 +167,34 @@ for manip= 1 : size(pathname,2)
     if manip == 1
         SessionDataWeek = SessionData;
         SessionDataWeek.Custom.Session = repmat(manip,1,SessionData.nTrials);
-     else
-         SessionDataWeek.Custom.ChoiceLeft = [SessionDataWeek.Custom.ChoiceLeft SessionData.Custom.ChoiceLeft];
-         SessionDataWeek.Custom.ChoiceCorrect = [SessionDataWeek.Custom.ChoiceCorrect SessionData.Custom.ChoiceCorrect];
-         SessionDataWeek.Custom.Feedback = [SessionDataWeek.Custom.Feedback SessionData.Custom.Feedback];
-         SessionDataWeek.Custom.FeedbackTime = [SessionDataWeek.Custom.FeedbackTime SessionData.Custom.FeedbackTime];
-         SessionDataWeek.Custom.FixBroke = [SessionDataWeek.Custom.FixBroke SessionData.Custom.FixBroke];
-         SessionDataWeek.Custom.EarlyWithdrawal = [SessionDataWeek.Custom.EarlyWithdrawal SessionData.Custom.EarlyWithdrawal];
-         SessionDataWeek.Custom.FixDur = [SessionDataWeek.Custom.FixDur SessionData.Custom.FixDur];
-         SessionDataWeek.Custom.MT = [SessionDataWeek.Custom.MT SessionData.Custom.MT];
-         SessionDataWeek.Custom.CatchTrial = [SessionDataWeek.Custom.CatchTrial SessionData.Custom.CatchTrial];
-         SessionDataWeek.Custom.OdorFracA = [SessionDataWeek.Custom.OdorFracA SessionData.Custom.OdorFracA];
-         SessionDataWeek.Custom.OdorID = [SessionDataWeek.Custom.OdorID SessionData.Custom.OdorID];
-         SessionDataWeek.Custom.OdorPair = [SessionDataWeek.Custom.OdorPair SessionData.Custom.OdorPair];
-         SessionDataWeek.Custom.ST = [SessionDataWeek.Custom.ST SessionData.Custom.ST];
-         SessionDataWeek.Custom.Rewarded = [SessionDataWeek.Custom.Rewarded SessionData.Custom.Rewarded];
-         SessionDataWeek.Custom.RewardMagnitude = [SessionDataWeek.Custom.RewardMagnitude SessionData.Custom.RewardMagnitude];
-         SessionDataWeek.Custom.TrialNumber = [SessionDataWeek.Custom.TrialNumber SessionData.Custom.TrialNumber];
-         SessionDataWeek.Custom.AuditoryTrial = [SessionDataWeek.Custom.AuditoryTrial SessionData.Custom.AuditoryTrial];
+        MainFields = fieldnames(SessionData.Custom);
+        % 'RewardMagnitude' ; 'RightClickTrain';'LeftClickTrain';
+    else
+         CustomFields = fieldnames(SessionData.Custom);
+         WeirdFields = {'OdorID';'Rig';'Subject';'PsychtoolboxStartup';'OlfactometerStartup';...
+            'FreqStimulus';'PulsePalParamStimulus';'PulsePalParamFeedback';...
+            'AuditoryOmega';'LeftClickRate';'RightClickRate';'LeftClickTrain';'RightClickTrain'};
+         for field = 1: size (CustomFields,1)
+            if ~any(strcmp(CustomFields{field},WeirdFields)) && any(strcmp(CustomFields{field},MainFields))
+                SessionDataWeek.Custom.(CustomFields{field}) = [SessionDataWeek.Custom.(CustomFields{field}) SessionData.Custom.(CustomFields{field})];
+            end
+         end
+    
          if isfield(SessionDataWeek.Custom,'AuditoryOmega')
-            SessionDataWeek.Custom.AuditoryOmega = [SessionDataWeek.Custom.AuditoryOmega SessionData.Custom.AuditoryOmega];
-            SessionDataWeek.Custom.LeftClickRate = [SessionDataWeek.Custom.LeftClickRate SessionData.Custom.LeftClickRate];
-            SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate];
-            SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain];
-            SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain];
+            SessionDataWeek.Custom.AuditoryOmega = [SessionDataWeek.Custom.AuditoryOmega SessionData.Custom.AuditoryOmega(1:SessionData.nTrials)];
+            SessionDataWeek.Custom.LeftClickRate = [SessionDataWeek.Custom.LeftClickRate SessionData.Custom.LeftClickRate(1:SessionData.nTrials)];
+            SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate(1:SessionData.nTrials)];
+            SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain(1:SessionData.nTrials)];
+            SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain(1:SessionData.nTrials)];
          end
-         SessionDataWeek.Custom.DV = [SessionDataWeek.Custom.DV SessionData.Custom.DV];
-         SessionDataWeek.Custom.StimDelay = [SessionDataWeek.Custom.StimDelay SessionData.Custom.StimDelay];
-         SessionDataWeek.Custom.FeedbackDelay = [SessionDataWeek.Custom.FeedbackDelay SessionData.Custom.FeedbackDelay];
-         SessionDataWeek.Custom.MinSampleAud = [SessionDataWeek.Custom.MinSampleAud SessionData.Custom.MinSampleAud];
-         SessionDataWeek.Custom.MissedChoice = [SessionDataWeek.Custom.MissedChoice SessionData.Custom.MissedChoice];
-         SessionDataWeek.Custom.StimulusDuration = [SessionDataWeek.Custom.StimulusDuration SessionData.Custom.StimulusDuration];
-         SessionDataWeek.Custom.Modality = [SessionDataWeek.Custom.Modality SessionData.Custom.Modality];
-         SessionDataWeek.Custom.TrialTypes = [SessionDataWeek.Custom.TrialTypes SessionData.Custom.TrialTypes];
-         SessionDataWeek.Custom.SkippedFeedback = [SessionDataWeek.Custom.SkippedFeedback SessionData.Custom.SkippedFeedback];
-         if isfield(SessionDataWeek.Custom, 'FeedbackTimeNorm') && isfield(SessionData.Custom, 'FeedbackTimeNorm')
-            SessionDataWeek.Custom.FeedbackTimeNorm = [SessionDataWeek.Custom.FeedbackTimeNorm SessionData.Custom.FeedbackTimeNorm];
+         
+         if isfield(SessionDataWeek.Custom,'OdorID')
+             SessionDataWeek.Custom.OdorID = [SessionDataWeek.Custom.OdorID SessionData.Custom.OdorID];
          end
-         SessionDataWeek.Custom.DVlog = [SessionDataWeek.Custom.DVlog SessionData.Custom.DVlog];
-         SessionDataWeek.Custom.TrialStart = [SessionDataWeek.Custom.TrialStart SessionData.Custom.TrialStart];
-         SessionDataWeek.Custom.GracePeriod = [SessionDataWeek.Custom.GracePeriod SessionData.Custom.GracePeriod];
          SessionDataWeek.Custom.Session = [SessionDataWeek.Custom.Session repmat(manip,1,SessionData.nTrials)];
     end
     
-    clear SessionData
+    clear SessionData CustomFields
 end
 
 SessionDataWeek.DayvsWeek = 2;
