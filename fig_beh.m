@@ -105,9 +105,9 @@ xlabel('Trial number','fontsize',14);hold off;
 
 %%  Composition of the training session (2)
 
-Biais = sum(ndxLeft&ndxCorrect)/sum(ndxCorrect);
-Biais_Olf = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==1)/sum(ndxCorrect&SessionData.Custom.Modality==1);
-Biais_Aud = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==2)/sum(ndxCorrect&SessionData.Custom.Modality==2);
+Bias = sum(ndxLeft&ndxCorrect)/sum(ndxCorrect);
+Bias_Olf = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==1)/sum(ndxCorrect&SessionData.Custom.Modality==1);
+Bias_Aud = sum(ndxLeft&ndxCorrect&SessionData.Custom.Modality==2)/sum(ndxCorrect&SessionData.Custom.Modality==2);
 
 % Figure distribution des essais de la session par Niveaux de difficulte par modalite
 subplot(2,3,2); hold on;
@@ -138,7 +138,7 @@ else
     legend('Auditory trials',...
         'Location','North');
 end
-title({'Trials DV';['Biais aud = ' num2str(Biais_Aud)]},'fontsize',12); % olf = ' num2str(Biais_Olf) ' /
+title({'Trials DV';['Bias aud = ' num2str(Bias_Aud)]},'fontsize',12); % olf = ' num2str(Biasopen _Olf) ' /
 xlabel('DV','fontsize',14);hold off;
 
 %% Distribution des Reward Grace Delay de la session pour verif si grace delay suffisamment long (3)
