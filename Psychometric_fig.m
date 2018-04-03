@@ -40,8 +40,8 @@ if Modality==1
                         SessionData.Custom.ChoiceLeft(ndxOlf)','binomial'),linspace(min(setStim),max(setStim),100),'logit');
     end
     
-    % Calcul biais dans la modalite
-    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    % Calcul Bias dans la modalite
+    Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     
     % Calcul performance par port de reponse (gauche/droite):
     Perf.Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
@@ -60,7 +60,7 @@ if Modality==1
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim (100*[-.05 1.05]);
     title({['Psychometric Olf  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
@@ -95,16 +95,16 @@ if Modality==2
             SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
     end
     
-    % Calcul biais dans la modalite
-    ndxModality = SessionData.Custom.AuditoryTrial(1:iTrial);
-    ndxLeftRewd = SessionData.Custom.ChoiceCorrect(1:iTrial) == 1  & SessionData.Custom.ChoiceLeft(1:iTrial) == 1;
-    ndxLeftRewDone = SessionData.Custom.LeftRewarded(1:iTrial)==1 & ~isnan(SessionData.Custom.ChoiceLeft(1:iTrial));
-    ndxRightRewd = SessionData.Custom.ChoiceCorrect(1:iTrial) == 1  & SessionData.Custom.ChoiceLeft(1:iTrial) == 0;
-    ndxRightRewDone = SessionData.Custom.LeftRewarded(1:iTrial)==0 & ~isnan(SessionData.Custom.ChoiceLeft(1:iTrial));
+    % Calcul Bias dans la modalite
+    ndxModality = SessionData.Custom.AuditoryTrial;
+    ndxLeftRewd = SessionData.Custom.ChoiceCorrect == 1  & SessionData.Custom.ChoiceLeft == 1;
+    ndxLeftRewDone = SessionData.Custom.LeftRewarded==1 & ~isnan(SessionData.Custom.ChoiceLeft);
+    ndxRightRewd = SessionData.Custom.ChoiceCorrect == 1  & SessionData.Custom.ChoiceLeft == 0;
+    ndxRightRewDone = SessionData.Custom.LeftRewarded==0 & ~isnan(SessionData.Custom.ChoiceLeft);
     Perf.Left = sum(ndxModality & ndxLeftRewd)/sum(ndxModality & ndxLeftRewDone);
     Perf.Right = sum(ndxModality & ndxRightRewd)/sum(ndxModality & ndxRightRewDone);
-    Perf.Bias = (PerfL-PerfR)/2 + 0.5;
-    %Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    Perf.Bias = (Perf.Left-Perf.Right)/2 + 0.5;
+    %Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     
     % Calcul performance par port de reponse (gauche/droite):
 %     Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
@@ -125,7 +125,7 @@ if Modality==2
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
@@ -156,8 +156,8 @@ if Modality==3
             SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(BinIdx),max(BinIdx),100),'logit');
     end
     
-    % Calcul biais dans la modalite
-    Perf.Biais = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
+    % Calcul Bias dans la modalite
+    Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
     
     % Calcul performance par port de reponse (gauche/droite):
     Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
@@ -178,7 +178,7 @@ if Modality==3
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([-.05 1.05]);xlim ([-1, 1]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
-        ['Side Bias toward left = ' num2str(round(Perf.Biais,2))];...
+        ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
