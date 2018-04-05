@@ -32,7 +32,7 @@ if isfield(SessionData, 'SessionDate')==0
         dlg_title = filename{manip}(12:end);
     end
     numlines = 1;
-    def = {'17'}; Date = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {'18'}; Date = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt  
     SessionData.SessionDate = Date;
 end
