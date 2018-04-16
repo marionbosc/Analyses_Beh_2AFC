@@ -193,7 +193,15 @@ else
     end
     %% Psyc Auditory (2)
     if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-        [SessionData] = Psychometric_fig(SessionData, 2,2,4,5);
+        if isfield(SessionData.Custom, 'ForcedLEDTrial')
+            if sum(SessionData.Custom.ForcedLEDTrial)>10
+                [SessionData] = Psychometric_fig_ForcedvsChoice(SessionData, 2,2,4,5);
+            else
+                [SessionData] = Psychometric_fig(SessionData, 2,2,4,5);
+            end
+        else
+            [SessionData] = Psychometric_fig(SessionData, 2,2,4,5);
+        end
     end
 end
 
