@@ -74,7 +74,7 @@ SessionData.DayvsWeek = 1;
 %% (2) Ajustement de la taille de chaque champ de Custom
 % Get SessionData.Custom Fieldnames:
 CustomFields = fieldnames(SessionData.Custom);
-WeirdFields = {'RewardMagnitude' ;'OdorID';'Rig';'Subject';'PsychotoolboxStartup';'OlfactometerStartup';...
+WeirdFields = {'RewardMagnitude' ;'GracePeriod';'OdorID';'Rig';'Subject';'PsychotoolboxStartup';'OlfactometerStartup';...
     'LeftClickRate';'RightClickRate';'RightClickTrain';'LeftClickTrain';'FreqStimulus';...
     'PulsePalParamStimulus';'PulsePalParamFeedback'};
 
@@ -88,6 +88,12 @@ for field = 1: size (CustomFields,1)
             SessionData.Custom.RewardMagnitude = SessionData.Custom.RewardMagnitude(:,1:SessionData.nTrials);
         else
             SessionData.Custom.RewardMagnitude = SessionData.Custom.RewardMagnitude(1:SessionData.nTrials,:)';
+        end
+    elseif strcmp(CustomFields{field},'GracePeriod')     
+        if find(max(size(SessionData.Custom.GracePeriod))==size(SessionData.Custom.RewardMagnitude))==50
+            SessionData.Custom.GracePeriod = SessionData.Custom.GracePeriod(:,1:SessionData.nTrials);
+        else
+            SessionData.Custom.GracePeriod = SessionData.Custom.GracePeriod(1:SessionData.nTrials,:)';
         end
     elseif strcmp(CustomFields{field},'LeftClickRate')
         if find(max(size(SessionData.Custom.LeftClickRate))==size(SessionData.Custom.LeftClickRate))==2
