@@ -84,13 +84,13 @@ for field = 1: size (CustomFields,1)
     if ~any(strcmp(CustomFields{field},WeirdFields)) && size(SessionData.Custom.(CustomFields{field}),2)>=SessionData.nTrials
         SessionData.Custom.(CustomFields{field}) = SessionData.Custom.(CustomFields{field})(1:SessionData.nTrials);
     elseif strcmp(CustomFields{field},'RewardMagnitude')
-        if find(max(size(SessionData.Custom.RewardMagnitude))==size(SessionData.Custom.RewardMagnitude))==2
+        if find(size(SessionData.Custom.RewardMagnitude)==2)==1
             SessionData.Custom.RewardMagnitude = SessionData.Custom.RewardMagnitude(:,1:SessionData.nTrials);
         else
             SessionData.Custom.RewardMagnitude = SessionData.Custom.RewardMagnitude(1:SessionData.nTrials,:)';
         end
     elseif strcmp(CustomFields{field},'GracePeriod')     
-        if find(max(size(SessionData.Custom.GracePeriod))==size(SessionData.Custom.RewardMagnitude))==50
+        if find(size(SessionData.Custom.GracePeriod)==50)==1  
             SessionData.Custom.GracePeriod = SessionData.Custom.GracePeriod(:,1:SessionData.nTrials);
         else
             SessionData.Custom.GracePeriod = SessionData.Custom.GracePeriod(1:SessionData.nTrials,:)';
