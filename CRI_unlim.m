@@ -16,7 +16,7 @@
 %
 
 
-function [DV_pctile,AUC,Perf_per_bin]=CRI_unlim(Modality, nbBin, Figornot, Nom_dataset, varargin)
+function [DV_pctile,AUC,Perf_per_bin,AUCnorm]=CRI_unlim(Modality, nbBin, Figornot, Nom_dataset, varargin)
 %% Assess the number of dataset to include into the analysis:
 nb_dataset = size(varargin,2);
 
@@ -155,6 +155,10 @@ for dataset = 1:nb_dataset
             end
         end        
     end
+    
+    % Computation of normalized (rescaled) AUC:
+    AUCnorm(dataset,:) = (AUC(dataset,:) - min(AUC(dataset,:)))/(1-min(AUC(dataset,:)));       
+    
     clear ndx* BinIdx D F
 end
 
@@ -248,20 +252,33 @@ if Figornot
     % Plot Confidence Report Index for every condition per bin of difficulty
     subplot(2,3,4); hold on;
     for dataset = 1:nb_dataset
-        AUCnorm = (AUC(dataset,:) - min(AUC(dataset,:)))/(1-min(AUC(dataset,:)));
+        if Modality ==1 % Olfactory trials
+            plot(idx_DV(dataset,:),AUC,'-','Linewidth',1.4);
+        else % Auditory trials
+            plot(DV_pctile(dataset,1:end-1),AUC,'-','Linewidth',1.4);
+        end
+    end
+    xlabel('-log(DV)','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
+    legend(Nom_dataset,'Location','Northwest');
+    title('Lesion impact on Confidence Report Index',...
+            'fontsize',12);
+        
+    % Plot Confidence Report Index for every condition per bin of difficulty
+    subplot(2,3,5); hold on;
+    for dataset = 1:nb_dataset
         if Modality ==1 % Olfactory trials
             plot(idx_DV(dataset,:),AUCnorm,'-','Linewidth',1.4);
         else % Auditory trials
             plot(DV_pctile(dataset,1:end-1),AUCnorm,'-','Linewidth',1.4);
         end
     end
-    xlabel('DV','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
+    xlabel('-log(DV)','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
     legend(Nom_dataset,'Location','Northwest');
     title('Lesion impact on Confidence Report Index',...
             'fontsize',12);
 
     % Plot Confidence Report Index for every condition per success rate (of each analysed bin)
-    subplot(2,3,5); hold on;
+    subplot(2,3,6); hold on;
     for dataset = 1:nb_dataset
         plot(Perf_per_bin(dataset,:),AUC(dataset,:),'-','Linewidth',1.4);
     end
