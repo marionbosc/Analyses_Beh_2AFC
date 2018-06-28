@@ -21,9 +21,9 @@ if Modality == 1
 elseif Modality ==2
     Sensory_Modality = 'Auditory';
     % Limites plot figures
-    xlimL = [0 1.5]; xlimR = [-1.5 0];
-    xmin = -1.6; xmax = 1.6;
-    xlabel = '-log(DV)';
+    xlimL = [0 1]; xlimR = [-1 0];
+    xmin = -1; xmax = 1;
+    xlabel = 'Binaural contrast';
 elseif Modality == 3
     Sensory_Modality = 'Auditory';
     % Limites plot figures
@@ -42,9 +42,9 @@ if Modality ==1
     DV = SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft));
     ndxModality = SessionData.Custom.Modality==Modality;
 elseif Modality ==2
-    DV = SessionData.Custom.DVlog(1:numel(SessionData.Custom.ChoiceLeft));
+    DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
     % Calculs Bins de difficulte
-    BinIdx = discretize(DV,linspace(-1.6,1.6,nbBin+1));
+    BinIdx = discretize(DV,linspace(-1,1,nbBin+1));
     ndxModality = SessionData.Custom.Modality==Modality;
 elseif Modality == 3
     DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
@@ -80,12 +80,12 @@ if Modality ==1 || Modality == 3
 elseif Modality == 2
     % Long WT
     PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*3.2-1.6-1/nbBin;
+    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*2-1-1/nbBin;
     PsycX_L = PsycX(~isnan(PsycX));
 
     % Short WT
     PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*3.2-1.6-1/nbBin;
+    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*2-1-1/nbBin;
     PsycX_S = PsycX(~isnan(PsycX));    
 end
 

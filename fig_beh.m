@@ -119,7 +119,7 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
 end
 if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
     yyaxis right
-    h2 = histogram(SessionData.Custom.DVlog(SessionData.Custom.Modality==2),'BinWidth',0.01,...
+    h2 = histogram(SessionData.Custom.DV(SessionData.Custom.Modality==2),'BinWidth',0.01,...
        'FaceColor','w','EdgeColor',[1 0.5 0.2]);
     ylabel('Auditory trial counts','fontsize',14);
 end

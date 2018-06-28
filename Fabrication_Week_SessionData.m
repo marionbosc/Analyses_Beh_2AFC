@@ -15,7 +15,7 @@
 %
 
 %% Recup donnee animal a analyser
-pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Dual2AFC';
+pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
 cd(pathdatalocal);
 prompt = {'Nom= '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; Nom = char(inputdlg(prompt,dlg_title,numlines,def)); 
@@ -23,7 +23,7 @@ clear def dlg_title numlines prompt
 
 %% Suite
 prompt = {'N = '}; dlg_title = 'Nombre de manips'; numlines = 1;
-def = {'4'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+def = {'5'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
 clear def dlg_title numlines prompt  
 
 for jour = 1:N
@@ -117,7 +117,7 @@ for manip= 1 : size(pathname,2)
     if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
         if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
             % Plus de 10% d'essais olf et Plus de 10% d'essais audit
-            if exist([SessionData.filename(1:end-4) 'Cfdce.png'],'file')~=2
+            if exist([SessionData.filename(1:end-4) 'Cfdce.png'],'file')~=2 && sum(SessionData.Custom.CatchTrial)>10
                 Cfdce = fig_beh_Cfdce_bimodality(SessionData);  % Analyse confidence both modality
                 FigurePathCfdce = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Cfdce.png']);
                 saveas(Cfdce,FigurePathCfdce,'png'); faireunepause = true;
@@ -135,7 +135,7 @@ for manip= 1 : size(pathname,2)
                 end
             end
         else % Plus de 10% d'essais olf et moins de 10% d'essais audit 
-            if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
+            if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2  && sum(SessionData.Custom.CatchTrial)>10
                 CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analyse confidence Olf only
                 FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
                 saveas(CfdceOlf,FigurePathCfdceOlf,'png'); faireunepause = true;
@@ -143,7 +143,7 @@ for manip= 1 : size(pathname,2)
         end
     elseif sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
         % Moins de 10% d'essais olf mais Plus de 10% d'essais audit
-        if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
+        if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2 && sum(SessionData.Custom.CatchTrial)>10
             CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analyse confidence Aud only
             FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
             saveas(CfdceAud,FigurePathCfdceAud,'png'); faireunepause = true;

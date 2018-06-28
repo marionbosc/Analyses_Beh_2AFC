@@ -58,7 +58,7 @@ if Modality==1
     p=plot([50 50],[0 105],'--','color',[.7,.7 .7]);
     % Legendes et axes
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([-.05 1.05]);xlim (100*[-.05 1.05]);
+    ylim([0 1]);xlim (100*[-.05 1.05]);
     title({['Psychometric Olf  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
@@ -72,19 +72,24 @@ end
 %% Psyc Auditory modality
 if Modality==2
     % Recup DV essais audit
-    AudDV = SessionData.Custom.DVlog(1:numel(SessionData.Custom.ChoiceLeft));
+    AudDV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
     % Index essais audit
     ndxAud = SessionData.Custom.Modality==Modality;
     % Index essais sans reponse (ChoiceLeft = NaN)
     ndxNan = isnan(SessionData.Custom.ChoiceLeft);
-    % Calculs Bins de difficulte
-    AudBin = 12;
-    BinIdx = discretize(AudDV,linspace(min(AudDV),max(AudDV),AudBin+1));
-
-    % Calcul pourcent choix gauche par type d'essai
-    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),BinIdx(ndxAud&~ndxNan),'mean');
-    PsycX = unique(BinIdx(ndxAud&~ndxNan))/AudBin*3.2-1.6-1/AudBin;
-    PsycX = PsycX(~isnan(PsycX));
+    
+    if isfield(SessionData.Settings.GUI, 'AuditoryTrialSelection') && SessionData.Settings.GUI.AuditoryTrialSelection==2
+        % Calcul pourcent choix gauche par type d'essai
+        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),SessionData.Custom.AuditoryOmega(ndxAud&~ndxNan),'mean');
+        PsycX = grpstats(SessionData.Custom.DV(ndxAud&~ndxNan),SessionData.Custom.AuditoryOmega(ndxAud&~ndxNan),'mean');
+    else
+        AudBin = 8;
+        BinIdx = discretize(AudDV,linspace(min(AudDV),max(AudDV),AudBin+1));
+        % Calcul pourcent choix gauche par type d'essai
+        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),BinIdx(ndxAud&~ndxNan),'mean');
+        PsycX = unique(BinIdx(ndxAud&~ndxNan))/AudBin*2-1-1/AudBin;
+        PsycX = PsycX(~isnan(PsycX));
+    end
 
     % Donnees plot (courbe fit points)
     PsycAud.YData = PsycY;
@@ -123,13 +128,13 @@ if Modality==2
     plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
     % Legendes et axes
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([-.05 1.05]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
+    ylim([0 1]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
-    xlabel('-log(DV)','fontsize',14);ylabel('% left','fontsize',14);hold off;
+    xlabel('Binaural contrast','fontsize',14);ylabel('% left','fontsize',14);hold off;
 
 %     clear ndx* Psyc* Aud* BinIdx
     clearvars -except SessionData Modality Perf
@@ -176,7 +181,7 @@ if Modality==3
     p=plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
     % Legendes et axes
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([-.05 1.05]);xlim ([-1, 1]);
+    ylim([0 1]);xlim ([-1, 1]);
     title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...

@@ -21,9 +21,9 @@ if Modality == 1
 elseif Modality ==2
     Sensory_Modality = 'Auditory';
     % Limites plot figures
-    xlimL = [0 1.5]; xlimR = [-1.5 0];
-    xmin = -1.6; xmax = 1.6;
-    xlabel = '-log(DV)';
+    xlimL = [0 1]; xlimR = [-1 0];
+    xmin = -1; xmax = 1;
+    xlabel = 'Binaural contrast';
     Frequency = 0;
 elseif Modality == 3
     Sensory_Modality = 'Auditory';
@@ -54,8 +54,8 @@ if sum(ndxError&ndxMinWT&ndxModality&ndxLeft)>9 || sum(ndxError&ndxMinWT&ndxModa
         DVerrRight = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
     elseif Modality ==2
         if Frequency ==0
-            DVerrLeft = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
-            DVerrRight = SessionData.Custom.DVlog(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
+            DVerrLeft = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
+            DVerrRight = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
         else
             DVerrLeft = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxRight); % Recup DV essais erreur pointage a gauche
             DVerrRight = SessionData.Custom.DV(ndxError&ndxMinWT&ndxModality&ndxLeft); % recup DV essais erreur pointage a droite
@@ -116,8 +116,8 @@ if sum(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft)>10 || sum(ndxCorrectCatch&n
         DVcatchRight = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
     elseif Modality ==2
         if Frequency ==0
-            DVcatchLeft = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
-            DVcatchRight = SessionData.Custom.DVlog(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
+            DVcatchLeft = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
+            DVcatchRight = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
         else
             DVcatchLeft = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft); % recup DV essais catch pointage a gauche
             DVcatchRight = SessionData.Custom.DV(ndxCorrectCatch&ndxMinWT&ndxModality&ndxRight); % recup DV essais catch pointage a droite
