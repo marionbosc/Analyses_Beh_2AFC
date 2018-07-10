@@ -21,7 +21,8 @@ for manip= 1 : size(pathname,2)
         end
     end
     
-    plot(SessionData.Custom.TrialStart,SessionData.Custom.TrialNumber,'color',rand(1,3)) 
+    %plot(SessionData.Custom.TrialStart,SessionData.Custom.TrialNumber,'color',rand(1,3))
+    plot(SessionData.Custom.TrialStart,SessionData.Custom.TrialNumber)
     
     Tot_essais(manip) = SessionData.Custom.TrialNumber(end);
     Lasttrialtime(manip) = SessionData.Custom.TrialStart(end);
@@ -31,11 +32,14 @@ for manip= 1 : size(pathname,2)
 end
 
 temps_min= datetime(0*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
-temps_max = datetime(4*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
+temps_max = datetime(3*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
 
 title(['Nb of trials executed throughout session - ' Nom],'fontsize',12);
 xlim ([temps_min temps_max]);
-ylabel('Number of executed trials','fontsize',16);xlabel('Time from session start','fontsize',16);hold off;
+ylabel('Number of executed trials','fontsize',16);xlabel('Time from session start','fontsize',16);
+leg = legend('Mon','Tues','Wed','Thur','Fri','Location','SouthEast');
+leg.FontSize = 10; legend('boxoff');
+hold off;
 
 % Scatterplot et correlation entre duree session et nb d'essai
 [r, p] = corrcoef(LasttrialtimeSec,Tot_essais);
@@ -48,8 +52,8 @@ title({['Correlation: r = ' num2str(round(r(2),2)) ' / p = '  num2str(round(p(2)
 
 
 %% Skipped Correct FB
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = '~SessionData.Custom.Feedback&~SessionData.Custom.CatchTrial&SessionData.Custom.ChoiceCorrect==1';
 id_Total_code = '~SessionData.Custom.CatchTrial&SessionData.Custom.ChoiceCorrect==1';
 type_variable = 'ratio';
@@ -59,8 +63,8 @@ Titre_parametre_analyse ='Skipped Correct Feedback (%)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% Correct trials
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
@@ -70,8 +74,8 @@ Titre_parametre_analyse =' Correct trials (%)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% EWD trials
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = 'SessionData.Custom.EarlyWithdrawal==1;';
 id_Total_code = 'SessionData.Custom.FixBroke==0 ';
 bin_size = 100;
@@ -81,8 +85,8 @@ Titre_parametre_analyse =' EWD trials (%)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% WT Correct trials
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
@@ -114,8 +118,8 @@ Titre_parametre_analyse =' FB Waiting Time correct catched trials (s)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% RT Correct trials
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
@@ -125,8 +129,8 @@ Titre_parametre_analyse =' Sampling Time correct trials (s)';
 fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 %% RT Error trials
-load('AllDatafilename_171114_1129.mat')
-load('AllDatapathname_171114_1129.mat')
+load('AllDatafilename_180611_0615.mat')
+load('AllDatapathname_180611_0615.mat')
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;

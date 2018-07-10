@@ -123,10 +123,10 @@ ciplot(PsycFit_L.YData-CILow_L,PsycFit_L.YData+CIHigh_L,PsycFit_L.XData,'b',0.3)
 plot(PsycFit_S.XData,PsycFit_S.YData,'color','m','Visible','on');
 ciplot(PsycFit_S.YData-CILow_S,PsycFit_S.YData+CIHigh_S,PsycFit_S.XData,'m',0.3);
 plot([xmin, xmax],[0.5 0.5],'--','color',[.7,.7 .7]);
-p = plot([xmin+(xmax-xmin)/2 xmin+(xmax-xmin)/2],[-.05 1.05],'--','color',[.7,.7 .7]);
+p = plot([xmin+(xmax-xmin)/2 xmin+(xmax-xmin)/2],[0 1],'--','color',[.7,.7 .7]);
 p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
 % Legendes et axes
-ylim([-.05 1.05]);
+ylim([0 1]);
 xlim ([xmin, xmax]);
 leg = legend(['Long WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT))],'Location','SouthEast');
 title({['Psychometric ' Sensory_Modality  ' ' TitleExtra]; [num2str(Percentile) 'th percentile catch trials WT = ' num2str(round(Percentile_WT,2))]},'fontsize',12);

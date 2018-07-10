@@ -95,6 +95,7 @@ for manip= 1 : size(pathname,2)
     %% Concatenation des donnees
     if manip == 1
         SessionDatasets = SessionDataWeek;
+        SessionDatasets.Custom.Subject = repmat(Nom(manip),1,SessionDataWeek.nTrials);
      else
          SessionDatasets.Custom.ChoiceLeft = [SessionDatasets.Custom.ChoiceLeft SessionDataWeek.Custom.ChoiceLeft];
          SessionDatasets.Custom.ChoiceCorrect = [SessionDatasets.Custom.ChoiceCorrect SessionDataWeek.Custom.ChoiceCorrect];
@@ -134,7 +135,7 @@ for manip= 1 : size(pathname,2)
          end
          SessionDatasets.Custom.DVlog = [SessionDatasets.Custom.DVlog SessionDataWeek.Custom.DVlog];
          SessionDatasets.Custom.TrialStart = [SessionDatasets.Custom.TrialStart SessionDataWeek.Custom.TrialStart];
-         SessionDatasets.Custom.GracePeriod = [SessionDatasets.Custom.GracePeriod SessionDataWeek.Custom.GracePeriod];
+         %SessionDatasets.Custom.GracePeriod = [SessionDatasets.Custom.GracePeriod SessionDataWeek.Custom.GracePeriod];
          SessionDatasets.Custom.Session = [SessionDatasets.Custom.Session SessionDataWeek.Custom.Session+max(SessionDatasets.Custom.Session)];
          SessionDatasets.Custom.Subject = [SessionDatasets.Custom.Subject repmat(Nom(manip),1,SessionDataWeek.nTrials)];
     end

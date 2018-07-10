@@ -36,20 +36,25 @@ end
 % Bias_Taconic = [Bias_Taconic; Perf(:).Bias];
 
 if manip<12
-    Perf_Harlan = [Perf_Harlan; Perf.globale NaN(1,12-manip)];
-    Bias_Harlan = [Bias_Harlan; Perf.Bias NaN(1,12-manip)];
+    Perf_CharlesRiver = [Perf_CharlesRiver; Perf.globale NaN(1,12-manip)];
+    Bias_CharlesRiver = [Bias_CharlesRiver; Perf.Bias NaN(1,12-manip)];
 else
-    Perf_Harlan = [Perf_Harlan; Perf(:).globale];
-    Bias_Harlan = [Bias_Harlan; Perf(:).Bias];
+    Perf_CharlesRiver = [Perf_CharlesRiver; Perf(:).globale];
+    Bias_CharlesRiver = [Bias_CharlesRiver; Perf(:).Bias];
 end
 
+% if manip<8    
+%     Perf_Souris = [Perf_Souris; Perf.globale NaN(1,8-manip)];
+% else
+%     Perf_Souris = [Perf_Souris; Perf(:).globale];
+% end
 %% Menage:
-clearvars -except Perf_Taconic Bias_Taconic Perf_Harlan Bias_Harlan
+clearvars -except Perf_* Bias_*
 
 %% Representation de la learning curve et du biais au fur et à mesure des sessions:
 
-Mean_Perf_Harlan = nanmean(Perf_Harlan,1);
-SEM_Perf_Harlan = nanstd(Perf_Harlan,1)./sqrt(size(Perf_Harlan,1));
+Mean_Perf_CharlesRiver = nanmean(Perf_CharlesRiver,1);
+SEM_Perf_CharlesRiver = nanstd(Perf_CharlesRiver,1)./sqrt(size(Perf_CharlesRiver,1));
 Mean_Perf_Taconic = nanmean(Perf_Taconic,1);
 SEM_Perf_Taconic = nanstd(Perf_Taconic,1)./sqrt(size(Perf_Taconic,1));
 
