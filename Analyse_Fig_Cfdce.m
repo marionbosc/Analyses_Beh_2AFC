@@ -1,18 +1,34 @@
+%% Script to plot the Psychometric and the Confidence Signatures for one sensory modality
+%
+% Input:
+% - Data structure (SessionData or SessionDataWeek or SessionDatasets)
+% - Sensory modality to analyse (1 = olfactory / 2 = auditory click task /
+% 3 = auditory frequency task)
+%
+% Output:
+% - Plot: 
+%   (1) Psychometric
+%   (2) Vevaiometric
+%   (3) Calibration curve (Accuracy per WT)
+%   (4) Conditioned psychometric (short vs long WT)
+% - Perf: Structure containing session accuracy and other informations (see Psychometric_fig.m for more details)
+%
+%
 
 function [f2,Perf]=Analyse_Fig_Cfdce(SessionData, Modality)
 %% Figure:
 
 f2=figure('units','normalized','position',[0,0,0.5,1]);
 
-%% Psychometric performance (1)
+%% (1) Psychometric  
 try
     [SessionData,Perf] = Psychometric_fig(SessionData, Modality,2,2,1);
 end
-%% Vevaiometric (2)
+%% (2) Vevaiometric 
 try
     Vevaiometric_fig(SessionData, Modality,2,2,2);
 end
-%% PerfperWT (3)
+%% (3) Calibration curve (Accuracy per WT) 
 
 if SessionData.DayvsWeek == 1
     try
@@ -24,7 +40,7 @@ else
     end
 end
 
-%% Psychometric Sh vs Lg WT (4)
+%% (4) Conditioned psychometric (short vs long WT)
 
 if SessionData.DayvsWeek == 2
     try
@@ -32,4 +48,3 @@ if SessionData.DayvsWeek == 2
     end
 end
 
-%% A implementer: Confidence Report Index
