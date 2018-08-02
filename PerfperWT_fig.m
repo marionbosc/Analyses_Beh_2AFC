@@ -1,67 +1,70 @@
 %% f(WT) = accuracy for catch trials only 
 %
 % Input:
-% - Dataset --> SessionData
-% - Minimum WT (in sec)
+% - Dataset (SessionData or SessionDataWeek or SessionDatasets)
+% - Minimum WT taken into account for the analysis (in sec)
 % - WT data raw (0) or normalized per session (1)
-% - Coordonnees subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
-% - Extra text in the title
+% - Coordinates subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
+% - Extra text in the title of the plot
 % - Statistic (1) or not (0)
-% - Modality (1) Olfactory (2) Auditory
+% - Sensory modality to analyse (1 = olfactory / 2 = auditory click task /
+% 3 = auditory frequency task)
 %
 %
 
 function PerfperWT_fig(SessionData, BorneMin, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Statornot,Modality)
-%% Modalite
+%% Sensory modality
 if Modality ==3
     Modality = 2;
 end
 
-%% Analyse et figure
+%% Analysis 
+% Trials index
 ndxNan = isnan(SessionData.Custom.ChoiceCorrect);
 ndxModality = SessionData.Custom.Modality== Modality;
 ndxCatch = SessionData.Custom.CatchTrial==1 & SessionData.Custom.FeedbackTime>BorneMin;
 
-% Modalite sensorielle analysee
+% Sensory modality analysed
 if Modality == 1
     Sensory_Modality = 'Olfactory';
 elseif Modality ==2
     Sensory_Modality = 'Auditory';
 end
 
-% Recup WT
-if NormorNot == 1
+% WT data retrieval
+if NormorNot == 1  && isfield(SessionData.Custom, 'FeedbackTimeNorm')% Case WT normalized over session 
     BorneMin = min(SessionData.Custom.FeedbackTimeNorm(ndxCatch&ndxModality));
     BorneMax = max(SessionData.Custom.FeedbackTimeNorm(ndxCatch&ndxModality));  
     xlabel = 'Normalized WT (s)';  
-else
+else % Case raw WT
     BorneMax = round(max(SessionData.Custom.FeedbackTime(ndxCatch&ndxModality)));
     xlabel = 'WT (s)';
 end
 
-% Fabrication de bin
+% WT Bins
 Xdata = round(BorneMin):1:round(BorneMax);
 nbBin = size(Xdata,2);
-if NormorNot == 1
+if NormorNot == 1 && isfield(SessionData.Custom, 'FeedbackTimeNorm')
     BinWT = round(BorneMin)-0.5+discretize(SessionData.Custom.FeedbackTimeNorm,linspace(BorneMin,BorneMax,nbBin+1));
 else
     BinWT = round(BorneMin)-0.5+discretize(SessionData.Custom.FeedbackTime,linspace(BorneMin,BorneMax,nbBin+1));
 end
 
-% Calcul pourcent choix correct par type d'essai
+% Accuracy per bin
 Perf_id = SessionData.Custom.ChoiceCorrect(ndxCatch&~ndxNan&ndxModality);
 BinWT_id = BinWT(ndxCatch&~ndxNan&ndxModality);
 [PsycY, semY,PsycX] = grpstats(Perf_id,BinWT_id,{'mean','sem','gname'});
-PsycX = str2double(PsycX)';% PsycX = unique(BinWT(ndxCatch&~ndxNan&ndxModality));
-% PsycX = PsycX(~isnan(PsycX));
+PsycX = str2double(PsycX)';
 
-% Reorg des donnees pour stat
-X_binWT =  BinWT_id(~isnan(BinWT_id)&~isnan(Perf_id))';
-Y_perf = Perf_id(~isnan(BinWT_id)&~isnan(Perf_id))';
-
-% Stat: one-way ANOVA time
+% Stat: 
 if Statornot==1
+    % Reorg data for statistic analysis
+    X_binWT =  BinWT_id(~isnan(BinWT_id)&~isnan(Perf_id))';
+    Y_perf = Perf_id(~isnan(BinWT_id)&~isnan(Perf_id))';
+    
+    % One-way ANOVA
     [p,~,stat] =anova1(Y_perf,X_binWT,'off');
+    
     % Post-hoc
     if p<0.05
         c=multcompare(stat,'Alpha',0.05,'CType','bonferroni','Display','off');
@@ -70,6 +73,7 @@ if Statornot==1
             post_hoc_res = '*';
             X1 = PsycX(c(signif_idx,1));
             X2 = PsycX(c(signif_idx,2));
+            % Significancy stars
             for s=1:size(signif_idx)
                 star{s} = nr2M_etoilesignif((c(signif_idx(s),6)));
             end
@@ -86,23 +90,26 @@ elseif Statornot==0
     Stat_title = '';
 end
 
+%% Plot 
 subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
+% left axis: Accuracy per bin of WT
 yyaxis left
 e = errorbar(PsycX,PsycY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
 'MarkerSize',6,'Visible','on');
-%e.Parent.XAxis.FontSize = 10; e.Parent.YAxis.FontSize = 10;
 e.Parent.XLabel.String = xlabel;e.Parent.YLabel.String = 'Accuracy';
 e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14;
 ylim([0 1.2]); %xlim([round(BorneMin)-0.5 round(BorneMax)+0.5]);
+% stat result displaying
 if Statornot==1 && ~isempty(signif_idx)
     for i = 1:size(X1,2)
         plot([X1(i) X2(i)],[1.18-(i*0.03) 1.18-(i*0.03)],'k','LineStyle','-','Marker','+');
         text ((X1(i)+X2(i))/2,1.18-(i*0.03)+0.01,star(i),'fontsize',14);
     end
 end
+% right axis: amount of trial per bin of WT
 yyaxis right
 h=histogram(BinWT_id,'BinWidth',1); %
-h.FaceAlpha = 0.2; %h.BinEdges=PsycX-0.5;
+h.FaceAlpha = 0.2; 
 h.Parent.YLabel.String = 'Trials count';h.Parent.YLabel.FontSize = 14;
 h.Parent.YLabel.Rotation=270; 
 h.Parent.XAxis(1).Limits(1) = min(h.BinEdges)-0.5;
