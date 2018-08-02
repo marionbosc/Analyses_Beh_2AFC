@@ -173,12 +173,12 @@ if Modality==3
     
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
-    % points Perf/DV
+    % Data points
     plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
         'MarkerSize',3,'Visible','on');    
     % Fitting curve
     plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');
-    % Legendes et axes
+    % Legends et axis
     plot([-1, 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([0 0],[0 1],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;

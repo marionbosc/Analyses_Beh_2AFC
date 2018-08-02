@@ -43,7 +43,7 @@ elseif Modality == 3
     Modality = 2;
 end
 
-% Plot: f(DV)=WT
+% Plot localisation in the subplot
 subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 Plot_displayed = 0;
 

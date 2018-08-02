@@ -1,20 +1,26 @@
-%% f(WT) = accuracy for catch trials only 
+%% Script to plot the conditioned psychometric curves: Short WT vs Long WT Psychometrics
+%
 %
 % Input:
-% - Dataset --> SessionData
-% - Sensory modality : 1 = Olfactory / 2 = Auditory --> Modality
-% - WT data raw (0) or normalized per session (1)
+% - Dataset (SessionData or SessionDataWeek or SessionDatasets)
+% - Sensory modality to analyse (1 = olfactory / 2 = auditory click task /
+% 3 = auditory frequency task)
+% - Analysis done on raw WT data  (0) or WT data normalized per session (1)
 % - Coordinates subplot (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
-% - Extra text in the title
-% - Percentile used to determine Short vs Long WT
-% - Nb of bin to discretize data (Auditory click task only)
+% - Extra text in the title of the plot
+% - Percentile threshold  to use to determine Short vs Long WT
+% - Option: Nb of bin to discretize data (needed for auditory click task with continuous DV only)
+%
 %
 
 function ShvsLgWT_fig(SessionData, Modality, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Percentile,nbBin)
-%% Plot settings related to the sensory modality:
-% - Sensory modality name in the fig title
-% - Plot X axis boundaries
-% - X axis label
+%% Plot settings:
+% default number of DV bin 
+if ~exist('nbBin','var')
+    nbBin=8;
+end
+
+% Axis limits and label
 if Modality == 1
     Sensory_Modality = 'Olfactory';
     xlimL = [0 1]; xlimR = [-1 0]; 
@@ -32,30 +38,21 @@ elseif Modality == 3
     xlabel = 'DV';
 end
 
-% Figure vevaiometric f(DV)=WT
+% Plot localisation in the subplot
 ShvsLg = subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 
 %% Data retrieval
 
-% DV data 
-if Modality ==1
-    DV = SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft));
-    ndxModality = SessionData.Custom.Modality==Modality;
-elseif Modality ==2
-    DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
-    % Difficulty binning (for continuous DV)
-    BinIdx = discretize(DV,linspace(-1,1,nbBin+1));
-    ndxModality = SessionData.Custom.Modality==Modality;
-elseif Modality == 3
-    DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
-    ndxModality = SessionData.Custom.Modality==2;
-end
-
 % Trials index  
 ndxNan = isnan(SessionData.Custom.ChoiceLeft); % unanswered trials 
 ndxCatch = SessionData.Custom.CatchTrial; % Catch trials
+if Modality ==3 % case auditory frequency task
+    ndxModality = SessionData.Custom.Modality==2;
+else % case olfactory or auditory click task
+    ndxModality = SessionData.Custom.Modality==Modality;
+end
 
-% WT data:
+% WT data --> Short vs Long population of trials
 if NormorNot == 1 % Normalized WT
     Percentile_WT = prctile(SessionData.Custom.FeedbackTimeNorm(ndxModality&ndxCatch),Percentile);
     ndxlongWT = SessionData.Custom.FeedbackTimeNorm>Percentile_WT;
@@ -68,6 +65,12 @@ end
 
 % Computatn probability of Left choice for each trial type (short vs long WT)
 if Modality ==1 || Modality == 3 % for olfactory or tone cloud auditory discrimination (discrete DV)
+    % DV data retrieval
+    if Modality == 1
+        DV = SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft));
+    elseif Modality == 3
+        DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
+    end
     % Long WT
     PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
     PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT));
@@ -77,16 +80,29 @@ if Modality ==1 || Modality == 3 % for olfactory or tone cloud auditory discrimi
     PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
     PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT));
     PsycX_S = PsycX(~isnan(PsycX)); % Suppress NaN values
-elseif Modality == 2 % for click train auditory discrimination (continuous DV)
-    % Long WT
-    PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*2-1-1/nbBin;
-    PsycX_L = PsycX(~isnan(PsycX)); % Suppress NaN values
-
-    % Short WT
-    PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-    PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*2-1-1/nbBin;
-    PsycX_S = PsycX(~isnan(PsycX)); % Suppress NaN values  
+elseif Modality == 2 % for click train auditory discrimination 
+    % DV data retrieval
+    DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
+    % Case DV selection was discrete
+    if  isfield(SessionData.Settings.GUI, 'AuditoryTrialSelection') && SessionData.Settings.GUI.AuditoryTrialSelection==2 
+        % Long WT
+        PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
+        PsycX_L = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
+        % Short WT
+        PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
+        PsycX_S = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
+    else % Case DV selection was continuous
+        % Binning of DV data
+        BinIdx = discretize(DV,linspace(-1,1,nbBin+1));
+        % Long WT
+        PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
+        PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*2-1-1/nbBin;
+        PsycX_L = PsycX(~isnan(PsycX)); % Suppress NaN values
+        % Short WT
+        PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
+        PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*2-1-1/nbBin;
+        PsycX_S = PsycX(~isnan(PsycX)); % Suppress NaN values  
+    end
 end
 
 % Plot data --> fitting curve
