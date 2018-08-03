@@ -26,7 +26,7 @@ try
 end
 %% (2) Vevaiometric 
 try
-    Vevaiometric_fig(SessionData, Modality,2,2,2);
+    Vevaiometric_fig(SessionData, Modality,2,2,2,1);
 end
 %% (3) Calibration curve (Accuracy per WT) 
 
@@ -44,7 +44,7 @@ end
 
 if SessionData.DayvsWeek == 2
     try
-        ShvsLgWT_fig(SessionData, Modality, 0,2,2,4,SessionData.Custom.Subject,70,8);
+        ShvsLgWT_fig(SessionData, Modality, 0,2,2,4,'',70,8);
     end
 end
 

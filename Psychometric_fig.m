@@ -53,6 +53,16 @@ if Modality==1
     Perf.left_lapserate = 100 - round(Psyc(end)*100,1);
     Perf.right_lapserate = round(Psyc(1)*100,1);
     
+    % Subject name:
+    NameSubject = unique(SessionData.Custom.Subject);
+    if size(NameSubject,2)>1
+        Names = [];
+        for animal = 1:size(NameSubject,2)
+            Names = [Names char(NameSubject(animal))];
+        end
+        NameSubject =  Names;
+    end
+    
     % plot: f(% Odor A) = % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % Points 
@@ -64,7 +74,7 @@ if Modality==1
     p=plot([50 50],[0 105],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([0 1]);xlim (100*[0 1]);
-    title({['Psychometric Olf  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
+    title({['Psychometric Olf  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
@@ -118,6 +128,15 @@ if Modality==2
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
+    % Subject name:
+    NameSubject = unique(SessionData.Custom.Subject);
+    if size(NameSubject,2)>1
+        Names = [];
+        for animal = 1:size(NameSubject,2)
+            Names = [Names char(NameSubject(animal))];
+        end
+        NameSubject =  Names;
+    end
     
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
@@ -131,7 +150,7 @@ if Modality==2
     plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([0 1]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
-    title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
+    title({['Psychometric Aud  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
@@ -171,6 +190,16 @@ if Modality==3
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
+    % Subject name:
+    NameSubject = unique(SessionData.Custom.Subject);
+    if size(NameSubject,2)>1
+        Names = [];
+        for animal = 1:size(NameSubject,2)
+            Names = [Names char(NameSubject(animal))];
+        end
+        NameSubject =  Names;
+    end
+    
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % Data points
@@ -183,7 +212,7 @@ if Modality==3
     p=plot([0 0],[0 1],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([0 1]);xlim ([-1, 1]);
-    title({['Psychometric Aud  ' SessionData.Custom.Subject '  ' SessionData.SessionDate];...
+    title({['Psychometric Aud  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...

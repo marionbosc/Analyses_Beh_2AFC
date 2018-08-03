@@ -6,8 +6,8 @@
 % - Sensory modality to analyse (1 = olfactory / 2 = auditory click task /
 % 3 = auditory frequency task)
 % - Subplot coordinates (zB subplot(2,3,2))--> subplot(nb_raw_fig,nb_col_fig,positn_fig)
-% - option to change the disposition right/left of the DV points to
-% right/left port entered (right/left sensory evidence by default)
+% - option to change the x data disposition: 0 --> right/left of the DV points /
+%  1 --> right/left port entered (right/left (0) sensory evidence by default)
 %
 %
 
@@ -21,6 +21,7 @@ end
 VevaiometricMinWT = 2; % FB time minimum included in the analysis 
 
 % Axis limits and label
+Ymax = []; Ymin = [];
 if Modality == 1
     Sensory_Modality = 'Olfactory';
     xlimL = [0 1]; xlimR = [-1 0]; 
@@ -107,7 +108,8 @@ if sum(ndxError&ndxMinWT&ndxModality&ndxLeft)>9 || sum(ndxError&ndxMinWT&ndxModa
     s=scatter(Scatter.err.XData,Scatter.err.YData,2,[1 0.6 0],... 
      'Marker','o','MarkerFaceColor',[1 0.6 0],'MarkerEdgeAlpha',0.5,...
      'Visible','on','MarkerEdgeColor',[1 0.6 0]);
-%     Ymax = [max(s.YData)*1.01 max(s.YData)*1.01];
+    Ymax = [Ymax max(s.YData)*1.01];
+    Ymin = [Ymin min(s.YData)*0.99];
     % Fitting line equation : f(x) = p1*x + p2
     plot(xlimL,[Fit.errLeft.r.p1*xlimL(1) + Fit.errLeft.r.p2 Fit.errLeft.r.p1*xlimL(2) + Fit.errLeft.r.p2],'r-','LineWidth',1.5);
     plot(xlimR,[Fit.errRight.r.p1*xlimR(1) + Fit.errRight.r.p2 Fit.errRight.r.p1*xlimR(2) + Fit.errRight.r.p2],'r-','LineWidth',1.5);
@@ -160,7 +162,8 @@ if sum(ndxCorrectCatch&ndxMinWT&ndxModality&ndxLeft)>10 || sum(ndxCorrectCatch&n
     s2=scatter(Scatter.catch.XData,Scatter.catch.YData,2,'g',...
      'Marker','o','MarkerFaceColor','g','MarkerEdgeAlpha',0.5,...
      'Visible','on','MarkerEdgeColor','g');
-%     Ymax = [max(s2.YData)*1.01 max(s2.YData)*1.01];
+    Ymax = [Ymax max(s2.YData)*1.01];
+    Ymin = [Ymin min(s2.YData)*0.99];
     % Fitting line equation : f(x) = p1*x + p2
     plot(xlimL,[Fit.catchLeft.r.p1*xlimL(1) + Fit.catchLeft.r.p2 Fit.catchLeft.r.p1*xlimL(2) + Fit.catchLeft.r.p2],'-','Color', [0.23, 0.5, 0.17] ,'LineWidth',1.5); 
     plot(xlimR,[Fit.catchRight.r.p1*xlimR(1) + Fit.catchRight.r.p2 Fit.catchRight.r.p1*xlimR(2) + Fit.catchRight.r.p2],'-','Color', [0.23, 0.5, 0.17],'LineWidth',1.5);
@@ -187,7 +190,7 @@ if Plot_displayed == 1
     title({['Vevaiometric ' Sensory_Modality ' trials ' ];Title_error;Title_catch},'fontsize',11);
     s.Parent.XLabel.String = xlabel;s.Parent.YLabel.String = ylabel; 
     s.Parent.XLabel.FontSize = 14;s.Parent.YLabel.FontSize = 14; 
-    xlim([xmin xmax]); 
-    hold off; % ylim([-6 8]);
+    xlim([xmin xmax]); ylim([max([2 min(Ymin)]) min([max(Ymax) 12])]);
+    hold off;
 end
 clearvars -except SessionData

@@ -90,6 +90,15 @@ elseif Statornot==0
     Stat_title = '';
 end
 
+% Subject name:
+NameSubject = unique(SessionData.Custom.Subject);
+if size(NameSubject,2)>1
+    Names = [];
+    for animal = 1:size(NameSubject,2)
+        Names = [Names char(NameSubject(animal))];
+    end
+    NameSubject =  Names;
+end
 %% Plot 
 subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 % left axis: Accuracy per bin of WT
@@ -115,4 +124,4 @@ h.Parent.YLabel.Rotation=270;
 h.Parent.XAxis(1).Limits(1) = min(h.BinEdges)-0.5;
 h.Parent.XAxis(1).Limits(2) = max(h.BinEdges)+0.5;
 h.Parent.YLabel.Position(1) = h.Parent.YLabel.Position(1)+0.5;
-title({[SessionData.Custom.Subject '  ' Sensory_Modality '  ' TitleExtra]; Stat_title},'fontsize',12);
+title({[NameSubject '  ' Sensory_Modality '  ' TitleExtra]; Stat_title},'fontsize',12);
