@@ -64,12 +64,8 @@ end
 
 % - Path to the local (personal computer) folder containing the data
 if exist('pathname','var')
-    if ~iscell(pathname)
-        SessionData.pathname = pathname;
-        clear pathname
-    elseif iscell(pathname)
-        SessionData.pathname = pathname{manip};
-    end
+    SessionData.pathname = pathname;
+    clear pathname
 end
 
 % - Protocol name if it doesn't already exist

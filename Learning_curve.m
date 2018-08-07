@@ -1,96 +1,160 @@
-%% Fabrication learning curve on Auditory discrimination:
+%% Script to build learning curve on Auditory discrimination:
 %
 % 
-%% Recup donnee animal a analyser
-pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Dual2AFC';
-cd(pathdatalocal);
-prompt = {'Nom= '}; dlg_title = 'Animal'; numlines = 1;
-def = {'M'}; Nom = char(inputdlg(prompt,dlg_title,numlines,def)); 
-clear def dlg_title numlines prompt  
+%% Data variables to retrieve 
+Accu_Animals = []; Bias_Animals = [];
 
-%% Suite
-prompt = {'N = '}; dlg_title = 'Nombre de manips'; numlines = 1;
-def = {'12'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
-clear def dlg_title numlines prompt  
+% Path data server and local
+pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
+pathdataserver='/Volumes/home/BpodData/Mouse2AFC/';
 
-for jour = 1:N
-    [filename{jour},pathname{jour}] = uigetfile([pathdatalocal '/' Nom '/Session Data/*.mat']);
+% Number of animal to include in the analysis 
+prompt = {'N = '}; dlg_title = 'How many animals?'; numlines = 1;
+def = {'4'}; Nb_animal = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+clear def dlg_title numlines prompt
+   
+% Save plot?
+prompt = {'Save plot ? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
+def = {'1'}; Saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+clear def dlg_title numlines prompt
+
+if Saving==1
+    cd(pathdatalocal);
+    if ~isdir('LearningCurve')
+        mkdir('LearningCurve');
+    end
 end
+%% Loop on each animal to retrieve the data:
+for animal = 1 : Nb_animal
+    % Get name to find path towards animal's data:
+    cd(pathdatalocal);
+    prompt = {'Name= '}; dlg_title = 'Which animal ?'; numlines = 1;
+    def = {'MC'}; Name = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    clear def dlg_title numlines prompt  
+    Animal_Names{animal} = Name; 
+    
+    % Retrieve data files path
+    [filename,pathname] = uigetfile([pathdataserver '/' Name '/Session Data/*.mat'], 'MultiSelect','on');
+    
+    
+    % Loop to retrieve data for each session for that animal:
+    f=figure;
+    for session= 1 : size(filename,2)
+        % load data
+        load([pathname '/' filename{session}])
+        % Check and implement data (if necessary)
+        SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,session);
+        % Retrieve data on accuracy and bias for the session and plot the Psychometric
+        [SessionData,Accu(session)] = Psychometric_fig(SessionData, 2,1,1,1);
+    end
+    
+    % Save psychometric:
+    if Saving==1
+        cd([pathdatalocal '/LearningCurve']);
+        saveas(f,['Psychometric_' Name '.png']);
+    end        
+    
+    % Fill data variable to compute the final analysis/plot
+    % case nb of sessions for this animal < max nb of sessions per animal
+    if session < size(Accu_Animals,2) 
+        Accu_Animals = [Accu_Animals; Accu.globale NaN(1,size(Accu_Animals,2)-session)];
+        Bias_Animals = [Bias_Animals; Accu.Bias NaN(1,size(Accu_Animals,2)-session)];
+        
+    % case nb of sessions for this animal < max nb of sessions per animal
+    elseif session > size(Accu_Animals,2)
+        Accu_Animals = [Accu_Animals NaN(size(Accu_Animals,1),session-size(Accu_Animals,2)) ; Accu(:).globale];
+        Bias_Animals = [Bias_Animals NaN(size(Bias_Animals,1),session-size(Bias_Animals,2)) ; Accu(:).Bias];
+        
+    % case nb of sessions for this animal = max nb of sessions per animal
+    elseif session == size(Accu_Animals,2)
+        Accu_Animals = [Accu_Animals; Accu(:).globale];
+        Bias_Animals = [Bias_Animals; Accu(:).Bias];
+    end
 
-%% Boucle recup data par bestiaux
-
-for manip= 1 : size(pathname,2)
-    % Chargement manip
-    load([pathname{manip} '/' filename{manip}])
-    
-    %% Implementation des donnees manquantes pour l'analyse
-    SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,manip);
-    
-    %% Recup donnees perf et biais par jour
-    [SessionData,Perf(manip)] = Psychometric_fig(SessionData, 2,1,1,1);
-    
+    clearvars -except Accu_* Bias_* Nb_of_sessions Animal_Names Saving pathdata*
 end
+%% Plot of leaning curves and bias across days:
+% Compute mean and sem:
+Mean_Perf_Souris = nanmean(Accu_Animals,1);
+SEM_Perf_Souris = nanstd(Accu_Animals,1)./sqrt(size(Accu_Animals,1));
 
-%% Remplissage variable data commune:
-% Perf_Taconic = [Perf_Taconic; Perf(:).globale];
-% Bias_Taconic = [Bias_Taconic; Perf(:).Bias];
-
-if manip<12
-    Perf_CharlesRiver = [Perf_CharlesRiver; Perf.globale NaN(1,12-manip)];
-    Bias_CharlesRiver = [Bias_CharlesRiver; Perf.Bias NaN(1,12-manip)];
-else
-    Perf_CharlesRiver = [Perf_CharlesRiver; Perf(:).globale];
-    Bias_CharlesRiver = [Bias_CharlesRiver; Perf(:).Bias];
-end
-
-% if manip<8    
-%     Perf_Souris = [Perf_Souris; Perf.globale NaN(1,8-manip)];
-% else
-%     Perf_Souris = [Perf_Souris; Perf(:).globale];
-% end
-%% Menage:
-clearvars -except Perf_* Bias_*
-
-%% Representation de la learning curve et du biais au fur et à mesure des sessions:
-
-Mean_Perf_CharlesRiver = nanmean(Perf_CharlesRiver,1);
-SEM_Perf_CharlesRiver = nanstd(Perf_CharlesRiver,1)./sqrt(size(Perf_CharlesRiver,1));
-Mean_Perf_Taconic = nanmean(Perf_Taconic,1);
-SEM_Perf_Taconic = nanstd(Perf_Taconic,1)./sqrt(size(Perf_Taconic,1));
-
-figure('units','normalized','position',[0,0,0.7,1]); hold on
+% Plot mean (+/-sem):
+f1=figure('units','normalized','position',[0,0,0.7,1]); hold on
 hold on
-errorbar(1:12,Mean_Perf_Taconic,SEM_Perf_Taconic ,...
-    'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','k','MarkerSize',6,'Visible','on');
-e=errorbar(1:12,Mean_Perf_Harlan,SEM_Perf_Harlan ,...
+e=errorbar(1:size(Accu_Animals,2),Mean_Perf_Souris,SEM_Perf_Souris ,...
     'k','LineStyle','-','Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
-% plot(idx_total,Perf.globale,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','k',...
-% 'MarkerSize',6,'Visible','on');
 e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Accuracy';
 e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
-e.Parent.YLim=[0 1];e.Parent.XLim=[1 12];
-plot([1 12], [0.5 0.5], '--k'); 
-leg = legend('Taconic (n=5)','Harlan (n=10)','Location','southeast');
-leg.FontSize = 10; legend('boxoff');
+e.Parent.YLim=[0 1];e.Parent.XLim=[1 size(Accu_Animals,2)];
+e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+e.Parent.YTick = round(min(e.Parent.YTick)):0.2:round(max(e.Parent.YTick));
+plot([1 size(Accu_Animals,2)], [0.5 0.5], '--k'); 
+title({['Mean accuracy per training session (n =  ' num2str(size(Accu_Animals,1)) ' mice)']},'fontsize',12);
+    
+% Plot data per animal:
+f2=figure('units','normalized','position',[0,0,0.7,1]); hold on
+hold on
+for animal = 1:size(Accu_Animals,1)
+    e=plot(1:size(Accu_Animals,2),Accu_Animals(animal,:),...
+        'LineStyle','-','Marker','o','MarkerSize',6,'Visible','on');% 'k',,'MarkerEdge','k','MarkerFace','k'
+end
+e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Accuracy';
+e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
+e.Parent.YLim=[0 1];e.Parent.XLim=[1 size(Accu_Animals,2)];
+e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+e.Parent.YTick = round(min(e.Parent.YTick)):0.2:round(max(e.Parent.YTick));
+plot([1 size(Accu_Animals,2)], [0.5 0.5], '--k'); 
+title('Accuracy per training session for each mice','fontsize',12);
+leg = legend(Animal_Names,'Location','southeast');
+leg.FontSize = 12; legend('boxoff');
 
+% Save plots:
+if Saving==1
+    cd([pathdatalocal '/LearningCurve']);   
+    Names = [];
+    for animal = 1:size(Animal_Names,2)
+        Names = [Names char(Animal_Names(animal))];
+    end
+    saveas(f1,['MeanAccuracy_' Names '.png']);
+    saveas(f2,['Accuracy_' Names '.png']);
+end 
 %% Bias
 % Absolute value of bias
-Bias_abs_Harlan = abs(Bias_Harlan - 0.5);
-Bias_abs_Taconic = abs(Bias_Taconic - 0.5);
+Bias_abs_Souris = abs(Bias_Animals - 0.5);
 
-Mean_Bias_Harlan = nanmean(Bias_abs_Harlan,1);
-SEM_Bias_Harlan = nanstd(Bias_abs_Harlan,1)./sqrt(size(Bias_abs_Harlan,1));
-Mean_Bias_Taconic = nanmean(Bias_abs_Taconic,1);
-SEM_Bias_Taconic = nanstd(Bias_abs_Taconic,1)./sqrt(size(Bias_abs_Taconic,1));
+% Compute mean and sem:
+Mean_Bias_Souris = nanmean(Bias_abs_Souris,1);
+SEM_Bias_Souris = nanstd(Bias_abs_Souris,1)./sqrt(size(Bias_abs_Souris,1));
 
-figure('units','normalized','position',[0,0,0.7,1]); hold on
+% Plot mean (+/-sem):
+f3=figure('units','normalized','position',[0,0,0.7,1]); hold on
 hold on
-errorbar(1:12,Mean_Bias_Taconic,SEM_Bias_Taconic ,...
-    'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','k','MarkerSize',6,'Visible','on');
-e=errorbar(1:12,Mean_Bias_Harlan,SEM_Bias_Harlan ,...
+e=errorbar(1:size(Accu_Animals,2),Mean_Bias_Souris,SEM_Bias_Souris ,...
     'k','LineStyle','-','Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
 e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Side Bias';
 e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
-e.Parent.YLim=[0 0.4];e.Parent.XLim=[1 12];
-leg = legend('Taconic (n=5)','Harlan (n=10)','Location','northeast');
-leg.FontSize = 10; legend('boxoff');
+e.Parent.YLim=[0 0.4];e.Parent.XLim=[1 size(Accu_Animals,2)];
+e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+title({['Mean of absolute side bias per training session (n =  ' num2str(size(Bias_Animals,1)) ' mice)']},'fontsize',12);
+ 
+% Plot data per animal:
+f4=figure('units','normalized','position',[0,0,0.7,1]); hold on
+hold on
+for animal = 1:size(Bias_abs_Souris,1)
+    e=plot(1:size(Accu_Animals,2),Bias_abs_Souris(animal,:),...
+        'LineStyle','-','Marker','o','MarkerSize',6,'Visible','on');%'k',,'MarkerEdge','k','MarkerFace','k'
+end
+e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Side Bias';
+e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
+e.Parent.YLim=[0 0.4];e.Parent.XLim=[1 size(Accu_Animals,2)];
+e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+leg = legend(Animal_Names,'Location','northwest');
+leg.FontSize = 12; legend('boxoff');
+title('Absolute side bias per training session for each mice','fontsize',12);
+
+% Save plots:
+if Saving==1
+    cd([pathdatalocal '/LearningCurve']);   
+    saveas(f3,['MeanBias_' Names '.png']);
+    saveas(f4,['Bias_' Names '.png']);
+end 
