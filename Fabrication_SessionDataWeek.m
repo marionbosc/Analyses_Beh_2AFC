@@ -3,9 +3,8 @@
 % 1) Identify the Session to combine together:
 %    - Prompt windows to provide the animal's name
 %       --> Allow to identify the path towards the data files to concatenate
-%    - Prompt windows to provide the number of session to combine
-%    - Finder windows open to select the data file of the session to include
-%       --> Will pop-up as many time as the number of session to combine
+%    - Finder windows open to select the data fileS of the session to include
+%       --> Select them all at once (use CTR or cmd to select all the files at the same time)
 %    - Create a variable containing all the filename and a variable
 %    containing all tle pathname
 %    - Prompt windows to inquire whether you want to save the filename and
@@ -45,17 +44,10 @@ cd(pathdatalocal);
 % Prompt windows to provide the animal's name
 prompt = {'Name = '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
-clear def dlg_title numlines prompt  
-
-% Prompt windows to provide the number of session to combine
-prompt = {'Number of session to combine = '}; dlg_title = 'N'; numlines = 1;
-def = {'5'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
-clear def dlg_title numlines prompt  
+clear def dlg_title numlines prompt   
 
 % Finder windows open to select the data files of the session to include
-for Day = 1:N
-    [filename{Day},pathname{Day}] = uigetfile([pathdatalocal '/' AnimalName '/Session Data/*.mat']);
-end
+[filename,pathname] = uigetfile([pathdatalocal '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
 
 % Prompt windows to inquire whether you want to save the filename and pathname 
 prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
@@ -80,9 +72,9 @@ end
 %% 2) Session by session implementation and complementary analysis + Super-dataset creation
 
 % Loop on every session to combine into the super-dataset
-for Day = 1 : size(pathname,2)
+for Day = 1 : size(filename,2)
     % load SessionData 
-    load([pathname{Day} '/' filename{Day}])
+    load([pathname '/' filename{Day}])
     
     % Implementation of SessionData
     SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,Day);
