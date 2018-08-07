@@ -6,7 +6,12 @@
 %
 
 %% (1) Loading of the data file to analyse
-pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
+% GUI to get the Bpod protocol name to localise the data files:
+prompt = {'Bpod protocol = '}; dlg_title = 'Protocol?'; numlines = 1;
+def = {'Mouse2AFC'}; BpodProtocol = cell2mat(inputdlg(prompt,dlg_title,numlines,def)); 
+clear def dlg_title numlines prompt
+    
+pathdatalocal = ['/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/' BpodProtocol];
 cd(pathdatalocal);
 prompt = {'Name= '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; Nom = char(inputdlg(prompt,dlg_title,numlines,def)); 

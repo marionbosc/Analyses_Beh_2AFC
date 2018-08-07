@@ -12,6 +12,16 @@
 %
 
 function [SessionData,Perf] = Psychometric_fig(SessionData, Modality,nb_row_fig,nb_col_fig,positn_fig)
+%% Subject name:
+NameSubject = unique(SessionData.Custom.Subject,'stable');
+if size(NameSubject,2)>1
+    Names = [];
+    for animal = 1:size(NameSubject,2)
+        Names = [Names char(NameSubject(animal))];
+    end
+    NameSubject =  Names;
+end
+    
 %% (1) Psychometric for Olfactory trials
 
 if Modality==1
@@ -50,18 +60,8 @@ if Modality==1
     Perf.Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.Right = sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.globale = sum(SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf.left_lapserate = 100 - round(Psyc(end)*100,1);
-    Perf.right_lapserate = round(Psyc(1)*100,1);
-    
-    % Subject name:
-    NameSubject = unique(SessionData.Custom.Subject);
-    if size(NameSubject,2)>1
-        Names = [];
-        for animal = 1:size(NameSubject,2)
-            Names = [Names char(NameSubject(animal))];
-        end
-        NameSubject =  Names;
-    end
+    Perf.left_lapserate = 100 - round(psyc(end)*100,1);
+    Perf.right_lapserate = round(psyc(1)*100,1);
     
     % plot: f(% Odor A) = % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
@@ -128,16 +128,6 @@ if Modality==2
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
-    % Subject name:
-    NameSubject = unique(SessionData.Custom.Subject);
-    if size(NameSubject,2)>1
-        Names = [];
-        for animal = 1:size(NameSubject,2)
-            Names = [Names char(NameSubject(animal))];
-        end
-        NameSubject =  Names;
-    end
-    
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
@@ -189,16 +179,6 @@ if Modality==3
     Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
-    
-    % Subject name:
-    NameSubject = unique(SessionData.Custom.Subject);
-    if size(NameSubject,2)>1
-        Names = [];
-        for animal = 1:size(NameSubject,2)
-            Names = [Names char(NameSubject(animal))];
-        end
-        NameSubject =  Names;
-    end
     
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
