@@ -195,6 +195,11 @@ for Day = 1 : size(filename,2)
     clear SessionData CustomFields
 end
 
+% Check if the filed FeedbackTimeNorm is fully filled --> if not: remove it
+if size(SessionDataWeek.Custom.FeedbackTimeNorm,2) < size(SessionDataWeek.Custom.ChoiceLeft,2)
+    SessionDataWeek.Custom = rmfield(SessionDataWeek.Custom,'FeedbackTimeNorm');
+end
+
 % Add specific field to identify the superdata structure and total number of trial
 SessionDataWeek.DayvsWeek = 2;
 SessionDataWeek.nTrials = size(SessionDataWeek.Custom.ChoiceLeft,2);
