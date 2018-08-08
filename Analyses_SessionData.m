@@ -12,7 +12,8 @@ def = {'Mouse2AFC'}; BpodProtocol = cell2mat(inputdlg(prompt,dlg_title,numlines,
 clear def dlg_title numlines prompt
     
 pathdatalocal = ['/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/' BpodProtocol];
-cd(pathdatalocal);
+pathdataserver='/Volumes/home/BpodData/Mouse2AFC/';
+cd(pathdataserver);
 prompt = {'Name= '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; Nom = char(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt  
@@ -22,7 +23,7 @@ load([pathname '/' filename])
 
 %% (2) Implementation of SessionData for further analysis
 
-Implementatn_SessionData_Offline
+SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,0);
 
 %% (3) Plot the plots missing from the Session Figures folder of the animal
     

@@ -39,7 +39,8 @@
 
 % Path to local data files (BpodUser/Data if you are doing the analysis on the computer connected to the Bpod)
 pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
-cd(pathdatalocal);
+pathdataserver='/Volumes/home/BpodData/Mouse2AFC/';
+cd(pathdataserver);
 
 % Prompt windows to provide the animal's name
 prompt = {'Name = '}; dlg_title = 'Animal'; numlines = 1;
@@ -47,7 +48,7 @@ def = {'M'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def));
 clear def dlg_title numlines prompt   
 
 % Finder windows open to select the data files of the session to include
-[filename,pathname] = uigetfile([pathdatalocal '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
+[filename,pathname] = uigetfile([pathdataserver '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
 
 % Prompt windows to inquire whether you want to save the filename and pathname 
 prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
@@ -216,7 +217,7 @@ if saving==1
     SessionDataWeek.SessionDate = DatasetName;
     
     % Save SessionDataWeek
-    cd(SessionDataWeek.pathname)
+    cd([pathdatalocal '/' AnimalName '/Session Data']);
     save(['SessionDataWeek_' DatasetName],'SessionDataWeek')   
 end
 
@@ -246,7 +247,6 @@ end
 %% Processing of the new list of session to combine
 if Modify == 1
     checkboxValues = find(cell2mat(get(h.c, 'Value')));
-    pathname = pathname(checkboxValues);
     filename = filename(checkboxValues);
 
     % Prompt windows to inquire whether you want to save the new filename and pathname
@@ -262,7 +262,7 @@ if Modify == 1
         clear def dlg_title numlines prompt  
         
         % Save pathname and filename from the new population of session selected
-        cd(pathname{1})
+        cd([pathdatalocal '/' AnimalName '/Session Data'])
         save(['Datafilename_' DatasetName],'filename')
         save(['Datapathname_' DatasetName],'pathname')
     end
