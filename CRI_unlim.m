@@ -1,8 +1,8 @@
-%% CRI2
+%% Function to compute the Confidence Report Index of several datasets and to compare them
 %
 % Input : 
-%  - Modality: 1 = Olfaction; 2 = Audition
-%  - nbBin
+%  - Modality: 1 = Olfactory; 2 = Auditory
+%  - nbBin: number of DV bins to compute the analysis on
 %  - Figornot = 0 ne genere pas de figure / = 1 genere les figures
 %  - Nom_dataset: cellule contenant le nom des dataset à analyser
 %  - varargin: dataset1, dataset2,...datasetn à comparer
@@ -11,12 +11,12 @@
 %  - DV_pctile (dataset,Difficulty_bin): Difficulty bin boundary for each
 %  dataset
 %  - AUC (dataset,Difficulty_bin): ROC Area Under the Curve results
-%  - Perf_per_bin (dataset,Difficulty_bin): Success rate calculated on all
+%  - Accu_per_bin (dataset,Difficulty_bin): Success rate calculated on all
 %  the trials from the difficulty bin per dataset
 %
 
 
-function [DV_pctile,AUC,Perf_per_bin,AUCnorm]=CRI_unlim(Modality, nbBin, Figornot, Nom_dataset, varargin)
+function [DV_pctile,AUC,Accu_per_bin,AUCnorm]=CRI_unlim(Modality, nbBin, Figornot, Nom_dataset, varargin)
 %% Assess the number of dataset to include into the analysis:
 nb_dataset = size(varargin,2);
 
@@ -27,19 +27,19 @@ end
 % Empty variable to collect data in the main loop:
 if Modality ==1 % Olfactory trials
     idx_DV = nan(nb_dataset,6);
-    Perf_per_bin = nan(nb_dataset,6);
+    Accu_per_bin = nan(nb_dataset,6);
     DV_pctile = nan(nb_dataset,6);
     AUC = nan(nb_dataset,6);
 else % Auditory trials
     idx_DV = []; 
-    Perf_per_bin = [];
+    Accu_per_bin = [];
     DV_pctile = []; 
     AUC = []; 
 end
 histog_DV = {}; P_Catch = {}; P_Error = {};
 
 for dataset = 1:nb_dataset
-    %% Data loading et CRI computing for each dataset:
+    %% Data loading and CRI computing for each dataset:
    
     load(varargin{dataset});
     SessionData = SessionDataWeek;
@@ -47,7 +47,7 @@ for dataset = 1:nb_dataset
     % Discretization of trials according to DV bin
     % Getting DV 
     if Modality ==1 % Olfactory trials
-        BinIdx = abs((SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft)) -50)*2/100); % Formule pour reorg les OdorFrac entre -1 et 1. 
+        BinIdx = abs((SessionData.Custom.OdorFracA(1:numel(SessionData.Custom.ChoiceLeft)) -50)*2/100); % Formula to transform OdorFracA into a DV index (between -1 and 1)
         idx_DV_Before = unique(BinIdx(~isnan(BinIdx)));
         for bin = 1: size(idx_DV_Before,2)
             if sum(SessionData.Custom.CatchTrial==1 & BinIdx==idx_DV_Before(bin)) < 10
@@ -84,7 +84,7 @@ for dataset = 1:nb_dataset
             histog_DV.Error{dataset,bin} = SessionData.Custom.DVlog(ndxFalse & ndxModality & BinIdx==idx_DV(dataset,bin));
         end
         % Compute bin's success rate
-        Perf_per_bin(dataset,bin) = sum(ndxCorrect& BinIdx==idx_DV(dataset,bin)& ndxModality)/...
+        Accu_per_bin(dataset,bin) = sum(ndxCorrect& BinIdx==idx_DV(dataset,bin)& ndxModality)/...
             sum(ndxCorrect& BinIdx==idx_DV(dataset,bin)& ndxModality|ndxFalse & BinIdx==idx_DV(dataset,bin)& ndxModality);
         
         if Figornot
@@ -280,7 +280,7 @@ if Figornot
     % Plot Confidence Report Index for every condition per success rate (of each analysed bin)
     subplot(2,3,6); hold on;
     for dataset = 1:nb_dataset
-        plot(Perf_per_bin(dataset,:),AUC(dataset,:),'-','Linewidth',1.4);
+        plot(Accu_per_bin(dataset,:),AUC(dataset,:),'-','Linewidth',1.4);
     end
     xlabel('Accuracy','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
     legend(Nom_dataset,'Location','Northwest');
@@ -288,5 +288,5 @@ if Figornot
             'fontsize',12);
 
     % Main figure title    
-    figtitle(['Confidence Report Index ' SessionData.Custom.Subject],'fontsize',14,'fontweight','bold');
+    figtitle(['Confidence Report Index ' SessionData.Custom.Subject(1)],'fontsize',14,'fontweight','bold');
 end
