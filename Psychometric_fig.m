@@ -55,6 +55,7 @@ if Modality==1
                         SessionData.Custom.ChoiceLeft(ndxOlf)','binomial'),linspace(min(setStim),max(setStim),100),'logit');
     end
     
+    
     % Bias/Accuracy/Lapse rate calculation
     Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     Perf.Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
@@ -73,13 +74,13 @@ if Modality==1
     plot([0, 100],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([50 50],[0 105],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([0 1]);xlim (100*[0 1]);
+    ylim([0 1]);xlim (100*[0 1]); p.Parent.XTick = 0:20:100; p.Parent.YTick = 0:0.2:1;
     title({['Psychometric Olf  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
-    xlabel('% odor A','fontsize',14);ylabel('% left','fontsize',14);hold off;
+    xlabel('% odor A','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
 
     clearvars -except SessionData Modality nb_raw_fig nb_col_fig positn_fig Perf
 end
@@ -136,16 +137,17 @@ if Modality==2
     % Fitting curve
     plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');
     % Legends et axis
-    plot([min(p.XData)-0.05, max(p.XData)+0.05],[0.5 0.5],'--','color',[.7,.7 .7]);
-    plot([0 0],[-.05 1.05],'--','color',[.7,.7 .7]);
+    plot([-1 1],[0.5 0.5],'--','color',[.7,.7 .7]);
+    plot([0 0],[0 1],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([0 1]);xlim ([min(p.XData)-0.05, max(p.XData)+0.05]);
+    ylim([0 1]);xlim ([-1 1]);
+    p.Parent.XTick = -1:0.5:1; p.Parent.YTick = 0:0.2:1;
     title({['Psychometric Aud  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
-    xlabel('Binaural contrast','fontsize',14);ylabel('% left','fontsize',14);hold off;
+    xlabel('Binaural contrast','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
 
     clearvars -except SessionData Modality Perf
 end
@@ -191,13 +193,13 @@ if Modality==3
     plot([-1, 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([0 0],[0 1],'--','color',[.7,.7 .7]);
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-    ylim([0 1]);xlim ([-1, 1]);
+    ylim([0 1]);xlim ([-1, 1]); p.Parent.XTick = -1:0.5:1; p.Parent.YTick = 0:0.2:1;
     title({['Psychometric Aud  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
-    xlabel('DV ','fontsize',14);ylabel('% left','fontsize',14);hold off;
+    xlabel('DV ','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
 
     clearvars -except SessionData Perf
 end

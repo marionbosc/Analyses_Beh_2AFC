@@ -91,7 +91,7 @@ elseif Statornot==0
 end
 
 % Subject name:
-NameSubject = unique(SessionData.Custom.Subject);
+NameSubject = unique(SessionData.Custom.Subject,'stable');
 if size(NameSubject,2)>1
     Names = [];
     for animal = 1:size(NameSubject,2)

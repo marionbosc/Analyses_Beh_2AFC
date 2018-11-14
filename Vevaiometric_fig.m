@@ -190,7 +190,13 @@ if Plot_displayed == 1
     title({['Vevaiometric ' Sensory_Modality ' trials ' ];Title_error;Title_catch},'fontsize',11);
     s.Parent.XLabel.String = xlabel;s.Parent.YLabel.String = ylabel; 
     s.Parent.XLabel.FontSize = 14;s.Parent.YLabel.FontSize = 14; 
-    xlim([xmin xmax]); ylim([max([2 min(Ymin)]) min([max(Ymax) 12])]);
+    xlim([xmin xmax]); 
+    if isfield(SessionData.Custom,'FeedbackTimeNorm')  && SensoORMvt==0
+        ylim([floor(min(Ymin)) ceil(max(Ymax))]);
+    else
+        ylim([max([2 floor(min(Ymin))]) min([ceil(max(Ymax)) 12])]);
+    end
+    s.Parent.XTick = -1:0.5:1; s.Parent.YTick = s.Parent.YLim(1):2:ceil(s.Parent.YLim(2));
     hold off;
 end
 clearvars -except SessionData

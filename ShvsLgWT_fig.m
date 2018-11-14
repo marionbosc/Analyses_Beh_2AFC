@@ -24,17 +24,20 @@ end
 if Modality == 1
     Sensory_Modality = 'Olfactory';
     xlimL = [0 1]; xlimR = [-1 0]; 
+    xtick = 0:20:100;
     xmin = 0; xmax = 100;
     xlabel = '% Odor A';
 elseif Modality ==2
     Sensory_Modality = 'Auditory';
     xlimL = [0 1]; xlimR = [-1 0];
     xmin = -1; xmax = 1;
+    xtick = -1:0.5:1;
     xlabel = 'Binaural contrast';
 elseif Modality == 3
     Sensory_Modality = 'Auditory';
     xlimL = [0 1]; xlimR = [-1 0]; 
     xmin = -1; xmax = 1;
+    xtick = -1:0.5:1;
     xlabel = 'DV';
 end
 
@@ -142,12 +145,12 @@ ciplot(PsycFit_S.YData-CILow_S,PsycFit_S.YData+CIHigh_S,PsycFit_S.XData,'m',0.3)
 plot([xmin, xmax],[0.5 0.5],'--','color',[.7,.7 .7]);
 p = plot([xmin+(xmax-xmin)/2 xmin+(xmax-xmin)/2],[0 1],'--','color',[.7,.7 .7]);
 p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
-ylim([0 1]);
-xlim ([xmin, xmax]);
+ylim([0 1]); xlim ([xmin, xmax]);
+p.Parent.XTick = xtick; p.Parent.YTick = 0:0.2:1;
 leg = legend(['Long WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT))],'Location','SouthEast');
 title({['Psychometric ' Sensory_Modality  ' ' TitleExtra]; [num2str(Percentile) 'th percentile catch trials WT = ' num2str(round(Percentile_WT,2))]},'fontsize',12);
 leg.FontSize = 10; legend('boxoff');
 p.Parent.XLabel.String = xlabel; p.Parent.XLabel.FontSize =14;
-p.Parent.YLabel.String = 'Left choice'; p.Parent.YLabel.FontSize =14;
+p.Parent.YLabel.String = 'P(choose left)'; p.Parent.YLabel.FontSize =14;
 hold off;
 
