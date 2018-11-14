@@ -29,9 +29,9 @@ end
 %%
 nbBin = 3;
 idx_DV_Before = cell(1,nbBin);
-idx_DV_Before{1} = [0 0.1]; %[0 0.1 0.12]; % M7: 
-idx_DV_Before{2} = [0.24 0.3]; %[0.16 0.24 0.3]; % M7: 
-idx_DV_Before{3} = [0.8]; %[0.8]; %M7: 
+idx_DV_Before{1} = [0 0.1 0.12]; % P28:[0 0.1 0.12]; % M7:[0 0.1]
+idx_DV_Before{2} = [0.16 0.24 0.3]; % P28:[0.16 0.24 0.3]; % M7:[0.24 0.3]
+idx_DV_Before{3} = [0.8]; % P28:[0.8]; % M7:[0.8]
 
 % index d'essais:
 ndxModality = SessionData.Custom.Modality==1;
@@ -58,7 +58,7 @@ for bin = 1: nbBin
     % Essais Error WS 
     data =[];
     for idx = 1:size(idx_DV_Before{bin},2)
-        data = [data SessionData.Custom.FeedbackTimeNorm(ndxFalse & BinIdx==idx_DV_Before{bin}(idx) & ndxModality)];
+        data = [data SessionData.Custom.FeedbackTime(ndxFalse & BinIdx==idx_DV_Before{bin}(idx) & ndxModality)];
     end
     D = histogram(data,'FaceColor','m','EdgeColor','m','BinWidth',0.1,'Normalization','probability'); hold on; %
     D.FaceAlpha=0.3;
@@ -70,7 +70,7 @@ for bin = 1: nbBin
     % Essais Correct Catched
     data =[];
     for idx = 1:size(idx_DV_Before{bin},2)
-        data = [data SessionData.Custom.FeedbackTimeNorm(ndxCorrect & ndxCatch & BinIdx==idx_DV_Before{bin}(idx) & ndxModality)];
+        data = [data SessionData.Custom.FeedbackTime(ndxCorrect & ndxCatch & BinIdx==idx_DV_Before{bin}(idx) & ndxModality)];
     end
     F = histogram(data,'FaceColor','y','EdgeColor','y','BinWidth',0.1,'Normalization','probability'); hold on; %
     F.FaceAlpha=0.3;
@@ -117,9 +117,9 @@ for bin = 1: size(idx_DV_qty,2)
 end
 %%
 idx_DV_After = cell(1,nbBin);
-idx_DV_After{1} =  [0.1];%[0.12]; % M7:
-idx_DV_After{2} =  [0.2 0.3];% [0.16 0.3]; % M7:
-idx_DV_After{3} =  [0.8]; % M7:[0.8];
+idx_DV_After{1} =  [0.12];% P28:[0.12]; % M7:[0.1]
+idx_DV_After{2} =  [0.16 0.3];% P28:[0.16 0.3]; % M7:[0.2 0.3]
+idx_DV_After{3} =  [0.8]; % P28:[0.8] % M7:[0.8];
 
 % index d'essais:
 ndxModality = SessionData.Custom.Modality==1;
@@ -146,7 +146,7 @@ for bin = 1 : size(idx_DV_After,2)
     % Essais Error WS 
     data =[];
     for idx = 1:size(idx_DV_After{bin},2)
-        data = [data SessionData.Custom.FeedbackTimeNorm(ndxFalse & BinIdx==idx_DV_After{bin}(idx) & ndxModality)];
+        data = [data SessionData.Custom.FeedbackTime(ndxFalse & BinIdx==idx_DV_After{bin}(idx) & ndxModality)];
     end
     D = histogram(data,'FaceColor','m','EdgeColor','m','BinWidth',0.1,'Normalization','probability'); hold on; %
     D.FaceAlpha=0.3;
@@ -158,7 +158,7 @@ for bin = 1 : size(idx_DV_After,2)
     % Essais Correct Catched
     data =[];
     for idx = 1:size(idx_DV_After{bin},2)
-        data = [data SessionData.Custom.FeedbackTimeNorm(ndxCorrect & ndxCatch & BinIdx==idx_DV_After{bin}(idx) & ndxModality)];
+        data = [data SessionData.Custom.FeedbackTime(ndxCorrect & ndxCatch & BinIdx==idx_DV_After{bin}(idx) & ndxModality)];
     end
     F = histogram(data,'FaceColor','y','EdgeColor','y','BinWidth',0.1,'Normalization','probability'); hold on; %
     F.FaceAlpha=0.3;
@@ -209,7 +209,7 @@ subplot(2,3,4); hold on;
 plot(Mean_DV_Before,AUC_before,'-+k','Linewidth',1);
 plot(Mean_DV_After,AUC_After,'-+r','Linewidth',1);
 
-xlabel('-log(DV)','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
+xlabel('Mixture contrast','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
 legend('BEFORE','AFTER','Location','Northwest');
 title('Lesion impact on Confidence Report Index',...
         'fontsize',12);
@@ -222,7 +222,7 @@ AUCnorm_After = (AUC_After - min(AUC_After))/(1 -min(AUC_After)) ;
 plot(Mean_DV_Before,AUCnorm_before,'-+k','Linewidth',1);
 plot(Mean_DV_After,AUCnorm_After,'-+r','Linewidth',1);
 
-xlabel('-log(DV)','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
+xlabel('Mixture contrast','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
 legend('BEFORE','AFTER','Location','Northwest');
 title('Lesion impact on Confidence Report Index',...
         'fontsize',12);

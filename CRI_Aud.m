@@ -214,7 +214,7 @@ for bin = 1:size(idx_DV_Before,2)
         legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
     end
 end
-xlabel('-log(DV)','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1.7 1.7]);
+xlabel('Binaural contrast','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1 1]);
 %legend(legend_name,'Location','North');
 title('Correct Catch trials BEFORE',...
         'fontsize',12);
@@ -230,7 +230,7 @@ for bin = 1: size(idx_DV_Before,2)
 %         legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
 %     end
 end
-xlabel('-log(DV)','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1.7 1.7]);
+xlabel('-Binaural contrast','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1 1]);
 legend(legend_name,'Location','NorthWest');
 title('Error trials BEFORE',...
         'fontsize',12);
@@ -246,7 +246,7 @@ for bin = 1 : size(idx_DV_After,2)
         legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
     end
 end
-xlabel('-log(DV)','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1.7 1.7]);
+xlabel('Binaural contrast','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1 1]);
 %legend(legend_name,'Location','North');
 title('Correct Catch trials AFTER',...
         'fontsize',12);
@@ -262,7 +262,7 @@ for bin = 1 : size(idx_DV_After,2)
 %         legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
 %     end
 end
-xlabel('-log(DV)','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1.7 1.7]);
+xlabel('Binaural contrast','fontsize',14);ylabel('Number of trials','fontsize',14); xlim([-1 1]);
 legend(legend_name,'Location','NorthWest');
 title('Error trials AFTER',...
         'fontsize',12);
@@ -287,7 +287,7 @@ end
 subplot(2,3,4); hold on;
 plot(DV_pctile_Before(1:end-1),AUC_before,'-+k','Linewidth',1);
 plot(DV_pctile_After(1:end-1),AUC_After,'-+r','Linewidth',1);
-xlabel('-log(DV)','fontsize',14);ylabel('CRI','fontsize',14);
+xlabel('Binaural contrast','fontsize',14);ylabel('CRI','fontsize',14);
 legend('BEFORE','AFTER','Location','Northwest');
 title('Lesion impact on Confidence Report Index',...
         'fontsize',12);
@@ -298,7 +298,7 @@ AUCnorm_before = (AUC_before - min(AUC_before))/(1-min(AUC_before));
 AUCnorm_After = (AUC_After - min(AUC_After))/(1 -min(AUC_After)) ;
 plot(DV_pctile_Before(1:end-1),AUCnorm_before,'-+k','Linewidth',1);
 plot(DV_pctile_After(1:end-1),AUCnorm_After,'-+r','Linewidth',1);
-xlabel('-log(DV)','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);
+xlabel('Binaural contrast','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);
 legend('BEFORE','AFTER','Location','Northwest');
 title('Lesion impact on Confidence Report Index',...
         'fontsize',12);

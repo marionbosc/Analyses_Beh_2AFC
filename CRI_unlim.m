@@ -4,8 +4,8 @@
 %  - Modality: 1 = Olfactory; 2 = Auditory
 %  - nbBin: number of DV bins to compute the analysis on
 %  - Figornot = 0 ne genere pas de figure / = 1 genere les figures
-%  - Nom_dataset: cellule contenant le nom des dataset à analyser
-%  - varargin: dataset1, dataset2,...datasetn à comparer
+%  - Nom_dataset: cellule contenant le nom des dataset ï¿½ analyser
+%  - varargin: dataset1, dataset2,...datasetn ï¿½ comparer
 %
 % Output:
 %  - DV_pctile (dataset,Difficulty_bin): Difficulty bin boundary for each
@@ -58,7 +58,7 @@ for dataset = 1:nb_dataset
         idx_DV(dataset,1:size(idx_DV_Before,2)) = idx_DV_Before; clear idx_DV_Before     
         nbBin = sum(~isnan(idx_DV(dataset,:)));
     else % Auditory trials
-        DV = abs(SessionData.Custom.DVlog(1:numel(SessionData.Custom.ChoiceLeft)));
+        DV = abs(SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft)));
         % Get DV bin bounds from all trials distrib percentile:
         DV_pctile(dataset,:) = min(DV);
         for j = 1:nbBin
@@ -80,8 +80,8 @@ for dataset = 1:nb_dataset
 
         if Modality ==2 % Auditory trials
             % Fetch data plot distrib per DV bin:
-            histog_DV.Catch{dataset,bin} = SessionData.Custom.DVlog(ndxCatch & ndxModality & BinIdx==idx_DV(dataset,bin));
-            histog_DV.Error{dataset,bin} = SessionData.Custom.DVlog(ndxFalse & ndxModality & BinIdx==idx_DV(dataset,bin));
+            histog_DV.Catch{dataset,bin} = SessionData.Custom.DV(ndxCatch & ndxModality & BinIdx==idx_DV(dataset,bin));
+            histog_DV.Error{dataset,bin} = SessionData.Custom.DV(ndxFalse & ndxModality & BinIdx==idx_DV(dataset,bin));
         end
         % Compute bin's success rate
         Accu_per_bin(dataset,bin) = sum(ndxCorrect& BinIdx==idx_DV(dataset,bin)& ndxModality)/...
@@ -91,14 +91,14 @@ for dataset = 1:nb_dataset
             % subplot of the WT distribution for Correct Catch and Error trials per bin
             subplot(nb_dataset,size(idx_DV,2),bin+(size(idx_DV,2)*(dataset-1))); hold on;
             % Error trials histogram: 
-            D = histogram(SessionData.Custom.FeedbackTimeNorm(ndxFalse & BinIdx==idx_DV(dataset,bin) & ndxModality),...
+            D = histogram(SessionData.Custom.FeedbackTime(ndxFalse & BinIdx==idx_DV(dataset,bin) & ndxModality),...
                 'FaceColor','m','EdgeColor','m','BinWidth',0.1,'Normalization','probability'); hold on; 
             D.FaceAlpha=0.3;
             % Fetch data:
             Data_Error_WT{bin} = D.BinEdges(2:end);
             Data_Error_P{bin} =  D.Values;
         else
-            [Values, BinEdges] = histcounts(SessionData.Custom.FeedbackTimeNorm(ndxFalse & BinIdx==idx_DV(dataset,bin) & ndxModality),...
+            [Values, BinEdges] = histcounts(SessionData.Custom.FeedbackTime(ndxFalse & BinIdx==idx_DV(dataset,bin) & ndxModality),...
                 'BinWidth',0.1,'Normalization','probability');
             % Fetch data:
             Data_Error_WT{bin} = BinEdges(2:end);
@@ -109,7 +109,7 @@ for dataset = 1:nb_dataset
 
         if Figornot
             % Correct Catched trials histogram:
-            F = histogram(SessionData.Custom.FeedbackTimeNorm(ndxCorrect & ndxCatch & BinIdx==idx_DV(dataset,bin) & ndxModality),...
+            F = histogram(SessionData.Custom.FeedbackTime(ndxCorrect & ndxCatch & BinIdx==idx_DV(dataset,bin) & ndxModality),...
                 'FaceColor','y','EdgeColor','y','BinWidth',0.1,'Normalization','probability'); hold on; %
             F.FaceAlpha=0.3;
             % Fetch data:
@@ -121,7 +121,7 @@ for dataset = 1:nb_dataset
                 legend('WS','Correct Catched','Location','NorthWest');
             end
         else
-            [Values, BinEdges] = histcounts(SessionData.Custom.FeedbackTimeNorm(ndxCorrect & ndxCatch & BinIdx==idx_DV(dataset,bin) & ndxModality),...
+            [Values, BinEdges] = histcounts(SessionData.Custom.FeedbackTime(ndxCorrect & ndxCatch & BinIdx==idx_DV(dataset,bin) & ndxModality),...
                 'BinWidth',0.1,'Normalization','probability');
             % Fetch data:
             Data_Catch_WT{bin} = BinEdges(2:end);
@@ -179,7 +179,7 @@ if Figornot
                 hold on
     %             legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
             end
-            xlabel('-log(DV)','fontsize',12);ylabel('Number of trials','fontsize',12); xlim([-1.7 1.7]);
+            xlabel('Binaural contrast','fontsize',12);ylabel('Number of trials','fontsize',12); xlim([-1 1]);
 
     %         legend(legend_name,'Location','North');
             title(['Correct Catch trials ' Nom_dataset{dataset}],...
@@ -192,7 +192,7 @@ if Figornot
                 hold on
                 legend_name{bin} = [num2str((100/nbBin)*bin) ' th DV pctl = ' num2str(round(min(abs(h.Data)),2)) ' : ' num2str(round(max(abs(h.Data)),2))];
             end
-            xlabel('-log(DV)','fontsize',12);ylabel('Number of trials','fontsize',12); xlim([-1.7 1.7]);
+            xlabel('Binaural contrast','fontsize',12);ylabel('Number of trials','fontsize',12); xlim([-1 1]);
             legend(legend_name,'Location','NorthWest');
             title(['Error trials ' Nom_dataset{dataset}],...
                     'fontsize',12);
@@ -253,12 +253,12 @@ if Figornot
     subplot(2,3,4); hold on;
     for dataset = 1:nb_dataset
         if Modality ==1 % Olfactory trials
-            plot(idx_DV(dataset,:),AUC,'-','Linewidth',1.4);
+            plot(idx_DV(dataset,:),AUC(dataset,:),'-','Linewidth',1.4);
         else % Auditory trials
-            plot(DV_pctile(dataset,1:end-1),AUC,'-','Linewidth',1.4);
+            plot(DV_pctile(dataset,1:end-1),AUC(dataset,:),'-','Linewidth',1.4);
         end
     end
-    xlabel('-log(DV)','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
+    xlabel('Binaural contrast','fontsize',14);ylabel('CRI','fontsize',14);%ylim([0 1]);
     legend(Nom_dataset,'Location','Northwest');
     title('Lesion impact on Confidence Report Index',...
             'fontsize',12);
@@ -267,12 +267,12 @@ if Figornot
     subplot(2,3,5); hold on;
     for dataset = 1:nb_dataset
         if Modality ==1 % Olfactory trials
-            plot(idx_DV(dataset,:),AUCnorm,'-','Linewidth',1.4);
+            plot(idx_DV(dataset,:),AUCnorm(dataset,:),'-','Linewidth',1.4);
         else % Auditory trials
-            plot(DV_pctile(dataset,1:end-1),AUCnorm,'-','Linewidth',1.4);
+            plot(DV_pctile(dataset,1:end-1),AUCnorm(dataset,:),'-','Linewidth',1.4);
         end
     end
-    xlabel('-log(DV)','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
+    xlabel('Binaural contrast','fontsize',14);ylabel('CRI (rescaled)','fontsize',14);%ylim([0 1]);
     legend(Nom_dataset,'Location','Northwest');
     title('Lesion impact on Confidence Report Index',...
             'fontsize',12);
@@ -288,5 +288,5 @@ if Figornot
             'fontsize',12);
 
     % Main figure title    
-    figtitle(['Confidence Report Index ' SessionData.Custom.Subject(1)],'fontsize',14,'fontweight','bold');
+    figtitle(['Confidence Report Index ' SessionData.Custom.Subject],'fontsize',14,'fontweight','bold');
 end
