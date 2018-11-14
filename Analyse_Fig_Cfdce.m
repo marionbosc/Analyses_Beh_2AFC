@@ -36,7 +36,7 @@ if SessionData.DayvsWeek == 1
     end
 else
     try
-        PerfperWT_fig(SessionData, 2, 1,2,2,3,SessionData.SessionDate,1,Modality);
+        PerfperWT_fig(SessionData, 2, 0,2,2,3,SessionData.SessionDate,1,Modality);
     end
 end
 

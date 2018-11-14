@@ -36,10 +36,14 @@
 %
 
 %% 1) Retrieve the path towards all the SessionData to combine together:
-
+% GUI to get the Bpod protocol name to localise the data files:
+prompt = {'Bpod protocol = '}; dlg_title = 'Protocol?'; numlines = 1;
+def = {'Mouse2AFC'}; BpodProtocol = cell2mat(inputdlg(prompt,dlg_title,numlines,def)); 
+clear def dlg_title numlines prompt
+    
 % Path to local data files (BpodUser/Data if you are doing the analysis on the computer connected to the Bpod)
-pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
-pathdataserver='/Volumes/home/BpodData/Mouse2AFC/';
+pathdatalocal = ['/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/' BpodProtocol '/'];
+pathdataserver=['/Volumes/home/BpodData/' BpodProtocol '/'];
 cd(pathdataserver);
 
 % Prompt windows to provide the animal's name
@@ -65,7 +69,7 @@ if saving==1
     clear def dlg_title numlines prompt 
     
     % Save pathname and filename from the population of session selected
-    cd(pathname{1})
+    cd([pathdatalocal '/' AnimalName '/Session Data']);
     save(['AllDatafilename_' DatasetName],'filename')
     save(['AllDatapathname_' DatasetName],'pathname')
 end
@@ -83,7 +87,7 @@ for Day = 1 : size(filename,2)
     %% Plot/Analysis for the session (if it has not been done already)
     
     % Path towards Session Figure folder of the animal:
-    pathfigures = [pathdatalocal '/' AnimalName '/Session Figures'];
+    pathfigures = [pathdataserver '/' AnimalName '/Session Figures'];
     cd(pathfigures);
     takeabreak = false;
     
@@ -196,8 +200,10 @@ for Day = 1 : size(filename,2)
 end
 
 % Check if the filed FeedbackTimeNorm is fully filled --> if not: remove it
-if size(SessionDataWeek.Custom.FeedbackTimeNorm,2) < size(SessionDataWeek.Custom.ChoiceLeft,2)
-    SessionDataWeek.Custom = rmfield(SessionDataWeek.Custom,'FeedbackTimeNorm');
+if isfield(SessionDataWeek.Custom, 'FeedbackTimeNorm')
+    if size(SessionDataWeek.Custom.FeedbackTimeNorm,2) < size(SessionDataWeek.Custom.ChoiceLeft,2)
+        SessionDataWeek.Custom = rmfield(SessionDataWeek.Custom,'FeedbackTimeNorm');
+    end
 end
 
 % Add specific field to identify the superdata structure and total number of trial
@@ -280,7 +286,7 @@ end
 
 %% 5) Plot figures on general and confidence behavior on the combined dataset
 % Path to Session Figure of the animal
-cd(pathfigures); 
+cd([pathdatalocal '/' AnimalName '/Session Figures']); 
 
 % Plot of general behavior analysis
 fig_beh(SessionDataWeek);
