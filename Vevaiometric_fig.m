@@ -42,6 +42,15 @@ elseif Modality == 3
     xmin = -1; xmax = 1;
     xlabel = 'DV';
     Modality = 2;
+elseif Modality == 4
+    Sensory_Modality = 'Brightness';
+    xlimL = [0 1]; xlimR = [-1 0];
+    xmin = -1; xmax = 1;
+    if SensoORMvt==0
+        xlabel = 'Brightness contrast - sensory ev';
+    elseif SensoORMvt==1
+        xlabel = 'Brightness contrast - per side entry';
+    end
 end
 
 % Plot localisation in the subplot

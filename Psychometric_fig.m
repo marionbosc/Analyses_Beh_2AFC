@@ -69,7 +69,7 @@ if Modality==1
     % Points 
     p=plot(PsycOlf.XData,PsycOlf.YData, 'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k', 'MarkerSize',6,'Visible','on');
     % Fitting curve 
-    plot(PsycOlfFit.XData,PsycOlfFit.YData,'color','k','Visible','on');
+    plot(PsycOlfFit.XData,PsycOlfFit.YData,'color','k','Visible','on');%
     % Legends et axis
     plot([0, 100],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([50 50],[0 105],'--','color',[.7,.7 .7]);
@@ -132,10 +132,10 @@ if Modality==2
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
-    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
+    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',... 
         'MarkerSize',3,'Visible','on');  
     % Fitting curve
-    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
     % Legends et axis
     plot([-1 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     plot([0 0],[0 1],'--','color',[.7,.7 .7]);
@@ -188,7 +188,7 @@ if Modality==3
     plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
         'MarkerSize',3,'Visible','on');    
     % Fitting curve
-    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
     % Legends et axis
     plot([-1, 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([0 0],[0 1],'--','color',[.7,.7 .7]);
@@ -202,4 +202,62 @@ if Modality==3
     xlabel('DV ','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
 
     clearvars -except SessionData Perf
+end
+%% (4) Psychometric for Brightness trials 
+if Modality==4
+    % Retrieve DV 
+    AudDV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
+    % Auditory trials index
+    ndxAud = SessionData.Custom.Modality==Modality;
+    % Index of trials not completed (ChoiceLeft = NaN)
+    ndxNan = isnan(SessionData.Custom.ChoiceLeft);
+    
+    % Probability to go left for all DV bin/point
+    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),SessionData.Custom.StimulusOmega(ndxAud&~ndxNan),'mean');
+    PsycX = grpstats(SessionData.Custom.DV(ndxAud&~ndxNan),SessionData.Custom.StimulusOmega(ndxAud&~ndxNan),'mean');
+
+    % Data for the plot (point + fitting curve)
+    PsycAud.YData = PsycY;
+    PsycAud.XData = PsycX;
+    if sum(ndxAud&~ndxNan) > 1
+        PsycAudFit.XData = linspace(min(AudDV),max(AudDV),100);
+        PsycAudFit.YData = glmval(glmfit(AudDV(ndxAud&~ndxNan),...
+            SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
+    end
+    
+    % Bias/Accuracy/Lapse rate calculation
+    ndxModality = SessionData.Custom.Modality==Modality;
+    ndxLeftRewd = SessionData.Custom.ChoiceCorrect == 1  & SessionData.Custom.ChoiceLeft == 1;
+    ndxLeftRewDone = SessionData.Custom.LeftRewarded==1 & ~isnan(SessionData.Custom.ChoiceLeft);
+    ndxRightRewd = SessionData.Custom.ChoiceCorrect == 1  & SessionData.Custom.ChoiceLeft == 0;
+    ndxRightRewDone = SessionData.Custom.LeftRewarded==0 & ~isnan(SessionData.Custom.ChoiceLeft);
+    Perf.Left = sum(ndxModality & ndxLeftRewd)/sum(ndxModality & ndxLeftRewDone);
+    Perf.Right = sum(ndxModality & ndxRightRewd)/sum(ndxModality & ndxRightRewDone);
+    Perf.Bias = (Perf.Left-Perf.Right)/2 + 0.5;
+    %Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
+    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
+    Perf.right_lapserate = round(PsycY(1)*100,1);
+    
+    % plot: f(beta)= % left
+    subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
+    % points Perf/DV
+    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',... 
+        'MarkerSize',3,'Visible','on');  
+    % Fitting curve
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
+    % Legends et axis
+    plot([-1 1],[0.5 0.5],'--','color',[.7,.7 .7]);
+    plot([0 0],[0 1],'--','color',[.7,.7 .7]);
+    p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
+    ylim([0 1]);xlim ([-1 1]);
+    p.Parent.XTick = -1:0.5:1; p.Parent.YTick = 0:0.2:1;
+    title({['Psychometric Brightness  ' NameSubject '  ' SessionData.SessionDate];...
+        ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
+        ['% Success L = ' num2str(round(Perf.Left,2)) ...
+        ' / R = ' num2str(round(Perf.Right,2)) ...
+        ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
+    xlabel('Brightness contrast','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
+
+    clearvars -except SessionData Modality Perf
 end
