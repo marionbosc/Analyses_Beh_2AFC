@@ -26,7 +26,7 @@ try
 end
 %% (2) Vevaiometric 
 try
-    Vevaiometric_fig(SessionData, Modality,2,2,2,1);
+    Vevaiometric_fig(SessionData, Modality,2,2,2,1,2);
 end
 %% (3) Calibration curve (Accuracy per WT) 
 
