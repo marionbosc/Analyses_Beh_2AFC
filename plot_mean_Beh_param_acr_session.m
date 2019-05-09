@@ -1,24 +1,25 @@
+%% Plot the mean of a parameter through time for multiple session 
+%
+%
 
-
-function fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse)
-%% Idem per time period
-
-% Figure pourcentage d'erreur et d'essais faux au fur et a mesure de la session
+function fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot)
+% Figure 
 fig = figure('units','normalized','position',[0,0,0.5,1]); 
 subplot(2,1,1); hold on;
 
-temps_min= datetime(0.25*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
-temps_max = datetime(4*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
+% Slot duration and sliding window
+Slot_duration_in_min = 10;
+Duration_btw_sliding_slot = Slot_duration_in_min/2;
 
-% Vecteur vide pour recup perf par tranche de 30 minutes
-Perf_per_demiH = nan(size(pathname,2),20);
+% Empty array to collect data per time slot
+Perf_per_Time_slot = nan(size(filename,2),30);
 
-for manip= 1 : size(pathname,2)
-    % Chargement manip
-    load([pathname{manip} '/' filename{manip}])
+for manip= 1 : size(filename,2)
+    % Load SessionData
+    load([pathname '/' filename{manip}])
     Nom = SessionData.Custom.Subject;
     
-    % Fabrication vecteur temps debut de chaque essai
+    % Built time vector from beginning of the session
     if ~isfield(SessionData.Custom, 'TrialStart') ||  ~isfield(SessionData.Custom, 'TrialStartSec')
         % Get and format time of each trial begining in time value
         Trialstart_sessiondata=(SessionData.TrialStartTimestamp-SessionData.TrialStartTimestamp(1));
@@ -27,136 +28,141 @@ for manip= 1 : size(pathname,2)
         SessionData.Custom.TrialStart(1:SessionData.nTrials) = t(1:SessionData.nTrials);
         SessionData.Custom.TrialStartSec(1:SessionData.nTrials) = Trialstart_sessiondata(1:SessionData.nTrials);
         if isfield(SessionData, 'pathname') && isfield(SessionData, 'filename')
-            % Enregistrement des datas implementees
+            % Implemented data saving
             cd(SessionData.pathname)
             save(SessionData.filename,'SessionData');
         end
     end
     
-    % Conversion dbt essais en minutes
+    % Conversion TrialStartSec in minutes
     temps_minutes = SessionData.Custom.TrialStartSec./60;
     
-    % Pourcentage d'essais corrects au fur et a mesure de la session
+    % id of interest to quantify
     ndxAllDone = eval(id_Total_code);
     ndxInteret = eval(id_Interet_code);
     
-    % Nombre de bin 
-    Nbbin = round(temps_minutes(end)/30)+1; % Bins de 30 minutes
-    %Nom_bin = 0:30:temps_minutes(end);
-    
-    for bin = 1:Nbbin
-        if bin == 1
-            debut = 1; fin = 30;
+    % Main loop to gather data per time point with a sliding window
+    bin = 1;
+    while bin > 0 % bin = 0 when all the trials have been elapsed (and the session is done)
+        if bin == 1 % First bin
+            debut = 0; fin = Slot_duration_in_min;
             id_debut = 1;
             id_fin = max(find(temps_minutes<fin));
+            Xplot(manip,bin) = datetime((SessionData.Custom.TrialStart(1) + minutes(Duration_btw_sliding_slot)),'ConvertFrom','epochtime','Epoch','2000-01-01');
         else
-            debut = fin+1; fin =  debut + 29;
-            id_debut = id_fin+1;
+            debut = debut+Duration_btw_sliding_slot; fin =  fin + Duration_btw_sliding_slot;
+            id_debut = min(find(temps_minutes>debut));
             id_fin = max(find(temps_minutes<fin));
+            Xplot(manip,bin) = datetime((Xplot(manip,bin-1) + minutes(Duration_btw_sliding_slot)),'ConvertFrom','epochtime','Epoch','2000-01-01');        
         end
-        
-        Xplot(bin) = SessionData.Custom.TrialStart(id_fin);
-        
-        % Calcul taux pour le bin de temps considere
+           
+        % Quantification of the parameter of interest on the set of trials
+        % executed during the time slot
         nb_id_in_bin(bin) = id_fin-id_debut;
-        if nb_id_in_bin(bin)>5 || bin>1 && (Xplot(bin)==Xplot(bin-1))==0
-            if strcmp(type_variable,'ratio')
-                % Recup des ratio par bin d'essai 
-                Pct_Interet(bin) = sum(ndxInteret(id_debut:id_fin))/sum(ndxAllDone(id_debut:id_fin))*100;
-            elseif strcmp(type_variable,'duration') 
-                Pct_Interet(bin) = nanmean(SessionData.Custom.(genvarname(epoch))(ndxInteret(debut:fin)));
+        if nb_id_in_bin(bin)>5 || bin>1 && (Xplot(manip,bin)==Xplot(manip,bin-1))==0
+            if strcmp(type_variable,'ratio') % to estimate an amount of trial
+                Perf_per_Time_slot(manip,bin) = sum(ndxInteret(id_debut:id_fin))/sum(ndxAllDone(id_debut:id_fin))*100;
+            elseif strcmp(type_variable,'duration') % to get the mean duration of an event
+                idxInteret = intersect(find(ndxInteret),id_debut:id_fin);
+                Perf_per_Time_slot(manip,bin) = nanmean(SessionData.Custom.(genvarname(epoch))(idxInteret));
             end
         else
-            Pct_Interet(bin) = NaN;
-            Xplot(bin) = NaT;
+            Perf_per_Time_slot(manip,bin) = NaN; % if not enough trials --> no datapoint
         end
-    end
-    
-    % Recup des donnees dans vecteur global
-    for i = 1: size(Pct_Interet,2)
-        if ~isnan(Pct_Interet(i)) && ~isnat(Xplot(i))
-            Perf_per_demiH(manip,i) = Pct_Interet(i);
-        end
+        
+         if nb_id_in_bin(bin)>1 && id_fin ~= size(ndxAllDone,2) %  if the bin is not the last one, the window keep sliding
+             bin = bin+1;
+         else
+             bin = 0;
+         end 
     end
 
-    % Suppression des valeurs manquantes dans les vecteurs
-    Pct_Correct_nonan = Pct_Interet(~isnan(Pct_Interet)&~isnat(Xplot));
-    Xplot_nonan = Xplot(~isnan(Pct_Interet)&~isnat(Xplot));    
+    % Delete NaN value before plotting the data for the session
+    Pct_Correct_nonan = Perf_per_Time_slot(manip,~isnan(Perf_per_Time_slot(manip,:)));
+    Xplot_nonan = Xplot(manip,~isnan(Perf_per_Time_slot(manip,:))); 
     
-    % ligne moyenne/taux variable d'interet par manip
-    plot(Xplot_nonan,Pct_Correct_nonan, 'LineStyle','-','Color',rand(1,3),'Marker','+','Visible','on','LineWidth',1.5); 
+    % Plot of the variable of interest for the session
+    if colorornot
+        p = plot(Xplot_nonan,Pct_Correct_nonan, 'Color',rand(1,3),'Marker','o','Visible','on','LineWidth',1); % version with one colored line per session
+    else
+        p = plot(Xplot_nonan,Pct_Correct_nonan, 'LineStyle','none','Color','k','Marker','+','Visible','on','LineWidth',1.5); % version with black dots without line
+    end
     
-    clear SessionData Pct* ndx* Nbbin t Trialstart* temps_minutes Xplot* id_debut id_fin bin debut fin nb_id*
+    
+    clear Pct* ndx* t Trialstart* temps_minutes id_debut id_fin bin debut fin nb_id*
 end
 
-%ylim([0 100]);
-xlim ([temps_min temps_max]);
+% Title/Label/Axis of the plot
+xlim ([SessionData.Custom.TrialStart(1) max(Xplot(:,end))]);
 title([Titre_parametre_analyse ' across session ' Nom],'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
 xlabel('Time from beginning session','fontsize',14);ylabel(Titre_parametre_analyse,'fontsize',14);hold off;    
 
-%% Representation des perf moyennes par tranche de 30 minutes:
+%% Mean of the data per time slot:
 
-% Figure moyenne pourcentage d'essais d'interet au fur et a mesure de la session
+% subPlot
 subplot(2,1,2); hold on;
 
-% Vecteur temps
-Demies_heures = datetime((0.5:0.5:10)*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
-Demies_heures.Format = 'hh:mm:ss';
-Demies_heures_h = 0.5:0.5:10;
-
-% Reorg des donnees 
-Y_perf = []; X_Demies_heures = [];
-for colonne = 1: size(Perf_per_demiH)
-    % Vecteur data:
-    idx_ligne = ~isnan(Perf_per_demiH(:,colonne));
-    Y_perf = [Y_perf ; Perf_per_demiH(idx_ligne,colonne)];
-    X_Demies_heures = [X_Demies_heures ; repmat(Demies_heures_h(colonne),sum(idx_ligne),1)];
+% Data reconfiguration
+Y_perf = []; X_Time_slot = [];
+Time_vector = datestr(max(Xplot),'HH:MM');
+Perf_per_Time_slot = Perf_per_Time_slot(:,1:size(Time_vector,1));
+for colonne = 1: size(Time_vector,1)
+    % Data array:
+    idx_ligne = ~isnan(Perf_per_Time_slot(:,colonne));
+    Y_perf = [Y_perf ; Perf_per_Time_slot(idx_ligne,colonne)];
+    X_Time_slot = [X_Time_slot ; repmat(Time_vector(colonne,:),sum(idx_ligne),1)];
     clear idx_ligne
 end
 
-% Troncage vecteurs donnees pour analyser les 3.5 premieres heures seulement
-idx = find(X_Demies_heures<4);
-X_Demies_heures = X_Demies_heures(idx);
-Y_perf = Y_perf(idx);
-clear idx
+% Mean and std of the data:
+[PlotY, semY,PlotX] = grpstats(Y_perf,X_Time_slot,{'mean','sem','gname'});
 
-% Stat: one-way ANOVA time
-[p,~,stat] =anova1(Y_perf,X_Demies_heures,'off');
-% Post-hoc
-if p<0.06
-    c=multcompare(stat,'Alpha',0.01,'CType','bonferroni','Display','off');
-    signif_idx = find(c(:,6)<0.06);
-    if ~isempty(signif_idx)
-        post_hoc_res = '*';
-        X1 = c(signif_idx,1)/2;
-        X2 = c(signif_idx,2)/2;
-        for s=1:size(signif_idx)
-            star{s} = nr2M_etoilesignif(c(signif_idx(s),6));
+if statornot==1
+    % Stat: one-way ANOVA time
+    [p,~,stat] =anova1(Y_perf,X_Time_slot,'off');
+    % Post-hoc
+    if p<0.06
+        c=multcompare(stat,'Alpha',0.01,'CType','bonferroni','Display','off');
+        signif_idx = find(c(:,6)<0.06);
+        if ~isempty(signif_idx)
+            post_hoc_res = '*';
+            X1 = PlotX(c(signif_idx,1));
+            X2 = PlotX(c(signif_idx,2));
+            for s=1:size(signif_idx)
+                star{s} = nr2M_etoilesignif(c(signif_idx(s),6));
+            end
+        else
+            post_hoc_res = 'ns';
+        end
+        if exist('X1','var')
+            X1 = datenum(X1,'HH:MM');
+            X2 = datenum(X2,'HH:MM');
         end
     else
-        post_hoc_res = 'ns';
+       post_hoc_res = '-'; 
+       signif_idx = [];
     end
+    TitleStat = [' One-w ANOVA: p = ' num2str(round(p,3)) '/ Bonferroni post-hoc: ' post_hoc_res];
 else
-   post_hoc_res = '-'; 
-   signif_idx = [];
+    TitleStat = [];
 end
 
-[PsycY, semY] = grpstats(Y_perf,X_Demies_heures,{'mean','sem'});
-PsyX = unique(X_Demies_heures);
-
-% Plot moyenne+/-sem par tranches de 30 minutes avec resultats stat
-errorbar(PsyX,PsycY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
+% Plot mean+/-sem per time slot
+e=errorbar(datenum(PlotX,'HH:MM'),PlotY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
     'MarkerSize',6,'Visible','on');hold on
-max_fig = max(PsycY + semY);
-xlim ([0.25 4]); %ylim([0 max_fig*1.2 ]);
-title({[Titre_parametre_analyse ' across session ' Nom],...
-    [' One-w ANOVA: p = ' num2str(round(p,3)) '/ Bonferroni post-hoc: ' post_hoc_res]},'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
+e.Parent.XGrid = 'on'; e.Parent.YGrid = 'on';
+datetick('x','HH:MM');
+max_fig = max(PlotY + semY);
+ylim([0 max_fig*1.2 ]); % xlim ([0 2]);
+title({[Titre_parametre_analyse ' across session ' Nom],TitleStat},'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
 xlabel('Time from beginning session (h)','fontsize',14);
 ylabel(['Mean ' Titre_parametre_analyse ' (+/-SEM)'],'fontsize',14);
-if ~isempty(signif_idx)
+if statornot==1 && ~isempty(signif_idx) % adding statistical result if wanted
     for i = 1:size(X1,1)
-        plot([X1(i) X2(i)],[max_fig+1+(i*0.15) max_fig+1+(i*0.15)],'k','LineStyle','-','Marker','+');
-        text ((X1(i)+X2(i))/2,max_fig+1.05+(i*0.15),star(i),'fontsize',14);
+        plot([X1(i) X2(i)],[max_fig+1+(i*2) max_fig+1+(i*2)],'k','LineStyle','-','Marker','+');
+        text ((X1(i)+X2(i))/2,max_fig+1.5+(i*2),star(i),'fontsize',14);
     end
+    ylim([0  max_fig+5+(i*2)]);
 end
 hold off;    
+  
