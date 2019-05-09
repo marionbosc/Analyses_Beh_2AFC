@@ -19,13 +19,15 @@ def = {'3'}; N = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def)));
 clear def dlg_title numlines prompt  
 
 % Locate the dataset for each animal from the animal's name
-pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
+% Prompt windows to select the localisation of data files:
+Pathtodata = choosePath('Mouse2AFC');
+cd(Pathtodata);
 for animal = 1 : N
-    cd(pathdatalocal);
+    cd(Pathtodata);
     prompt = {'Name= '}; dlg_title = 'Animal'; numlines = 1;
     def = {'M'}; Names{animal} = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt  
-    [filename{animal},pathname{animal}] = uigetfile([pathdatalocal '/' Names{animal} '/Session Data/*.mat']);
+    [filename{animal},pathname{animal}] = uigetfile([Pathtodata '/' Names{animal} '/Session Data/*.mat']);
 end
 
 % Prompt windows to inquire whether you want to save the filename and pathname
@@ -56,7 +58,7 @@ end
 for animal = 1 : size(pathname,2)
     % load animal dataset
     load([pathname{animal} '/' filename{animal}]);
-           
+    SessionDataWeek = SessionData;       
     %% Concatenation of the animal dataset in SessionDatasets
     % Case 1st animal of the dataset
     if animal == 1
@@ -99,7 +101,7 @@ for animal = 1 : size(pathname,2)
          end
          
          % Reattribute a rank to the session in the dataset to be continuous between animal datasets
-         SessionDatasets.Custom.Session = [SessionDatasets.Custom.Session SessionDataWeek.Custom.Session+max(SessionDatasets.Custom.Session)];
+         %SessionDatasets.Custom.Session = [SessionDatasets.Custom.Session SessionDataWeek.Custom.Session+max(SessionDatasets.Custom.Session)];
          % Name of the animal add for each trial of its dataset
          SessionDatasets.Custom.Subject = [SessionDatasets.Custom.Subject repmat(Names(animal),1,SessionDataWeek.nTrials)];
     end
