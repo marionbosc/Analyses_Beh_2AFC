@@ -43,10 +43,10 @@ if isfield(SessionData, 'SessionDate')==0
     if ~iscell(filename)
         dlg_title = filename(12:end);
     elseif iscell(filename)
-        dlg_title = filename{manip}(12:end);
+        dlg_title = filename{manip}(end-23:end);
     end
     numlines = 1;
-    def = {'18'}; Date = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {'19'}; Date = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt  
     SessionData.SessionDate = Date;
 end
@@ -69,7 +69,7 @@ if exist('pathname','var')
 end
 
 % - Protocol name if it doesn't already exist
-if ~isfield(SessionData,'Protocol')
+if ~isfield(SessionData,'Protocol') || isempty(SessionData.Protocol)
     % GUI to give the name of the Protocol (not automatically saved on Ubuntu) 
     prompt = {'Bpod protocol = '}; dlg_title = 'Protocol?'; numlines = 1;
     def = {'Dual2AFC'}; 
@@ -305,7 +305,9 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
                 end
 
                 % Sensory modality:
-                if SessionData.Custom.AuditoryTrial(iTrial)
+                if isfield(SessionData.Custom , 'LightIntensityLeft')
+                    SessionData.Custom.Modality(iTrial)=4;
+                elseif SessionData.Custom.AuditoryTrial(iTrial)
                     SessionData.Custom.Modality(iTrial)=2;
                 else
                     SessionData.Custom.Modality(iTrial)=1;
@@ -367,6 +369,11 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
         SessionData.Custom.TrialStart(1:SessionData.nTrials) = t(1:SessionData.nTrials);
         SessionData.Custom.TrialStartSec(1:SessionData.nTrials) = Trialstart_sessiondata(1:SessionData.nTrials);
     end
+    
+    % Set StartEasyTrial field in custom
+     if ~isfield(SessionData.Custom, 'StartEasyTrial')
+        SessionData = set_StartEasyTrial_field(SessionData);
+     end
     
 elseif strcmp(SessionData.Protocol, 'NosePoke')
 % To implement...

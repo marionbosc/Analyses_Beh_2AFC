@@ -4,9 +4,10 @@
 %% Data variables to retrieve 
 Accu_Animals = []; Bias_Animals = [];
 
-% Path data server and local
+% Prompt windows to select the localisation of data files:
+Pathtodata = choosePath('Mouse2AFC');
 pathdatalocal = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Mouse2AFC';
-pathdataserver='/Volumes/home/BpodData/Mouse2AFC/';
+cd(Pathtodata);
 
 % Number of animal to include in the analysis 
 prompt = {'N = '}; dlg_title = 'How many animals?'; numlines = 1;
@@ -33,9 +34,20 @@ for animal = 1 : Nb_animal
     clear def dlg_title numlines prompt  
     Animal_Names{animal} = Name; 
     
-    % Retrieve data files path
-    [filename,pathname] = uigetfile([pathdataserver '/' Name '/Session Data/*.mat'], 'MultiSelect','on');
-    
+    % Prompt windows to select if dataset already exist or needs to be create
+    answer = questdlg('Filenames need to be...','Dataset filenames', 'loaded','created','');
+
+    % Handle response
+    switch answer
+        case 'loaded'
+            cd([Pathtodata '/' Name '/Session Data/']);
+            uiopen; pathname =cd;
+            DatasetName = '19';
+        case 'created'
+        % Retrieve data files path
+        [filename,pathname] = uigetfile([Pathtodata '/' Name '/Session Data/*.mat'], 'MultiSelect','on');
+    end
+
     
     % Loop to retrieve data for each session for that animal:
     f=figure;
@@ -46,10 +58,18 @@ for animal = 1 : Nb_animal
         SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,session);
         % Get the date of the session:
         datemanip{animal,session} = datestr(datetime(str2num(SessionData.SessionDate) , 'ConvertFrom','yyyymmdd'),'dd-mmm');
-        % Get the binaural contrast of the session:
-        Bin_Contrast{animal,session}= unique(SessionData.Custom.AuditoryOmega)*100;
+        if isfield(SessionData.Custom, 'AuditoryOmega')
+            % Get the binaural contrast of the session:
+            Bin_Contrast{animal,session}= unique(SessionData.Custom.AuditoryOmega)*100;
+            Modality = 2;
+        elseif isfield(SessionData.Custom, 'StimulusOmega')
+            % Get the binaural contrast of the session:
+            Bin_Contrast{animal,session}= unique(SessionData.Custom.StimulusOmega)*100;
+            Modality = 4;
+        end
+        
         % Retrieve data on accuracy and bias for the session and plot the Psychometric
-        [SessionData,Accu(session)] = Psychometric_fig(SessionData, 2,1,1,1);
+        [SessionData,Accu(session)] = Psychometric_fig(SessionData, Modality,1,1,1);
     end
     
     % Save psychometric:
@@ -110,7 +130,7 @@ for animal = 1 : Nb_animal
         Bias_Animals = [Bias_Animals; Accu(:).Bias];
     end
 
-    clearvars -except Accu_* Bias_* Nb_of_sessions Animal_Names Saving pathdata* datemanip Bin_Contrast
+    clearvars -except Accu_* Bias_* Nb_of_sessions Animal_Names Saving pathdata* Pathtodata datemanip Bin_Contrast
 end
 %% Plot of leaning curves and bias across days:
 if size(Accu_Animals,1)>1

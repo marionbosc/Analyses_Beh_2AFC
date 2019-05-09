@@ -40,38 +40,48 @@
 prompt = {'Bpod protocol = '}; dlg_title = 'Protocol?'; numlines = 1;
 def = {'Mouse2AFC'}; BpodProtocol = cell2mat(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt
-    
-% Path to local data files (BpodUser/Data if you are doing the analysis on the computer connected to the Bpod)
-pathdatalocal = ['/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/' BpodProtocol '/'];
-pathdataserver=['/Volumes/home/BpodData/' BpodProtocol '/'];
-cd(pathdataserver);
 
 % Prompt windows to provide the animal's name
 prompt = {'Name = '}; dlg_title = 'Animal'; numlines = 1;
 def = {'M'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt   
 
-% Finder windows open to select the data files of the session to include
-[filename,pathname] = uigetfile([pathdataserver '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
+% Prompt windows to select the localisation of data files:
+Pathtodata = choosePath(BpodProtocol);
+cd(Pathtodata);
 
-% Prompt windows to inquire whether you want to save the filename and pathname 
-prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
-def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
-clear def dlg_title numlines prompt
+% Prompt windows to select if dataset already exist or needs to be create
+answer = questdlg('Filenames need to be...','Dataset filenames', 'loaded','created','');
 
-DatasetName = '18';
+% Handle response
+switch answer
+    case 'loaded'
+        cd([Pathtodata '/' AnimalName '/Session Data/']);
+        uiopen; pathname =cd;
+        DatasetName = '18';
+    case 'created'
+        % Finder windows open to select the data files of the session to include
+        [filename,pathname] = uigetfile([Pathtodata '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
 
-% Case "Yes"
-if saving==1
-    % Prompt windows to provide the name of the Dataset
-    prompt = {'Date of Sessions = '}; dlg_title = 'Name dataset'; numlines = 1;
-    def = {DatasetName}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
-    clear def dlg_title numlines prompt 
-    
-    % Save pathname and filename from the population of session selected
-    cd([pathdatalocal '/' AnimalName '/Session Data']);
-    save(['AllDatafilename_' DatasetName],'filename')
-    save(['AllDatapathname_' DatasetName],'pathname')
+        % Prompt windows to inquire whether you want to save the filename and pathname 
+        prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
+        def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+        clear def dlg_title numlines prompt
+
+        DatasetName = '18';
+
+        % Case "Yes"
+        if saving==1
+            % Prompt windows to provide the name of the Dataset
+            prompt = {'Date of Sessions = '}; dlg_title = 'Name dataset'; numlines = 1;
+            def = {DatasetName}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+            clear def dlg_title numlines prompt 
+
+            % Save pathname and filename from the population of session selected
+            cd([Pathtodata '/' AnimalName '/Session Data']);
+            save(['AllDatafilename_' DatasetName],'filename')
+            save(['AllDatapathname_' DatasetName],'pathname')
+        end
 end
 
 %% 2) Session by session implementation and complementary analysis + Super-dataset creation
@@ -87,7 +97,7 @@ for Day = 1 : size(filename,2)
     %% Plot/Analysis for the session (if it has not been done already)
     
     % Path towards Session Figure folder of the animal:
-    pathfigures = [pathdataserver '/' AnimalName '/Session Figures'];
+    pathfigures = [Pathtodata '/' AnimalName '/Session Figures'];
     cd(pathfigures);
     takeabreak = false;
     
@@ -98,56 +108,57 @@ for Day = 1 : size(filename,2)
         saveas(Session,FigurePathSession,'png'); takeabreak = true;
     end
     
-    % Case more than 10% of olfactory trials (Protocol = Dual2AFC)
-    if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-        % Case more than 10% of auditory trials
-        if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-            % Case the plot/analysis on both modality does not exist
-            if exist([SessionData.filename(1:end-4) 'Cfdce.png'],'file')~=2 && sum(SessionData.Custom.CatchTrial)>10
-                Cfdce = fig_beh_Cfdce_bimodality(SessionData);  % Analysis confidence both modality
-                FigurePathCfdce = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Cfdce.png']);
-                saveas(Cfdce,FigurePathCfdce,'png'); takeabreak = true;
-            end
-            % Case of a session with at least 10 CatchTrials
-            if sum(SessionData.Custom.CatchTrial)>10
-                % Case the plot/analysis on Confidence for Olfactory trials does not exist
-                if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
-                    CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analysis confidence Olf only
-                    FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
-                    saveas(CfdceOlf,FigurePathCfdceOlf,'png'); takeabreak = true;
-                end
-                % Case the plot/analysis on Confidence for Auditory trials does not exist
-                if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
-                    CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analysis confidence Aud only
-                    FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
-                    saveas(CfdceAud,FigurePathCfdceAud,'png'); takeabreak = true;
-                end
-            end
-        % Case less than 10% of auditory trials (session with Olfactory trials only)   
-        else
+    % Plotting of the confidence signature if enough CatchTrials:
+    if sum(SessionData.Custom.CatchTrial)>10
+        % Case more than 50 olfactory trials
+        if sum(SessionData.Custom.Modality==1)>50
             % Case the plot/analysis on Confidence for Olfactory trials does not exist
-            if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2  && sum(SessionData.Custom.CatchTrial)>10
+            if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
                 CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analysis confidence Olf only
                 FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
                 saveas(CfdceOlf,FigurePathCfdceOlf,'png'); takeabreak = true;
             end
         end
-    % Case less than 10% of olfactory trials (session with Auditory trials only)
-    elseif sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1
-        % Case the plot/analysis on Confidence for Auditory trials does not exist
-        if exist([SessionData.filename(1:end-4) 'CfdceBeh.png'],'file')~=2 && sum(SessionData.Custom.CatchTrial)>10
-            CfdceBeh = Analyse_Fig_Cfdce(SessionData, 2); % Analysis confidence Aud only
-            FigurePathCfdceBeh = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceBeh.png']);
-            saveas(CfdceBeh,FigurePathCfdceBeh,'png'); takeabreak = true;
+        
+        % Case more than 50 auditory click trials
+        if sum(SessionData.Custom.Modality==2)>50
+            % Case the plot/analysis on Confidence for Auditory trials does not exist
+            if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
+                CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analysis confidence Aud only
+                FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
+                saveas(CfdceAud,FigurePathCfdceAud,'png'); takeabreak = true;
+            end
         end
-    end
-    
-% % Manip Dual2AFC Frequency version
-%     if exist([SessionData.filename(1:end-4) 'CfdceBeh.png'],'file')~=2
-%         CfdceBeh = Analyse_Fig_Cfdce(SessionData, 3); % Analysis confidence Aud only
-%         FigurePathCfdceBeh = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceBeh.png']);
-%         saveas(CfdceBeh,FigurePathCfdceBeh,'png'); takeabreak = true;
-%     end
+        
+        % Case more than 50 auditory Frequency trials
+        if sum(SessionData.Custom.Modality==3)>50
+            if exist([SessionData.filename(1:end-4) 'CfdceAudFqcy.png'],'file')~=2
+                CfdceBeh = Analyse_Fig_Cfdce(SessionData, 3); % Analysis confidence Aud only
+                FigurePathCfdceBeh = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAudFqcy.png']);
+                saveas(CfdceAud,FigurePathCfdceAud,'png'); takeabreak = true;
+            end
+        end
+        
+        % Case more than 50 brightness trials
+        if sum(SessionData.Custom.Modality==4)>50
+            % Case the plot/analysis on Confidence for Brightness trials does not exist
+            if exist([SessionData.filename(1:end-4) 'CfdceBright.png'],'file')~=2
+                CfdceBright = Analyse_Fig_Cfdce(SessionData, 4); % Analysis confidence Aud only
+                FigurePathCfdceBright = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceBright.png']);
+                saveas(CfdceBright,FigurePathCfdceBright,'png'); takeabreak = true;
+            end
+        end
+        
+        % Case more than 20 olfactory and 20 auditory trials
+        if sum(SessionData.Custom.Modality==1)>20 && sum(SessionData.Custom.Modality==2)>20  
+        % Case the plot/analysis on both modality does not exist
+            if exist([SessionData.filename(1:end-4) 'Cfdce.png'],'file')~=2 && sum(SessionData.Custom.CatchTrial)>10
+                Cfdce = fig_beh_Cfdce_bimodality(SessionData);  % Analysis confidence both modality
+                FigurePathCfdce = fullfile(pathfigures,[SessionData.filename(1:end-4) 'Cfdce.png']);
+                saveas(Cfdce,FigurePathCfdce,'png'); takeabreak = true;
+            end
+        end
+    end    
 
     if takeabreak
         pause; takeabreak = false;    
@@ -228,7 +239,7 @@ if saving==1
     SessionDataWeek.SessionDate = DatasetName;
     
     % Save SessionDataWeek
-    cd([pathdatalocal '/' AnimalName '/Session Data']);
+    cd([Pathtodata '/' AnimalName '/Session Data']);
     save(['SessionDataWeek_' DatasetName],'SessionDataWeek')   
 end
 
@@ -273,7 +284,7 @@ if Modify == 1
         clear def dlg_title numlines prompt  
         
         % Save pathname and filename from the new population of session selected
-        cd([pathdatalocal '/' AnimalName '/Session Data'])
+        cd([Pathtodata '/' AnimalName '/Session Data'])
         save(['Datafilename_' DatasetName],'filename')
         save(['Datapathname_' DatasetName],'pathname')
     end
@@ -286,7 +297,7 @@ end
 
 %% 5) Plot figures on general and confidence behavior on the combined dataset
 % Path to Session Figure of the animal
-cd([pathdatalocal '/' AnimalName '/Session Figures']); 
+cd([Pathtodata '/' AnimalName '/Session Figures']); 
 
 % Plot of general behavior analysis
 fig_beh(SessionDataWeek);
@@ -300,5 +311,7 @@ if sum(SessionDataWeek.Custom.Modality==2)/sum(SessionDataWeek.Custom.Modality==
     end
 elseif sum(SessionDataWeek.Custom.Modality==1)/sum(SessionDataWeek.Custom.Modality==1 | SessionDataWeek.Custom.Modality==2)>0.1
     Analyse_Fig_Cfdce(SessionDataWeek, 1);
+elseif sum(SessionDataWeek.Custom.Modality==4)>30
+    Analyse_Fig_Cfdce(SessionDataWeek, 4);
 end        
 
