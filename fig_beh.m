@@ -14,12 +14,19 @@
 % (6) Distribution of WT for correct (rewarded, skipped and catch) and error trials 
 %
 
-function [f1,Error] = fig_beh(SessionData)
+function [f1,Error] = fig_beh(SessionData,normornot)
 %% Figures:
 
 f1=figure('units','normalized','position',[0,0,1,1]);
 
-
+% Default: use of raw FeedbackTime data
+WTdata = 'FeedbackTime';
+XLABEL = 'Waiting Time (s)';
+% if use of normalized FeedbackTime data
+if exist('normornot','var') && normornot==1 && isfield(SessionData.Custom,'FeedbackTimeNorm')
+    WTdata = 'FeedbackTimeNorm';
+    XLABEL = 'Normalized WT (s)';
+end
 %% (1) Accuracy and Catch trial WT during session 
 
 % Size of the bin for this analysis:
@@ -76,8 +83,8 @@ p.Parent.YColor = [0 0 0];
 ylabel('Percent of trials','fontsize',14);
 % right axis (case more than 10 catch trials during the session only)
 if sum(ndxCatch)>10
-    WT_Catch_Correct = SessionData.Custom.FeedbackTime(ndxCatch & ndxCorrect);
-    WT_Catch_incorrect = SessionData.Custom.FeedbackTime(ndxCatch & ndxFalse);
+    WT_Catch_Correct = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxCorrect);
+    WT_Catch_incorrect = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxFalse);
     clear Xplot i    
     yyaxis right
     % Catch correct WT
@@ -86,7 +93,7 @@ if sum(ndxCatch)>10
     plot(find(ndxCatch & ndxFalse),WT_Catch_incorrect,'+r', 'LineStyle','none','Visible','on','LineWidth',2); 
     ylabel('WT (s)','fontsize',14);
     % Legends et axis
-    legend('Wrong side ','Error ','Catch Correct', 'Catch Wrong side','Location','SouthWest');
+    legend('Wrong side ','Error ','Catch Correct', 'Catch Wrong side','Location','NorthEast');
     p.Parent.YColor = [0 0 0];
 else
     % Legends et axis without Catch trials
@@ -119,6 +126,14 @@ if sum(SessionData.Custom.Modality==2)/sum(SessionData.Custom.Modality==1 | Sess
        'FaceColor','w','EdgeColor',[1 0.5 0.2]);
     ylabel('Auditory trial counts','fontsize',14);
 end
+% Case Larkum brightness task
+if sum(SessionData.Custom.Modality==4)>10
+    yyaxis right
+    h2 = histogram(SessionData.Custom.DV(SessionData.Custom.Modality==4),'BinWidth',0.01,...
+       'FaceColor','w','EdgeColor',[1 0.5 0.2]);
+    ylabel('Brightness trial counts','fontsize',14);
+end
+
 xlim ([h2.BinLimits(1)-0.05,h2.BinLimits(2)+0.05]);
 
 % Legends et axis
@@ -130,11 +145,14 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
        legend('Olfactory trials',...
             'Location','North'); 
     end
-else 
+elseif  sum(SessionData.Custom.Modality==2) == size(SessionData.Custom.Modality,2)
     legend('Auditory trials',...
         'Location','North');
+elseif sum(SessionData.Custom.Modality==4) == size(SessionData.Custom.Modality,2)
+    legend('Visual trials',...
+        'Location','North');
 end
-title({'Trials DV';['Bias aud = ' num2str(Bias_Aud)]},'fontsize',12); % olf = ' num2str(Biasopen _Olf) ' /
+title({'Trials DV';['Bias = ' num2str(Bias)]},'fontsize',12); % olf = ' num2str(Biasopen _Olf) ' /
 xlabel('DV','fontsize',14);hold off;
 
 %% (3) Distribution of trials per Grace period duration
@@ -155,7 +173,7 @@ title('Distribution of grace period ','fontsize',12);
 xlabel('Grace period (s)','fontsize',14);
 ylabel('trial counts','fontsize',14);
 
-clearvars -except SessionData f1 ndx* Error
+clearvars -except SessionData f1 ndx* Error WTdata XLABEL
 
 %% (4) Distribution des WT for each response port (left vs right)
 
@@ -163,14 +181,14 @@ clearvars -except SessionData f1 ndx* Error
 if sum(ndxCatch)>10    
     subplot(2,4,5); hold on;
     % Correct trials on the left side
-    C = histogram(SessionData.Custom.FeedbackTime(ndxCorrect&ndxCatch&ndxLeft),...
-        'BinWidth',0.100); hold on; 
+    C = histogram(SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCorrect&ndxCatch&ndxLeft),...
+        'BinWidth',0.500); hold on; 
     JC = get(C,'child');
     set(JC,'FaceAlpha',0.2)
     C.Parent.XAxis.FontSize = 10; C.Parent.YAxis.FontSize = 10;
     % orrect trials on the right side 
-    D = histogram(SessionData.Custom.FeedbackTime(ndxCorrect&ndxCatch&ndxRight),...
-        'FaceColor','k','EdgeColor','k','BinWidth',0.100); hold on; %
+    D = histogram(SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCorrect&ndxCatch&ndxRight),...
+        'FaceColor','k','EdgeColor','k','BinWidth',0.500); hold on; %
     JD = get(D,'child');
     set(JD,'FaceAlpha',0.2)
     D.Parent.XAxis.FontSize = 10; D.Parent.YAxis.FontSize = 10;
@@ -180,7 +198,7 @@ if sum(ndxCatch)>10
                 'Location','NorthEast');
     leg.FontSize = 10; legend('boxoff');
     title({'Feedback delay';['Proba skip FB Left= ' Error.SkippedLeftFB '/Right= ' Error.SkippedRightFB ' %']},'fontsize',12);
-    xlabel('Time (s)','fontsize',14);ylabel('correct catch trial counts','fontsize',14);hold off;
+    xlabel(XLABEL,'fontsize',14);ylabel('correct catch trial counts','fontsize',14);hold off;
 else
     %% (4) Psyc Olfactory 
     if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | SessionData.Custom.Modality==2)>0.1 
@@ -198,9 +216,14 @@ else
             [SessionData] = Psychometric_fig(SessionData, 2,2,4,5);
         end
     end
+    %% (4) Psyc Brightness 
+    if sum(SessionData.Custom.Modality==4) == size(SessionData.Custom.Modality,2)
+        [SessionData] = Psychometric_fig(SessionData, 4,2,4,5);  
+    end    
+
 end
 
-clearvars -except SessionData f1 ndx* Error
+clearvars -except SessionData f1 ndx* Error  WTdata XLABEL
 %% (5) Distribution of sampling duration for each DV of correct olfactory trials 
 
 % Case more than 10% olfactory trials
@@ -261,7 +284,7 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     end
     xlabel('Time (ms)','fontsize',14);ylabel('trial counts','fontsize',14);hold off;
     
-    clearvars -except SessionData f1 ndx* Error
+    clearvars -except SessionData f1 ndx* Error  WTdata XLABEL
 end
 %% (6) Distribution of sampling duration for each DV of correct auditory trials 
 

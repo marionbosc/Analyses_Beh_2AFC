@@ -60,7 +60,7 @@ if Modality==1
     Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
     Perf.Left = sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==1 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.Right = sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.OdorID==2 & SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf.globale = sum(SessionData.Custom.Modality==1 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==1 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==Modality & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==Modality & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.left_lapserate = 100 - round(psyc(end)*100,1);
     Perf.right_lapserate = round(psyc(1)*100,1);
     
@@ -125,7 +125,7 @@ if Modality==2
     Perf.Right = sum(ndxModality & ndxRightRewd)/sum(ndxModality & ndxRightRewDone);
     Perf.Bias = (Perf.Left-Perf.Right)/2 + 0.5;
     %Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
-    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==Modality & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==Modality & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
@@ -178,7 +178,7 @@ if Modality==3
     Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==2);
     Perf.Left = sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV>0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.Right = sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.DV<0 & SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
-    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==Modality & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==Modality & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
@@ -235,7 +235,7 @@ if Modality==4
     Perf.Right = sum(ndxModality & ndxRightRewd)/sum(ndxModality & ndxRightRewDone);
     Perf.Bias = (Perf.Left-Perf.Right)/2 + 0.5;
     %Perf.Bias = sum(SessionData.Custom.ChoiceLeft==1&SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality)/sum(SessionData.Custom.ChoiceCorrect==1&SessionData.Custom.Modality==Modality);
-    Perf.globale = sum(SessionData.Custom.Modality==2 & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==2 & ~isnan(SessionData.Custom.ChoiceCorrect)); 
+    Perf.globale = sum(SessionData.Custom.Modality==Modality & SessionData.Custom.ChoiceCorrect==1)/sum(SessionData.Custom.Modality==Modality & ~isnan(SessionData.Custom.ChoiceCorrect)); 
     Perf.left_lapserate = 100 - round(PsycY(end)*100,1);
     Perf.right_lapserate = round(PsycY(1)*100,1);
     
@@ -252,12 +252,12 @@ if Modality==4
     p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
     ylim([0 1]);xlim ([-1 1]);
     p.Parent.XTick = -1:0.5:1; p.Parent.YTick = 0:0.2:1;
-    title({['Psychometric Brightness  ' NameSubject '  ' SessionData.SessionDate];...
+    title({['Psychometric Random Dot task  ' NameSubject '  ' SessionData.SessionDate];...
         ['Side Bias toward left = ' num2str(round(Perf.Bias,2))];...
         ['% Success L = ' num2str(round(Perf.Left,2)) ...
         ' / R = ' num2str(round(Perf.Right,2)) ...
         ' / all = ' num2str(round(Perf.globale,2))]},'fontsize',12);
-    xlabel('Brightness contrast','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
+    xlabel('Decision Variable','fontsize',14);ylabel('P(choose left)','fontsize',14);hold off;
 
     clearvars -except SessionData Modality Perf
 end

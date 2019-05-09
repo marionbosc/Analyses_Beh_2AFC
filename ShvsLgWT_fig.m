@@ -40,11 +40,11 @@ elseif Modality == 3
     xtick = -1:0.5:1;
     xlabel = 'DV';
 elseif Modality ==4
-    Sensory_Modality = 'Brightness';
+    Sensory_Modality = 'Random Dot task';
     xlimL = [0 1]; xlimR = [-1 0];
     xmin = -1; xmax = 1;
     xtick = -1:0.5:1;
-    xlabel = 'Brightness contrast';
+    xlabel = 'Decision Variable';
 end
 
 % Plot localisation in the subplot

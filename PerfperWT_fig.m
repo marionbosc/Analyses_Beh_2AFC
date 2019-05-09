@@ -29,6 +29,8 @@ if Modality == 1
     Sensory_Modality = 'Olfactory';
 elseif Modality ==2
     Sensory_Modality = 'Auditory';
+elseif Modality ==4
+    Sensory_Modality = 'Random Dots task';
 end
 
 % WT data retrieval
@@ -101,13 +103,29 @@ if size(NameSubject,2)>1
 end
 %% Plot 
 subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
+
+% right axis: amount of trial per bin of WT
+yyaxis right
+h=histogram(BinWT_id,'BinWidth',1); %
+h.FaceAlpha = 0.2; 
+h.Parent.YLabel.String = 'Trials count';h.Parent.YLabel.FontSize = 14;
+h.Parent.YLabel.Rotation=270; 
+h.BinLimits = [min(h.BinEdges(h.Values>=5)) max(h.BinEdges(h.Values>=5))+1];
+h.Parent.XAxis(1).Limits = [min(h.BinEdges(h.Values>=5)) max(h.BinEdges(h.Values>=5))+1];
+h.Parent.YLabel.Position(1) = h.Parent.YLabel.Position(1)+0.5;
+
+% Reselecting the data to plot:
+Xtoplot = PsycX(PsycX>h.BinLimits(1) & PsycX<h.BinLimits(2));
+Ytoplot = PsycY(PsycX>h.BinLimits(1) & PsycX<h.BinLimits(2));
+semtoplot = semY(PsycX>h.BinLimits(1) & PsycX<h.BinLimits(2));
+
 % left axis: Accuracy per bin of WT
 yyaxis left
-e = errorbar(PsycX,PsycY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
+e = errorbar(Xtoplot,Ytoplot,semtoplot,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
 'MarkerSize',6,'Visible','on');
 e.Parent.XLabel.String = xlabel;e.Parent.YLabel.String = 'Accuracy';
 e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14;
-ylim([0 1.2]); %xlim([round(BorneMin)-0.5 round(BorneMax)+0.5]);
+ylim([0 1.2]);
 % stat result displaying
 if Statornot==1 && ~isempty(signif_idx)
     for i = 1:size(X1,2)
@@ -115,13 +133,5 @@ if Statornot==1 && ~isempty(signif_idx)
         text ((X1(i)+X2(i))/2,1.18-(i*0.03)+0.01,star(i),'fontsize',14);
     end
 end
-% right axis: amount of trial per bin of WT
-yyaxis right
-h=histogram(BinWT_id,'BinWidth',1); %
-h.FaceAlpha = 0.2; 
-h.Parent.YLabel.String = 'Trials count';h.Parent.YLabel.FontSize = 14;
-h.Parent.YLabel.Rotation=270; 
-h.Parent.XAxis(1).Limits(1) = min(h.BinEdges)-0.5;
-h.Parent.XAxis(1).Limits(2) = max(h.BinEdges)+0.5;
-h.Parent.YLabel.Position(1) = h.Parent.YLabel.Position(1)+0.5;
+
 title({[NameSubject '  ' Sensory_Modality '  ' TitleExtra]; Stat_title},'fontsize',12);
