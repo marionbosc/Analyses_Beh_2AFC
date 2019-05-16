@@ -5,12 +5,12 @@
 % Pathname_name = 'Pathname_homeserver_MC8.mat';
 % Filename_name = 'AllDatafilename_181003_1109_Data_Cfdce_task_MC7.mat';
 % Pathname_name = 'Pathname_homeserver_MC7.mat';
-cd('/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy1/Session Data')
-Filename_name = 'Filename_CfdceCatch_0301_0423_Thy1.mat';
-Pathname_name = 'Pathname_Local_Thy1.mat';
-% cd('/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy2/Session Data')
-% Filename_name = 'Filename_Cfdce_0306_0423_Thy2.mat';
-% Pathname_name = 'Pathname_Local_Thy2.mat';
+% cd('/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy1/Session Data')
+% Filename_name = 'Filename_CfdceCatch_0301_0423_Thy1.mat';
+% Pathname_name = 'Pathname_Local_Thy1.mat';
+cd('/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy2/Session Data')
+Filename_name = 'Filename_Cfdce_0306_0423_Thy2.mat';
+Pathname_name = 'Pathname_Local_Thy2.mat';
 
 load(Filename_name)
 load(Pathname_name)
@@ -72,7 +72,7 @@ end
 title(['WT across session ' Nom],'fontsize',12);  
 xlabel('Time from session beginning (min)','fontsize',14);ylabel('Waiting Time','fontsize',14);hold off;    
 
-%% All data correlation and fit
+%% All data correlation and linear regression
 
 [rErr, pErr] = corrcoef(TimeErr_vec,WTErr_vec);[rCorr, pCorr] = corrcoef(TimeCorr_vec,WTCorr_vec);
 
@@ -92,19 +92,18 @@ ylabel('Waiting Time','fontsize',16);xlabel('Time from session beginning (min)',
 title({['Correlation: Error r = ' num2str(round(rErr(2),2)) ' / p = '  num2str(round(pErr(2),2))];...
     ['Correct r = ' num2str(round(rCorr(2),2)) ' / p = '  num2str(round(pCorr(2),2))]},'fontsize',14); hold off;
 
-%% Linear regression:
+%% Linear regression for any choosen of freedom:
 plotfit = 'on';
+degreeoffreedom = 2;
 
 for manip = unique(SessionDataWeek.Custom.Session)
     
     % id of catched trials
     ndxCatched = SessionDataWeek.Custom.ChoiceCorrect==1 & SessionDataWeek.Custom.CatchTrial & SessionDataWeek.Custom.Session==manip | SessionDataWeek.Custom.ChoiceCorrect==0 & SessionDataWeek.Custom.Session==manip;
     
-    % Polynomial fit (linear regression as n degree of freedom in the equation):
-    degreeoffreedom = 2;
+    % Polynomial fit (linear regression if 1 degree of freedom in the equation):
     [p, YCalc] = polynomial_fit(SessionDataWeek.Custom.TrialStartSec(ndxCatched),SessionDataWeek.Custom.FeedbackTime(ndxCatched),degreeoffreedom); 
-    
-   
+      
     if strcmp(plotfit,'on')
         % Plot
         fig = figure('units','normalized','position',[0,0,0.5,0.5]); hold on
@@ -117,10 +116,13 @@ for manip = unique(SessionDataWeek.Custom.Session)
         ylabel('Waiting Time','fontsize',16);xlabel('Time from session beginning (min)','fontsize',16);
         title(['Manip number ' num2str(manip)],'fontsize',14); hold off;
     end
-end    
-%% WT normalization on each session of SessionDataWeek:
+end   
 
-% Plot of Confidence behavior raw data
+%% Comparison of Cfdce Signatures before and after WT normalization (for a choosen degree of freedom) on each session of SessionDataWeek:
+
+degreeoffreedom = 2;
+
+% Plot of Confidence behavior on raw data
 figure('units','normalized','position',[0,0,0.5,1]);
 Modality = 4; normornot = 0; SensoORMvt = 0; plotpointormean = 2; Statornot = 0;
 Psychometric_fig(SessionDataWeek, Modality,2,2,1);
@@ -128,6 +130,7 @@ Vevaiometric_fig(SessionDataWeek, Modality,2,2,2,SensoORMvt,plotpointormean,norm
 PerfperWT_fig(SessionDataWeek, 2, normornot,2,2,3,SessionDataWeek.SessionDate,Statornot,Modality);
 ShvsLgWT_fig(SessionDataWeek, Modality, normornot,2,2,4,'',70,8);
 
+% Delete any former normalized data saved in SessionDataWeek:
 SessionDataWeek.Custom.FeedbackTimeNorm(1:SessionDataWeek.nTrials) = nan(1,SessionDataWeek.nTrials);
 
 for manip = unique(SessionDataWeek.Custom.Session)
@@ -136,7 +139,6 @@ for manip = unique(SessionDataWeek.Custom.Session)
     ndxCatched = SessionDataWeek.Custom.ChoiceCorrect==1 & SessionDataWeek.Custom.CatchTrial & SessionDataWeek.Custom.Session==manip | SessionDataWeek.Custom.ChoiceCorrect==0 & SessionDataWeek.Custom.Session==manip;
     
     % Polynomial fit (linear regression as 1 degree of freedom in the equation):
-    degreeoffreedom = 2;
     [p,~,~,R2adjusted,Formula]  = polynomial_fit(SessionDataWeek.Custom.TrialStartSec(ndxCatched),SessionDataWeek.Custom.FeedbackTime(ndxCatched),degreeoffreedom); 
     SessionDataWeek.Custom.FeedbackTimeNorm(ndxCatched) = SessionDataWeek.Custom.FeedbackTime(ndxCatched) - polyval(p,SessionDataWeek.Custom.TrialStartSec(ndxCatched));
     SessionDataWeek.NormalizationFormula{manip} = Formula;
@@ -144,10 +146,14 @@ for manip = unique(SessionDataWeek.Custom.Session)
     
     clear p
 end
-cd(SessionDataWeek.pathname)
-save(SessionDataWeek.filename,'SessionDataWeek') % save(['SessionDataWeek_' SessionDataWeek.filename],'SessionDataWeek');   
 
-% Plot of Confidence behavior normalized data
+% Save SessionDataWeek in its data folder with normalized data:
+if ~isempty(SessionDataWeek.filename)
+    cd(SessionDataWeek.pathname)
+    save(SessionDataWeek.filename,'SessionDataWeek')    
+end
+
+% Plot of Confidence behavior on normalized data
 figure('units','normalized','position',[0,0,0.5,1]);
 normornot = 1;
 Psychometric_fig(SessionDataWeek, Modality,2,2,1);
@@ -155,15 +161,18 @@ Vevaiometric_fig(SessionDataWeek, Modality,2,2,2,SensoORMvt,plotpointormean,norm
 PerfperWT_fig(SessionDataWeek, 2, normornot,2,2,3,SessionDataWeek.SessionDate,Statornot,Modality);
 ShvsLgWT_fig(SessionDataWeek, Modality, normornot,2,2,4,'',70,8);
 
-%%
+%% Scatterplot of WT over time for every session at once, on raw and normalized data:
+% Data Catched Error trial:
 XErr = SessionDataWeek.Custom.TrialStartSec(SessionDataWeek.Custom.ChoiceCorrect==0)./60;
 YErr = SessionDataWeek.Custom.FeedbackTime(SessionDataWeek.Custom.ChoiceCorrect==0);
 YnormErr = SessionDataWeek.Custom.FeedbackTimeNorm(SessionDataWeek.Custom.ChoiceCorrect==0);
 
+% Data Catched Correct trial:
 XCorr = SessionDataWeek.Custom.TrialStartSec(SessionDataWeek.Custom.ChoiceCorrect==1 & SessionDataWeek.Custom.CatchTrial)./60;
 YCorr = SessionDataWeek.Custom.FeedbackTime(SessionDataWeek.Custom.ChoiceCorrect==1 & SessionDataWeek.Custom.CatchTrial);
 YnormCorr = SessionDataWeek.Custom.FeedbackTimeNorm(SessionDataWeek.Custom.ChoiceCorrect==1 & SessionDataWeek.Custom.CatchTrial);
 
+% Plot raw data:
 figure('units','normalized','position',[0,0,0.5,1]);
 subplot(2,1,1); hold on;
 scatter(XErr,YErr,4,'r',...
@@ -174,6 +183,7 @@ ylabel('Waiting Time','fontsize',16);xlabel('Time from session beginning (min)',
 ylim([0 20]);
 title(['Raw data ' SessionDataWeek.Custom.Subject],'fontsize',14); hold off;
     
+% Plot normalized data:
 subplot(2,1,2); hold on;
 scatter(XErr,YnormErr,4,'r',...
          'Marker','o','MarkerFaceColor','r','Visible','on','MarkerEdgeColor','r');
@@ -181,5 +191,4 @@ scatter(XCorr,YnormCorr,4,'g',...
         'Marker','o','MarkerFaceColor','g','Visible','on','MarkerEdgeColor','g');
 ylabel('Norm Waiting Time','fontsize',16);xlabel('Time from session beginning (min)','fontsize',16);
 title('Normalized data','fontsize',14); hold off;
-
-    
+   

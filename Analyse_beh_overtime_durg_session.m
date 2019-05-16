@@ -15,11 +15,7 @@ load(Pathname_name)
 
 statornot = 0;
 
-% Mean_WT_Session_unlim(4, 'Thy2 CfdceCatch','/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy2/Session Data/SessionDataWeek_CfdceCatch_0306_0423_Thy2.mat')
-% Perf_Bias_per_Session_unlim(4, 'Thy1 Cfdce','/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh/Larkum_data/Data/Mouse2AFC/Thy1/Session Data/SessionDataWeek_Cfdce_0301_0423.mat')
-
 %% Number of trials executed 
-
 figure('units','normalized','position',[0,0,0.7,1]); hold on;
 
 for manip= 1 : size(filename,2)
@@ -51,14 +47,8 @@ for manip= 1 : size(filename,2)
     clear SessionData t
 end
 
-% temps_min= datetime(0*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
-% temps_max = datetime(3*3600,'ConvertFrom','epochtime','Epoch','2000-01-01');
-
 title(['Nb of trials executed throughout session - ' Nom],'fontsize',12);
-% xlim ([temps_min temps_max]);
 ylabel('Number of executed trials','fontsize',16);xlabel('Time from session start','fontsize',16);
-% leg = legend('Mon','Tues','Wed','Thur','Fri','Location','SouthEast');
-% leg.FontSize = 10; legend('boxoff');
 hold off;
 
 % Scatterplot and correlation between session duration and amount of executed trials
@@ -66,7 +56,6 @@ hold off;
 figure('units','normalized','position',[0,0,0.5,0.5]); hold on;
 scatter(Lasttrialtime,Tot_essais,4,'k',...
          'Marker','o','MarkerFaceColor','k','Visible','on','MarkerEdgeColor','k');
-%xlim ([temps_min temps_max]);
 ylabel('Number of executed trials','fontsize',16);xlabel('Session duration','fontsize',16);
 title({['Correlation: r = ' num2str(round(r(2),2)) ' / p = '  num2str(round(p(2),2))] Nom},'fontsize',14); hold off;
 
@@ -132,7 +121,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'MT';
 Titre_parametre_analyse =' Movement Time correct trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
 
 %% MT Error trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
@@ -141,4 +130,40 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'MT';
 Titre_parametre_analyse =' Movement Time error trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+
+%% RT Correct trials
+id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
+id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
+bin_size = 100;
+type_variable = 'duration';
+epoch = 'PostStimRT';
+Titre_parametre_analyse =' Reaction Time post stimulus correct trials (s)';
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+
+%% RT Error trials
+id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
+id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
+bin_size = 100;
+type_variable = 'duration';
+epoch = 'PostStimRT';
+Titre_parametre_analyse =' Reaction Time post stimulus error trials (s)';
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+
+%% ST Correct trials
+id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
+id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
+bin_size = 100;
+type_variable = 'duration';
+epoch = 'ST';
+Titre_parametre_analyse =' Sampling Time correct trials (s)';
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+
+%% ST Error trials
+id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
+id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
+bin_size = 100;
+type_variable = 'duration';
+epoch = 'ST';
+Titre_parametre_analyse =' Sampling Time error trials (s)';
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);

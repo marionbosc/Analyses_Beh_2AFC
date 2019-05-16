@@ -1,35 +1,48 @@
 %% Script to combine several sessions of training in a superdata structure
 %
 % 1) Identify the Session to combine together:
-%    - Prompt windows to provide the animal's name
+%    a) Prompt windows to provide the name of the Bpod protocol used for
+%    data collection
 %       --> Allow to identify the path towards the data files to concatenate
-%    - Finder windows open to select the data fileS of the session to include
-%       --> Select them all at once (use CTR or cmd to select all the files at the same time)
-%    - Create a variable containing all the filename and a variable
-%    containing all tle pathname
-%    - Prompt windows to inquire whether you want to save the filename and
-%    pathname in the Session Data folder of the animal (0 = no / 1 = save)
-%       --> Case = 1: Prompt windows to provide the name of the Dataset filenames and pathnames
+%    b) Prompt windows to provide the animal's name
+%       --> Allow to identify the path towards the data files to concatenate
+%    c) Prompt windows to decide whether the list of file to compile already
+%    exist or need to be created
+%       --> finder to select and load the existing filename file
+%        or
+%    	--> Finder windows open to select the data fileS of the session to include
+%        - Select them all at once (use CTR or cmd to select all the files at the same time)
+%        - Create a variable containing all the filename and a variable
+%       containing the pathname
+%        - Prompt windows to inquire whether you want to save the filename and
+%       pathname in the Session Data folder of the animal (0 = no / 1 = save)
+%    d) GUI with the list of critical criteria and their respective value to select the "good
+%    sessions' to analyse Confidence behavior. Uncheck the unnecessary criteria and adjust the 
+%    value according to the type of session you want to select, and then click on "Update".  
 %
-% 2) Implement and do missing analysis on every session SessionData and concatenate all sessions 
+% 2) Implement and do missing analysis on every session SessionData, select the one that fits the 
+%   Confidence criterion set earlier and concatenate the sessions that passed the selection
 %   - Load  and implement SessionData
 %   - Plot/Analysis for the session (if it has not been done already)
+%   - Check if comply to the Confidence criteria and if not, ask if we
+%   still want to include the session based on the session value for the
+%   criteria it didn't fill
 %   - Concatenate the SessionData into the superdata structure (SessionDataWeek)
 %
 % 3) Save superdataset created (SessionDataWeek) in animal's data folder
 %    - Prompt windows to inquire whether you want to save the dataset in the Session Data folder of the animal (0 = no / 1 = save)
-%       --> Case = 1: Prompt windows to provide the name of the Dataset filenames and pathnames
+%       --> Case = 1: Prompt windows to provide the name of the Dataset and Filename
 %
-% 4) Redefine the sessions to include into the dataset (in case daily
-% analysis revealed sessions to exclude)
+% 4) Redefine the sessions to include into the dataset (in case Confidence
+%    criteria where not reached for some session that where then excluded)
 %    - Prompt windows to inquire whether you want to exclude session(s) from
 %    the predefine population
 %       --> Case = 1: GUI with the list of the session contained in
-%       SessionDataWeek to unselect the session to exclude
-%       - After selection, Run and Advance the script without closing the GUI to continue
-%       - Prompt windows to inquire whether you want to save the new filename and
-%    pathname of the new population of session in the Session Data folder of the animal (0 = no / 1 = save)
-%       --> Case = 1: Prompt windows to provide the name of the Dataset filenames and pathnames
+%       SessionDataWeek to unselect the session to exclude (blank if
+%       excluded)
+%       - Prompt windows to inquire whether you want to save the new filename
+%       of the new population of session in the Session Data folder of the animal (0 = no / 1 = save)
+%       --> Case = 1: Prompt windows to provide the name of the Dataset filenames
 % 
 % 5) Plot figures on general and confidence behavior on the combined dataset
 % 
@@ -86,6 +99,7 @@ end
 
 % Set criteria to include in the Confidence analysis:
 get_SessionData_ConfidenceSettings(1);
+
 %% 2) Session by session implementation and complementary analysis + Super-dataset creation
 
 % Loop on every session to combine into the super-dataset
@@ -115,11 +129,11 @@ for Day = 1 : size(filename,2)
         
         % Case more than 50 visual trials
         if sum(SessionData.Custom.Modality==4)>50
-            % Case the plot/analysis on Confidence for Brightness trials does not exist
-            if exist([SessionData.filename(1:end-4) 'CfdceBright.png'],'file')~=2
-                CfdceBright = Analyse_Fig_Cfdce(SessionData, 4); % Analysis confidence Aud only
-                FigurePathCfdceBright = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceBright.png']);
-                saveas(CfdceBright,FigurePathCfdceBright,'png'); takeabreak = true;
+            % Case the plot/analysis on Confidence behavior does not exist
+            if exist([SessionData.filename(1:end-4) 'CfdceVis.png'],'file')~=2
+                CfdceVis = Analyse_Fig_Cfdce(SessionData, 4); % Analysis confidence beh
+                FigurePathCfdceVis = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceVis.png']);
+                saveas(CfdceVis,FigurePathCfdceVis,'png'); takeabreak = true;
             end
         end
         
@@ -141,6 +155,7 @@ for Day = 1 : size(filename,2)
         if Day == 1 || ~exist('SessionDataWeek', 'var')
             DayIncl = 1;
             SessionDataWeek = SessionData;
+            SessionDataWeek.SessionDate = []; SessionDataWeek.filename = [];
             SessionDataWeek.Custom.Session = repmat(DayIncl,1,SessionData.nTrials);
             MainFields = fieldnames(SessionData.Custom);
         % Case following sessions of the dataset
@@ -159,19 +174,6 @@ for Day = 1 : size(filename,2)
                 if ~any(strcmp(CustomFields{field},WeirdFields)) && any(strcmp(CustomFields{field},MainFields))
                     SessionDataWeek.Custom.(CustomFields{field}) = [SessionDataWeek.Custom.(CustomFields{field}) SessionData.Custom.(CustomFields{field})];
                 end
-             end
-
-             % Concatenation of the data for the other "weird" fields
-             if isfield(SessionDataWeek.Custom,'AuditoryOmega') % case of auditory session
-                SessionDataWeek.Custom.AuditoryOmega = [SessionDataWeek.Custom.AuditoryOmega SessionData.Custom.AuditoryOmega(1:SessionData.nTrials)];
-                SessionDataWeek.Custom.LeftClickRate = [SessionDataWeek.Custom.LeftClickRate SessionData.Custom.LeftClickRate(1:SessionData.nTrials)];
-                SessionDataWeek.Custom.RightClickRate = [SessionDataWeek.Custom.RightClickRate SessionData.Custom.RightClickRate(1:SessionData.nTrials)];
-                SessionDataWeek.Custom.LeftClickTrain = [SessionDataWeek.Custom.LeftClickTrain SessionData.Custom.LeftClickTrain(1:SessionData.nTrials)];
-                SessionDataWeek.Custom.RightClickTrain = [SessionDataWeek.Custom.RightClickTrain SessionData.Custom.RightClickTrain(1:SessionData.nTrials)];
-             end
-
-             if isfield(SessionDataWeek.Custom,'OdorID') % case of olfactory session
-                 SessionDataWeek.Custom.OdorID = [SessionDataWeek.Custom.OdorID SessionData.Custom.OdorID];
              end
 
              % Add the rank of the session in the dataset for all the trials of the session
@@ -207,11 +209,16 @@ clear def dlg_title numlines prompt
 if saving==1
     % Prompt windows to provide the name of the Dataset
     prompt = {'Name superdataset = '}; dlg_title = 'Date Sessions'; numlines = 1;
-    def = {DatasetName}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    def = {['Cfdce_' AnimalName]}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
     clear def dlg_title numlines prompt 
     
-    % Save the name of the dataset in SessionDataWeek
-    SessionDataWeek.SessionDate = DatasetName;
+    % Prompt windows to provide the name of the Filename name
+    prompt = {'Name filename = '}; dlg_title = 'Name filename'; numlines = 1;
+    def = {['Filename_' DatasetName]}; FilenameName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+    clear def dlg_title numlines prompt 
+    
+    % Save the name of the dataset file and the filename in SessionDataWeek
+    SessionDataWeek.SessionDate = FilenameName;
     SessionDataWeek.filename = ['SessionDataWeek_' DatasetName];
     
     % Save SessionDataWeek
@@ -223,12 +230,12 @@ end
 
 % Prompt windows to inquire whether you want to exclude session(s) from the predefine population 
 prompt = {'Modify previous session selection? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
-def = {'0'}; Modify = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+def = {'1'}; Modify = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
 clear def dlg_title numlines prompt
 
 if Modify == 1
     % Create GUI with checkbox for each previously selected session
-    nb_column = round(size(filename,2)/30);
+    nb_column = max(1,round(size(filename,2)/30));
     top = (20*30)+50;
     h.f = figure('Position',[100 100 350*nb_column top]);
     Day = 1; Xcoord = 10;keepgoing = 1;
@@ -251,21 +258,20 @@ if Modify == 1
     
     waitfor(h.f)
     
-    % Processing of the new list of session to combine
-    % Prompt windows to inquire whether you want to save the new filename and pathname
+    % Prompt windows to inquire whether you want to save the new filename
     prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
-    def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+    def = {'1'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
     clear def dlg_title numlines prompt
     
     % Case "Yes"
     if saving==1
         % Prompt windows to provide the name of the Dataset
         prompt = {'Name file = '}; dlg_title = 'New dataset filename'; numlines = 1;
-        def = {['Cfdcefilename_' AnimalName]}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+        def = {FilenameName}; FilenameName = char(inputdlg(prompt,dlg_title,numlines,def)); 
         clear def dlg_title numlines prompt 
         % Save pathname and filename from the new population of session selected
         cd([Pathtodata '/' AnimalName '/Session Data'])
-        save(DatasetName,'filename')
+        save(FilenameName,'filename')
         save(['Pathname_Local_' AnimalName],'pathname')
     end
     
@@ -273,8 +279,8 @@ end
 
 
 %% 5) Plot figures on general and confidence behavior on the combined dataset
-% Path to Session Figure of the animal
-cd([Pathtodata '/' AnimalName '/Session Figures']); 
+% Path to Analyses folder of the animal
+cd([Pathtodata '/' AnimalName '/Analyses']); 
 
 % Plot of general behavior analysis
 fig_beh(SessionDataWeek);
