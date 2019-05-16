@@ -10,7 +10,9 @@
 %      - Distribution des WT for each response port (left vs right)
 % (5)  - Distribution of sampling duration for each DV of correct olfactory trials 
 %      or
-%      - Distribution of sampling duration for each DV of correct auditory trials --> not implemented yet... 
+%      - Distribution of sampling duration for each DV of correct auditory trials --> not implemented yet...
+%      or
+%      - Distribution of correct and error catched trial WT if SessionDataWeek
 % (6) Distribution of WT for correct (rewarded, skipped and catch) and error trials 
 %
 
@@ -285,6 +287,28 @@ if sum(SessionData.Custom.Modality==1)/sum(SessionData.Custom.Modality==1 | Sess
     xlabel('Time (ms)','fontsize',14);ylabel('trial counts','fontsize',14);hold off;
     
     clearvars -except SessionData f1 ndx* Error  WTdata XLABEL
+    
+    %% Distribution of correct and error catched trial WT if SessionDataWeek
+elseif SessionData.DayvsWeek ==2 && SessionData.Settings.GUI.CatchError == 1
+    subplot(2,3,5);hold on
+    ndxCatched = SessionData.Custom.ChoiceCorrect==0 & SessionData.Custom.FeedbackTime<19;
+    if sum(ndxCatched)>20
+        D =histogram(SessionData.Custom.FeedbackTime(ndxCatched),'BinWidth',0.2,...
+            'FaceColor','r','EdgeColor','r');
+        JD = get(D,'child'); set(JD,'FaceAlpha',0.2)
+        leg{1} = 'Error trials';
+    end
+    clear ndxCatched
+    ndxCatched = SessionData.Custom.ChoiceCorrect==1 & SessionData.Custom.CatchTrial ...
+        & SessionData.Custom.FeedbackTime<19;
+    if sum(ndxCatched)>20
+        E =histogram(SessionData.Custom.FeedbackTime(ndxCatched),'BinWidth',0.2,...
+            'FaceColor','g','EdgeColor','g');
+        JE = get(E,'child'); set(JE,'FaceAlpha',0.2)
+        leg{2} = 'Correct trials';
+    end
+    ylabel('Trials count','fontsize',16); xlabel('WT (s)','fontsize',16);
+    title('Catched trial WT','fontsize',14); legend(leg,'Location','NorthEast');
 end
 %% (6) Distribution of sampling duration for each DV of correct auditory trials 
 
