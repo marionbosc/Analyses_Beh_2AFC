@@ -25,9 +25,11 @@
 % - SessionData.Custom.SkippedFeedback
 % - SessionData.Custom.GracePeriod(s) duration(s)
 % - SessionData.Custom.LeftRewarded  
+% - SessionData.Custom.RT, SessionData.Custom.PostStimRT and
+% SessionData.Custom.MT based on Event Data stored in SessionData
 %
-% - Computation of normalized WT per session: WTnorm = WT - mean(WT(CatchTrials) per side
-% - Computation of DVlog: log distrib of the Decision Variable  
+% - Computation of normalized WT per session: WTnorm = WT - mean(WT(CatchTrials) per side (not for Larkum's data)
+% - Computation of DVlog: log distrib of the Decision Variable 
 % - Get and format time of each trial beginning in time value
 %
 % (4) Saving of implemented SessionData
@@ -160,7 +162,10 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
             || ~isfield(SessionData.Custom, 'Modality') ... %|| ~isfield(SessionData.Custom, 'TrialTypes') ...     
             || ~isfield(SessionData.Custom, 'SkippedFeedback') ...
             || ~isfield(SessionData.Custom, 'GracePeriod')...
-            || ~isfield(SessionData.Custom, 'LeftRewarded')
+            || ~isfield(SessionData.Custom, 'LeftRewarded')...
+            || ~isfield(SessionData.Custom,'RT')...
+            || ~isfield(SessionData.Custom,'PostStimRT')
+        
 
         if isfield(SessionData.Custom,'OdorFracA')
             % Retrieved all the percent of odor used during the session:
@@ -329,7 +334,12 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
                         SessionData.Custom.GracePeriod(nb_graceperiod,iTrial) = (SessionData.RawEvents.Trial{iTrial}.States.PunishGrace(nb_graceperiod,2)...
                             -SessionData.RawEvents.Trial{iTrial}.States.PunishGrace(nb_graceperiod,1));
                     end  
-                end          
+                end  
+                
+                % Calcul Reaction Time and Movement Time and add them to SessionData.Custom
+                if ~isfield(SessionData.Custom,'RT') || ~isfield(SessionData.Custom,'PostStimRT')
+                    Real_RT_MT_calculation
+                end
 
                 clear statesThisTrial
             end
@@ -339,15 +349,17 @@ if sum(strcmp(SessionData.Protocol, {'Dual2AFC', 'Mouse2AFC'}))
     end
 
     % Computation of normalized WT per session: WTnorm = WT - mean(WT(CatchTrials) per side
-    ndxCatch = SessionData.Custom.CatchTrial(1:end) & SessionData.Custom.FeedbackTime(1:end)>=0.5;
-    if sum(ndxCatch)>10
-        ndx_left = SessionData.Custom.ChoiceLeft(1:end)==1;
-        ndx_right = SessionData.Custom.ChoiceLeft(1:end)==0;
-        medianWTSession_left = nanmedian(SessionData.Custom.FeedbackTime(ndxCatch&ndx_left));
-        medianWTSession_right = nanmedian(SessionData.Custom.FeedbackTime(ndxCatch&ndx_right));
-        SessionData.Custom.FeedbackTimeNorm(ndx_left) = SessionData.Custom.FeedbackTime(ndx_left)-medianWTSession_left;
-        SessionData.Custom.FeedbackTimeNorm(ndx_right) = SessionData.Custom.FeedbackTime(ndx_right)-medianWTSession_right;
-        SessionData.Custom.FeedbackTimeNorm(~ndx_left&~ndx_right) = NaN;
+    if ~isfield(SessionData.Custom , 'LightIntensityLeft') % Do implement the WT normalization for Kepecs lab data only
+        ndxCatch = SessionData.Custom.CatchTrial(1:end) & SessionData.Custom.FeedbackTime(1:end)>=0.5;
+        if sum(ndxCatch)>10
+            ndx_left = SessionData.Custom.ChoiceLeft(1:end)==1;
+            ndx_right = SessionData.Custom.ChoiceLeft(1:end)==0;
+            medianWTSession_left = nanmedian(SessionData.Custom.FeedbackTime(ndxCatch&ndx_left));
+            medianWTSession_right = nanmedian(SessionData.Custom.FeedbackTime(ndxCatch&ndx_right));
+            SessionData.Custom.FeedbackTimeNorm(ndx_left) = SessionData.Custom.FeedbackTime(ndx_left)-medianWTSession_left;
+            SessionData.Custom.FeedbackTimeNorm(ndx_right) = SessionData.Custom.FeedbackTime(ndx_right)-medianWTSession_right;
+            SessionData.Custom.FeedbackTimeNorm(~ndx_left&~ndx_right) = NaN;
+        end
     end
 
     % Computation of DVlog: log distrib of the Decision Variable (for auditory click task only)
