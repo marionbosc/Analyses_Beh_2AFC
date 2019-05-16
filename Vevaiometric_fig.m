@@ -9,6 +9,7 @@
 % - option to change the x data disposition: 0 --> right/left of the DV points /
 %  1 --> right/left port entered (right/left (0) sensory evidence by default)
 % - plotpointormean = 1 --> plot all datas point / = 2 --> plot binned data 
+% - normornot = 1 --> Analysis on normalized data / 0 --> Analyse on raw data (default)
 %
 %
 
@@ -34,7 +35,8 @@ if exist('normornot','var') && normornot==1 && isfield(SessionData.Custom,'Feedb
     Ylimit = 'ylim([floor(min(Ymin)) ceil(max(Ymax))])';
 end
 
-VevaiometricMinWT = 2; % FB time minimum included in the analysis 
+VevaiometricMinWT = 2;% FB time minimum included in the analysis
+VevaiometricMaxWT = 20; % FB time max included in the analysis
 
 % Axis limits and label
 % Default values:
@@ -66,7 +68,8 @@ subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 Plot_displayed = 0;
 
 %% Retrieve trial index to analyse
-ndxIncl = SessionData.Custom.Modality(1:end) == Modality & SessionData.Custom.FeedbackTime > VevaiometricMinWT; % Trials from the sensory modality and WT > minWT
+ndxIncl = SessionData.Custom.Modality(1:end) == Modality & SessionData.Custom.FeedbackTime > VevaiometricMinWT...
+    & SessionData.Custom.FeedbackTime < VevaiometricMaxWT; % Trials from the sensory modality and WT > minWT
 ndxError = SessionData.Custom.ChoiceCorrect(1:end) == 0 ; % all (completed) error trials (including catch errors)
 ndxCorrectCatch = SessionData.Custom.CatchTrial(1:end) & SessionData.Custom.ChoiceCorrect(1:end) == 1; % correct catch trials
 ndxLeft=SessionData.Custom.ChoiceLeft(1:end)==1; % Left trials
@@ -262,7 +265,7 @@ if Plot_displayed == 1
     s.Parent.XLabel.FontSize = 14;s.Parent.YLabel.FontSize = 14; 
     % Axis limits
     xlim([xmin xmax]); 
-    if ~exist(Ymin,'var')
+    if ~exist('Ymin','var')
         Ymin = min([s.Parent.YLim(1) s2.Parent.YLim(1)]);
         Ymax = max([s.Parent.YLim(2) s2.Parent.YLim(2)]);
     end
