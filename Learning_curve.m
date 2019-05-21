@@ -58,10 +58,17 @@ for animal = 1 : Nb_animal
         SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,session);
         % Get the date of the session:
         datemanip{animal,session} = datestr(datetime(str2num(SessionData.SessionDate) , 'ConvertFrom','yyyymmdd'),'dd-mmm');
+        % for Auditory discrimination task
         if isfield(SessionData.Custom, 'AuditoryOmega')
-            % Get the binaural contrast of the session:
-            Bin_Contrast{animal,session}= unique(SessionData.Custom.AuditoryOmega)*100;
+            % for beta DV distribution --> get the Alpha (set the difficulty of the session)
+            if SessionData.Settings.GUI.AuditoryTrialSelection == 1 
+                Bin_Contrast{animal,session} = SessionData.Settings.GUI.AuditoryAlpha;
+            elseif SessionData.Settings.GUI.AuditoryTrialSelection == 2
+                % for discrete DV distribution --> Get the binaural contrast of the session:
+                Bin_Contrast{animal,session}= unique(SessionData.Custom.AuditoryOmega)*100;
+            end
             Modality = 2;
+        % for Larkum Visual discrimination task
         elseif isfield(SessionData.Custom, 'StimulusOmega')
             % Get the binaural contrast of the session:
             Bin_Contrast{animal,session}= unique(SessionData.Custom.StimulusOmega)*100;
@@ -69,7 +76,7 @@ for animal = 1 : Nb_animal
         end
         
         % Retrieve data on accuracy and bias for the session and plot the Psychometric
-        [SessionData,Accu(session)] = Psychometric_fig(SessionData, Modality,1,1,1);
+        [SessionData,Accu(session)] = Psychometric_fig(SessionData, Modality,1,1,1,[1 1 1] - (session /size(filename,2)));
     end
     
     % Save psychometric:
@@ -94,16 +101,22 @@ for animal = 1 : Nb_animal
      if ~isempty(new_difficulty)
          plot(datetime(datestr(datemanip(animal,new_difficulty))),Accuracy(new_difficulty),...
              'k','LineStyle','none','Marker','h','MarkerSize',10,'MarkerFaceColor','k','Visible','on');
+         t=text(datetime(datestr(datemanip(animal,new_difficulty))),Accuracy(new_difficulty)+0.02,...
+             Bin_Contrast(animal,new_difficulty),'fontsize',14); % ,'HorizontalAlignment','center'
+         set(t,'Rotation',45);
          last_difficulties = Bin_Contrast{animal,new_difficulty(end)};
      else
          last_difficulties = Bin_Contrast{animal,1};
      end   
+     if SessionData.Settings.GUI.AuditoryTrialSelection == 2
+        last_difficulties = last_difficulties(last_difficulties<50)/100;
+     end
     e.Parent.XLabel.String = 'Behavioral Sessions'; e.Parent.YLabel.String = 'Accuracy';
     e.Parent.XLabel.FontSize = 14; e.Parent.YLabel.FontSize = 14; 
     e.Parent.YLim=[0 1]; e.Parent.XTickLabelRotation = 45;
     e.Parent.YTick = round(min(e.Parent.YTick)):0.2:round(max(e.Parent.YTick));
     plot(e.Parent.XLim, [0.5 0.5], '--k'); 
-    title(['Learning curve ' Name ' / Difficulty reached: ' num2str(last_difficulties(last_difficulties<50)/100)],'fontsize',12);
+    title(['Learning curve ' Name ' / Difficulty reached: ' num2str(last_difficulties)],'fontsize',12);
     leg = legend('Accuracy','Difficulty increased','Location','southeast');
     leg.FontSize = 12; legend('boxoff');
 
@@ -130,7 +143,7 @@ for animal = 1 : Nb_animal
         Bias_Animals = [Bias_Animals; Accu(:).Bias];
     end
 
-    clearvars -except Accu_* Bias_* Nb_of_sessions Animal_Names Saving pathdata* Pathtodata datemanip Bin_Contrast
+    clearvars -except Accu_* Bias_* Nb_of_sessions Animal_Names Saving pathdata* Pathtodata datemanip Bin_Contrast Nb_animal
 end
 %% Plot of leaning curves and bias across days:
 if size(Accu_Animals,1)>1
@@ -142,7 +155,8 @@ if size(Accu_Animals,1)>1
     f1=figure('units','normalized','position',[0,0,0.7,1]); hold on
     hold on
     e=errorbar(1:size(Accu_Animals,2),Mean_Perf_Souris,SEM_Perf_Souris ,...
-        'k','LineStyle','-','Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
+        'k','LineStyle','-','LineWidth',1,...
+        'Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
     e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Accuracy';
     e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
     e.Parent.YLim=[0 1];e.Parent.XLim=[1 size(Accu_Animals,2)];
@@ -156,10 +170,11 @@ end
 f2=figure('units','normalized','position',[0,0,0.7,1]); hold on
 hold on
 for animal = 1:size(Accu_Animals,1)
+    colortoplot{animal} = rand(1,3);
     % Plot accuracy curve per date of session
     e(animal)=plot(datetime(datestr(datemanip(animal,find(~cellfun(@isempty,datemanip(animal,:)))))),...
         Accu_Animals(animal,~isnan(Accu_Animals(animal,:))),...
-         'LineStyle','-','LineWidth',1);
+         'Color',colortoplot{animal},'LineStyle','-','LineWidth',1);
      % Add a marker on the accuracy curve for each session with increased
      % difficulty
      new_difficulty = []; 
@@ -170,7 +185,8 @@ for animal = 1:size(Accu_Animals,1)
      end
      if ~isempty(new_difficulty)
          plot(datetime(datestr(datemanip(animal,new_difficulty))),Accu_Animals(animal,new_difficulty),...
-             'LineStyle','none','Marker','h','MarkerSize',6,'MarkerFaceColor','k','Visible','on');
+             'LineStyle','none','Marker','h','MarkerSize',6,'MarkerFaceColor',colortoplot{animal},...
+             'MarkerEdgeColor' ,colortoplot{animal},'Visible','on');
      end    
 end
 e(1).Parent.XLabel.String = 'Behavioral Sessions';e(1).Parent.YLabel.String = 'Accuracy';
@@ -206,7 +222,8 @@ if size(Bias_Animals,1)>1
     f3=figure('units','normalized','position',[0,0,0.7,1]); hold on
     hold on
     e=errorbar(1:size(Accu_Animals,2),Mean_Bias_Souris,SEM_Bias_Souris ,...
-        'k','LineStyle','-','Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
+        'k','LineStyle','-','LineWidth',1,...
+        'Marker','o','MarkerEdge','r','MarkerFace','r','MarkerSize',6,'Visible','on');
     e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Side Bias';
     e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
     e.Parent.YLim=[0 0.4];e.Parent.XLim=[1 size(Accu_Animals,2)];
@@ -221,7 +238,7 @@ for animal = 1:size(Bias_abs_Souris,1)
     % Plot accuracy curve per date of session
     e(animal)=plot(datetime(datestr(datemanip(animal,find(~cellfun(@isempty,datemanip(animal,:)))))),...
         Bias_abs_Souris(animal,~isnan(Bias_abs_Souris(animal,:))),...
-         'LineStyle','-');
+        'Color',colortoplot{animal},'LineStyle','-','LineWidth',1);
      % Add a marker on the accuracy curve for each session with increased
      % difficulty
      new_difficulty = []; 
@@ -232,7 +249,8 @@ for animal = 1:size(Bias_abs_Souris,1)
      end
      if ~isempty(new_difficulty)
          plot(datetime(datestr(datemanip(animal,new_difficulty))),Bias_abs_Souris(animal,new_difficulty),...
-             'LineStyle','none','Marker','o','MarkerSize',6,'Visible','on');
+             'LineStyle','none','Marker','o','MarkerSize',6,'MarkerFaceColor',colortoplot{animal},...
+             'MarkerEdgeColor' ,colortoplot{animal},'Visible','on');
      end
     
 %     e=plot(1:size(Accu_Animals,2),Bias_abs_Souris(animal,:),...

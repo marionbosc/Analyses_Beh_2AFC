@@ -11,7 +11,11 @@
 % - Matrix containing behavioral informations about the data
 %
 
-function [SessionData,Perf] = Psychometric_fig(SessionData, Modality,nb_row_fig,nb_col_fig,positn_fig)
+function [SessionData,Perf] = Psychometric_fig(SessionData, Modality,nb_row_fig,nb_col_fig,positn_fig,colorplot)
+%% Variable function:
+if ~exist('colorplot','var')
+    colorplot = 'k';
+end
 %% Subject name:
 NameSubject = unique(SessionData.Custom.Subject,'stable');
 if size(NameSubject,2)>1
@@ -67,9 +71,9 @@ if Modality==1
     % plot: f(% Odor A) = % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % Points 
-    p=plot(PsycOlf.XData,PsycOlf.YData, 'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k', 'MarkerSize',6,'Visible','on');
+    p=plot(PsycOlf.XData,PsycOlf.YData, 'LineStyle','none','Marker','o','MarkerEdge',colorplot,'MarkerFace',colorplot, 'MarkerSize',6,'Visible','on');
     % Fitting curve 
-    plot(PsycOlfFit.XData,PsycOlfFit.YData,'color','k','Visible','on');%
+    plot(PsycOlfFit.XData,PsycOlfFit.YData,'color',colorplot,'Visible','on');%
     % Legends et axis
     plot([0, 100],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([50 50],[0 105],'--','color',[.7,.7 .7]);
@@ -132,10 +136,10 @@ if Modality==2
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
-    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',... 
+    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge',colorplot,'MarkerFace',colorplot,... 
         'MarkerSize',3,'Visible','on');  
     % Fitting curve
-    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color',colorplot,'Visible','on');%
     % Legends et axis
     plot([-1 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     plot([0 0],[0 1],'--','color',[.7,.7 .7]);
@@ -185,10 +189,10 @@ if Modality==3
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % Data points
-    plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',...
+    plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge',colorplot,'MarkerFace',colorplot,...
         'MarkerSize',3,'Visible','on');    
     % Fitting curve
-    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color',colorplot,'Visible','on');%
     % Legends et axis
     plot([-1, 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     p=plot([0 0],[0 1],'--','color',[.7,.7 .7]);
@@ -242,10 +246,10 @@ if Modality==4
     % plot: f(beta)= % left
     subplot(nb_row_fig,nb_col_fig,positn_fig); hold on;
     % points Perf/DV
-    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge','k','MarkerFace','k',... 
+    p=plot(PsycAud.XData,PsycAud.YData,'LineStyle','none','Marker','o','MarkerEdge',colorplot,'MarkerFace',colorplot,... 
         'MarkerSize',3,'Visible','on');  
     % Fitting curve
-    plot(PsycAudFit.XData,PsycAudFit.YData,'color','k','Visible','on');%
+    plot(PsycAudFit.XData,PsycAudFit.YData,'color',colorplot,'Visible','on');%
     % Legends et axis
     plot([-1 1],[0.5 0.5],'--','color',[.7,.7 .7]);
     plot([0 0],[0 1],'--','color',[.7,.7 .7]);
