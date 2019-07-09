@@ -160,7 +160,7 @@ if size(Accu_Animals,1)>1
     e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Accuracy';
     e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
     e.Parent.YLim=[0 1];e.Parent.XLim=[1 size(Accu_Animals,2)];
-    e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+%     e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
     e.Parent.YTick = round(min(e.Parent.YTick)):0.2:round(max(e.Parent.YTick));
     plot([1 size(Accu_Animals,2)], [0.5 0.5], '--k'); 
     title({['Mean accuracy per training session (n =  ' num2str(size(Accu_Animals,1)) ' animals)']},'fontsize',12);
@@ -227,7 +227,7 @@ if size(Bias_Animals,1)>1
     e.Parent.XLabel.String = 'Behavioral Sessions';e.Parent.YLabel.String = 'Side Bias';
     e.Parent.XLabel.FontSize = 14;e.Parent.YLabel.FontSize = 14; 
     e.Parent.YLim=[0 0.4];e.Parent.XLim=[1 size(Accu_Animals,2)];
-    e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
+%     e.Parent.XTick = round(min(e.Parent.XTick)):1:round(max(e.Parent.XTick));
     title({['Mean of absolute side bias per training session (n =  ' num2str(size(Bias_Animals,1)) ' animals)']},'fontsize',12);
 end
 

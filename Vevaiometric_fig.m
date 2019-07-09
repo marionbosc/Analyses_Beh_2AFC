@@ -47,6 +47,7 @@ xlabel = 'DV';
 if Modality == 1
     Sensory_Modality = 'Olfactory';
 elseif Modality == 2
+    Sensory_Modality = 'Auditory';
     if SensoORMvt==0
         xlabel = 'Binaural contrast - sensory ev';
     elseif SensoORMvt==1
