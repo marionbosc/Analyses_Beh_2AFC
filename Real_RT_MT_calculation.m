@@ -35,15 +35,21 @@ if ~isfield(SessionData.Custom,'RT') || ~isfield(SessionData.Custom,'PostStimRT'
         % Timepoint the animal left the center port
         MT(1) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
             (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
-            > SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2)));    
+            > SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2))); 
+        % Check that the timepoint detected as the beginning of the MT is
+        % correct:
+        if MT(1) > SessionData.RawEvents.Trial{1, trial}.States.WaitForRewardStart(1)
+            MT(1) = SessionData.RawEvents.Trial{1, trial}.States.CenterPortRewardDelivery(1);
+        end
+        
         if isfield(SessionData.RawEvents.Trial{1, trial}.Events, LeftPortIn) && SessionData.Custom.ChoiceLeft(trial)==1
             % Timepoint the animal entered the left response port
             MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn))...
-                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn)) > MT(1)));
+                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn)) > MT(1)));               
         elseif isfield(SessionData.RawEvents.Trial{1, trial}.Events, RightPortIn) && SessionData.Custom.ChoiceLeft(trial)==0
             % Timepoint the animal entered the right response port
             MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn))...
-                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn)) > MT(1)));
+                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn)) > MT(1)));       
         else
             assert(false, 'No existing event describing a response');
         end
