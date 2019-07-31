@@ -31,9 +31,13 @@ if exist('normornot','var') && normornot==1 && isfield(SessionData.Custom,'Feedb
 end
 %% (1) Accuracy and Catch trial WT during session 
 
-% Size of the bin for this analysis:
-Xplot = 0:50:size(SessionData.Custom.ChoiceLeft,2);
-Nbbin = size(Xplot,2);
+%%%
+% Slot duration and sliding window
+Slot_duration_in_trial = 30;
+Nbtrial_btw_sliding_slot = Slot_duration_in_trial/2;
+
+% Empty array to collect data per time slot
+Pct_WS = [];Pct_Error = []; Xplot=[];
 
 % Trials index and percent of WS (wrong side or incorrect response) and Error
 ndxAllDone = SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1;
@@ -45,16 +49,30 @@ ndxLeft = SessionData.Custom.ChoiceLeft == 1;
 ndxRight = SessionData.Custom.ChoiceLeft == 0;
 ndxSkippedFB = SessionData.Custom.SkippedFeedback;
 
-Pct_WS = [];Pct_Error = [];    
-for i=1:Nbbin
-    debut = Xplot(i)+1; 
-    if debut + 49 < size(SessionData.Custom.ChoiceLeft,2)
-       fin = debut+49;
+% Main loop to gather data per time point with a sliding window
+bin = 1; lasttrial=max(SessionData.Custom.TrialNumber);
+while bin > 0 % bin = 0 when all the trials have been elapsed (and the session is done)
+    if bin == 1 % First bin
+        id_debut = 1; id_fin = min(Slot_duration_in_trial,lasttrial);
+        bin=2; % after the first bin
     else
-       fin = size(SessionData.Custom.ChoiceLeft,2);
+        id_debut = min(id_debut+Nbtrial_btw_sliding_slot,lasttrial); id_fin =  min(id_fin + Nbtrial_btw_sliding_slot, lasttrial);   
     end
-    Pct_WS = [Pct_WS sum(ndxFalse(debut:fin))/sum(ndxAllDone(debut:fin))*100];
-    Pct_Error = [Pct_Error sum(ndxError(debut:fin))/size(debut:fin,2)*100];
+    
+    % Xaxis:
+    Xplot = [Xplot id_debut+Nbtrial_btw_sliding_slot];
+    
+    % Quantification of the performance during the time slot
+    if id_fin-id_debut>5 || bin>1
+        Pct_WS = [Pct_WS sum(ndxFalse(id_debut:id_fin))/sum(ndxAllDone(id_debut:id_fin))*100];
+        Pct_Error = [Pct_Error sum(ndxError(id_debut:id_fin))/size(id_debut:id_fin,2)*100];        
+    else
+        Pct_WS = [Pct_WS NaN]; Pct_Error = [Pct_Error NaN]; % if not enough trials --> no datapoint
+    end
+
+     if id_fin == lasttrial %  if the bin is not the last one, the window keep sliding
+        bin = 0;
+     end 
 end
 
 % Percent for the session:
@@ -77,29 +95,29 @@ subplot(2,3,1); hold on;
 % left axis
 yyaxis left
 % Plot for incorrect trials
-plot(Xplot,Pct_WS, 'LineStyle','-','Color','r','Visible','on','LineWidth',2); 
+plot(Xplot,smooth(Pct_WS), 'LineStyle','-','Color','r','Visible','on','LineWidth',1); 
 % Plot for Error trials
-p=plot(Xplot,Pct_Error,'LineStyle','-','Color','k','Visible','on','LineWidth',2);
-ylim([0 100]); 
+p=plot(Xplot,smooth(Pct_Error),'LineStyle','-','Color','k','Visible','on','LineWidth',1);
+ylim([0 100]); xlim([1 lasttrial]);
 p.Parent.YColor = [0 0 0];
 ylabel('Percent of trials','fontsize',14);
 % right axis (case more than 10 catch trials during the session only)
 if sum(ndxCatch)>10
     WT_Catch_Correct = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxCorrect);
-    WT_Catch_incorrect = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxFalse);
+    WT_Catch_incorrect = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxFalse);
     clear Xplot i    
     yyaxis right
     % Catch correct WT
-    plot(find(ndxCatch & ndxCorrect),WT_Catch_Correct,'+g', 'LineStyle','none','Visible','on','LineWidth',2); 
+    plot(find(ndxCatch & ndxCorrect),WT_Catch_Correct,'+g', 'LineStyle','none','Visible','on','LineWidth',1); 
     % Catch incorrect WT
-    plot(find(ndxCatch & ndxFalse),WT_Catch_incorrect,'+r', 'LineStyle','none','Visible','on','LineWidth',2); 
+    plot(find(ndxFalse),WT_Catch_incorrect,'+r', 'LineStyle','none','Visible','on','LineWidth',1); 
     ylabel('WT (s)','fontsize',14);
     % Legends et axis
-    legend('Wrong side ','Error ','Catch Correct', 'Catch Wrong side','Location','NorthEast');
-    p.Parent.YColor = [0 0 0];
+    legend('Wrong side ','Error ','Catch Correct', 'Catch Wrong side','Location','NorthWest');
+    p.Parent.YColor = [0 0 0]; ylim([0 max([WT_Catch_Correct WT_Catch_incorrect])+1]);
 else
     % Legends et axis without Catch trials
-    legend('Wrong side ','Error ','Location','NorthEast');
+    legend('Wrong side ','Error ','Location','NorthWest');
     yyaxis right
     p.Parent.YColor = [1 1 1];
 end
