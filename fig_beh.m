@@ -102,13 +102,17 @@ ylim([0 100]); xlim([1 lasttrial]);
 p.Parent.YColor = [0 0 0];
 ylabel('Percent of trials','fontsize',14);
 % right axis (case more than 10 catch trials during the session only)
-if sum(ndxCatch)>10
-    WT_Catch_Correct = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxCorrect);
-    WT_Catch_incorrect = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxFalse);
+if  SessionData.Settings.GUI.CatchError ==1
     clear Xplot i    
-    yyaxis right
-    % Catch correct WT
-    plot(find(ndxCatch & ndxCorrect),WT_Catch_Correct,'+g', 'LineStyle','none','Visible','on','LineWidth',1); 
+    yyaxis right    
+    if sum(ndxCatch)>10
+        WT_Catch_Correct = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxCatch & ndxCorrect);
+        % Catch correct WT
+        plot(find(ndxCatch & ndxCorrect),WT_Catch_Correct,'+g', 'LineStyle','none','Visible','on','LineWidth',1);
+    else
+        WT_Catch_Correct = [];
+    end
+    WT_Catch_incorrect = SessionData.Custom.(matlab.lang.makeValidName(WTdata))(ndxFalse);
     % Catch incorrect WT
     plot(find(ndxFalse),WT_Catch_incorrect,'+r', 'LineStyle','none','Visible','on','LineWidth',1); 
     ylabel('WT (s)','fontsize',14);
