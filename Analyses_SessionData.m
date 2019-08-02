@@ -45,7 +45,7 @@ if sum(SessionData.Custom.CatchTrial)>10
     if sum(SessionData.Custom.Modality==1)>50
         % Case the plot/analysis on Confidence for Olfactory trials does not exist
         if exist([SessionData.filename(1:end-4) 'CfdceOlf.png'],'file')~=2
-            CfdceOlf = Analyse_Fig_Cfdce(SessionData, 1); % Analysis confidence Olf only
+            [CfdceOlf, Perf] = Analyse_Fig_Cfdce(SessionData, 1); % Analysis confidence Olf only
             FigurePathCfdceOlf = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceOlf.png']);
             saveas(CfdceOlf,FigurePathCfdceOlf,'png'); takeabreak = true;
         end
@@ -55,7 +55,7 @@ if sum(SessionData.Custom.CatchTrial)>10
     if sum(SessionData.Custom.Modality==2)>50
         % Case the plot/analysis on Confidence for Auditory trials does not exist
         if exist([SessionData.filename(1:end-4) 'CfdceAud.png'],'file')~=2
-            CfdceAud = Analyse_Fig_Cfdce(SessionData, 2); % Analysis confidence Aud only
+            [CfdceAud, Perf] = Analyse_Fig_Cfdce(SessionData, 2); % Analysis confidence Aud only
             FigurePathCfdceAud = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAud.png']);
             saveas(CfdceAud,FigurePathCfdceAud,'png'); takeabreak = true;
         end
@@ -64,7 +64,7 @@ if sum(SessionData.Custom.CatchTrial)>10
     % Case more than 50 auditory Frequency trials
     if sum(SessionData.Custom.Modality==3)>50
         if exist([SessionData.filename(1:end-4) 'CfdceAudFqcy.png'],'file')~=2
-            CfdceBeh = Analyse_Fig_Cfdce(SessionData, 3); % Analysis confidence Aud only
+            [CfdceBeh, Perf] = Analyse_Fig_Cfdce(SessionData, 3); % Analysis confidence Aud only
             FigurePathCfdceBeh = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceAudFqcy.png']);
             saveas(CfdceAud,FigurePathCfdceAud,'png'); takeabreak = true;
         end
@@ -74,7 +74,7 @@ if sum(SessionData.Custom.CatchTrial)>10
     if sum(SessionData.Custom.Modality==4)>50
         % Case the plot/analysis on Confidence for Brightness trials does not exist
         if exist([SessionData.filename(1:end-4) 'CfdceBright.png'],'file')~=2
-            CfdceBright = Analyse_Fig_Cfdce(SessionData, 4); % Analysis confidence Aud only
+            [CfdceBright, Perf] = Analyse_Fig_Cfdce(SessionData, 4); % Analysis confidence Aud only
             FigurePathCfdceBright = fullfile(pathfigures,[SessionData.filename(1:end-4) 'CfdceBright.png']);
             saveas(CfdceBright,FigurePathCfdceBright,'png'); takeabreak = true;
         end

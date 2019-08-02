@@ -50,7 +50,7 @@ ndxRight = SessionData.Custom.ChoiceLeft == 0;
 ndxSkippedFB = SessionData.Custom.SkippedFeedback;
 
 % Main loop to gather data per time point with a sliding window
-bin = 1; lasttrial=max(SessionData.Custom.TrialNumber);
+bin = 1; lasttrial=size(SessionData.Custom.TrialNumber,2);
 while bin > 0 % bin = 0 when all the trials have been elapsed (and the session is done)
     if bin == 1 % First bin
         id_debut = 1; id_fin = min(Slot_duration_in_trial,lasttrial);
