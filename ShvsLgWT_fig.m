@@ -13,7 +13,7 @@
 %
 %
 
-function ShvsLgWT_fig(SessionData, Modality, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Percentile,nbBin)
+function ShvsLgWT_fig(SessionData, Modality, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Percentile,nbBin,BorneMaxWT)
 %% Plot settings:
 % default number of DV bin 
 if ~exist('nbBin','var')
@@ -53,7 +53,8 @@ ShvsLg = subplot(nb_raw_fig,nb_col_fig,positn_fig); hold on
 %% Data retrieval
 
 % Trials index  
-ndxNan = isnan(SessionData.Custom.ChoiceLeft); % unanswered trials 
+ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft) & SessionData.Custom.StartEasyTrial==0 ...
+&SessionData.Custom.FeedbackTime<BorneMaxWT;
 ndxCatch = SessionData.Custom.CatchTrial; % Catch trials
 if Modality ==3 % case auditory frequency task
     ndxModality = SessionData.Custom.Modality==2;
@@ -63,11 +64,11 @@ end
 
 % WT data --> Short vs Long population of trials
 if NormorNot == 1 % Normalized WT
-    Percentile_WT = prctile(SessionData.Custom.FeedbackTimeNorm(ndxModality&ndxCatch),Percentile);
+    Percentile_WT = prctile(SessionData.Custom.FeedbackTimeNorm(ndxModality&ndxCatch&ndxIncl),Percentile);
     ndxlongWT = SessionData.Custom.FeedbackTimeNorm>Percentile_WT;
     ndxshortWT = SessionData.Custom.FeedbackTimeNorm<Percentile_WT;
 else % raw WT
-    Percentile_WT = prctile(SessionData.Custom.FeedbackTime(ndxModality&ndxCatch),Percentile);
+    Percentile_WT = prctile(SessionData.Custom.FeedbackTime(ndxModality&ndxCatch&ndxIncl),Percentile);
     ndxlongWT = SessionData.Custom.FeedbackTime>Percentile_WT;
     ndxshortWT = SessionData.Custom.FeedbackTime<Percentile_WT;
 end
@@ -81,13 +82,13 @@ if Modality ==1 || Modality == 3 % for olfactory or tone cloud auditory discrimi
         DV = SessionData.Custom.DV(1:numel(SessionData.Custom.ChoiceLeft));
     end
     % Long WT
-    PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-    PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT));
+    PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxlongWT),DV(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
+    PsycX = unique(DV(ndxModality&ndxIncl&ndxCatch&ndxlongWT));
     PsycX_L = PsycX(~isnan(PsycX)); % Suppress NaN values
     
     % Short WT
-    PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-    PsycX = unique(DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT));
+    PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxshortWT),DV(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
+    PsycX = unique(DV(ndxModality&ndxIncl&ndxCatch&ndxshortWT));
     PsycX_S = PsycX(~isnan(PsycX)); % Suppress NaN values
 elseif Modality == 2  || Modality == 4 % for click train auditory discrimination or brightness discrimination
     % DV data retrieval
@@ -96,30 +97,30 @@ elseif Modality == 2  || Modality == 4 % for click train auditory discrimination
     if  isfield(SessionData.Settings.GUI, 'AuditoryTrialSelection') && SessionData.Settings.GUI.AuditoryTrialSelection==2
         if  Modality == 2  
             % Long WT
-            PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-            PsycX_L = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
+            PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
+            PsycX_L = grpstats(SessionData.Custom.DV(ndxModality&ndxIncl&ndxCatch&ndxlongWT),SessionData.Custom.AuditoryOmega(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
             % Short WT
-            PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-            PsycX_S = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
+            PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
+            PsycX_S = grpstats(SessionData.Custom.DV(ndxModality&ndxIncl&ndxCatch&ndxshortWT),SessionData.Custom.AuditoryOmega(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
         elseif Modality ==4
             % Long WT
-            PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.StimulusOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-            PsycX_L = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),SessionData.Custom.StimulusOmega(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
+            PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxlongWT),SessionData.Custom.StimulusOmega(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
+            PsycX_L = grpstats(SessionData.Custom.DV(ndxModality&ndxIncl&ndxCatch&ndxlongWT),SessionData.Custom.StimulusOmega(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
             % Short WT
-            PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.StimulusOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-            PsycX_S = grpstats(SessionData.Custom.DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),SessionData.Custom.StimulusOmega(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
+            PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxshortWT),SessionData.Custom.StimulusOmega(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
+            PsycX_S = grpstats(SessionData.Custom.DV(ndxModality&ndxIncl&ndxCatch&ndxshortWT),SessionData.Custom.StimulusOmega(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
         end
             
     else % Case DV selection was continuous
         % Binning of DV data
         BinIdx = discretize(DV,linspace(-1,1,nbBin+1));
         % Long WT
-        PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT),'mean');
-        PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxlongWT))/nbBin*2-1-1/nbBin;
+        PsycY_L = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxlongWT),BinIdx(ndxModality&ndxIncl&ndxCatch&ndxlongWT),'mean');
+        PsycX = unique(BinIdx(ndxModality&ndxIncl&ndxCatch&ndxlongWT))/nbBin*2-1-1/nbBin;
         PsycX_L = PsycX(~isnan(PsycX)); % Suppress NaN values
         % Short WT
-        PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT),BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT),'mean');
-        PsycX = unique(BinIdx(ndxModality&~ndxNan&ndxCatch&ndxshortWT))/nbBin*2-1-1/nbBin;
+        PsycY_S = grpstats(SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxshortWT),BinIdx(ndxModality&ndxIncl&ndxCatch&ndxshortWT),'mean');
+        PsycX = unique(BinIdx(ndxModality&ndxIncl&ndxCatch&ndxshortWT))/nbBin*2-1-1/nbBin;
         PsycX_S = PsycX(~isnan(PsycX)); % Suppress NaN values  
     end
 end
@@ -128,20 +129,20 @@ end
 % Long WT
 Psyc_L.YData = PsycY_L;
 Psyc_L.XData = PsycX_L;
-if sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT) > 1
+if sum(ndxModality&ndxIncl&ndxCatch&ndxlongWT) > 1
     PsycFit_L.XData = linspace(min(DV),max(DV),100);
-    [Fit,~,Stat]=glmfit(DV(ndxModality&~ndxNan&ndxCatch&ndxlongWT),...
-        SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxlongWT)','binomial');
+    [Fit,~,Stat]=glmfit(DV(ndxModality&ndxIncl&ndxCatch&ndxlongWT),...
+        SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxlongWT)','binomial');
     [PsycFit_L.YData,CILow_L,CIHigh_L] = glmval(Fit,linspace(min(DV),max(DV),100),'logit',Stat);
 end
 
 % Short WT
 Psyc_S.YData = PsycY_S;
 Psyc_S.XData = PsycX_S;
-if sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT) > 1
+if sum(ndxModality&ndxIncl&ndxCatch&ndxshortWT) > 1
     PsycFit_S.XData = linspace(min(DV),max(DV),100);
-    [Fit,~,Stat]=glmfit(DV(ndxModality&~ndxNan&ndxCatch&ndxshortWT),...
-        SessionData.Custom.ChoiceLeft(ndxModality&~ndxNan&ndxCatch&ndxshortWT)','binomial');
+    [Fit,~,Stat]=glmfit(DV(ndxModality&ndxIncl&ndxCatch&ndxshortWT),...
+        SessionData.Custom.ChoiceLeft(ndxModality&ndxIncl&ndxCatch&ndxshortWT)','binomial');
     [PsycFit_S.YData,CILow_S,CIHigh_S] = glmval(Fit,linspace(min(DV),max(DV),100),'logit',Stat);
     clear Fit Stat
 end
@@ -163,7 +164,7 @@ p = plot([xmin+(xmax-xmin)/2 xmin+(xmax-xmin)/2],[0 1],'--','color',[.7,.7 .7]);
 p.Parent.XAxis.FontSize = 10; p.Parent.YAxis.FontSize = 10;
 ylim([0 1]); xlim ([xmin, xmax]);
 p.Parent.XTick = xtick; p.Parent.YTick = 0:0.2:1;
-leg = legend(['Long WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&~ndxNan&ndxCatch&ndxshortWT))],'Location','SouthEast');
+leg = legend(['Long WT n = ',num2str(sum(ndxModality&ndxIncl&ndxCatch&ndxlongWT))],['Short WT n = ',num2str(sum(ndxModality&ndxIncl&ndxCatch&ndxshortWT))],'Location','SouthEast');
 title({['Psychometric ' Sensory_Modality  ' ' TitleExtra]; [num2str(Percentile) 'th percentile catch trials WT = ' num2str(round(Percentile_WT,2))]},'fontsize',12);
 leg.FontSize = 10; legend('boxoff');
 p.Parent.XLabel.String = xlabel; p.Parent.XLabel.FontSize =14;

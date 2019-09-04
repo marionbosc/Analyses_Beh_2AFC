@@ -10,10 +10,10 @@
 %  1 --> right/left port entered (right/left (0) sensory evidence by default)
 % - plotpointormean = 1 --> plot all datas point / = 2 --> plot binned data 
 % - normornot = 1 --> Analysis on normalized data / 0 --> Analyse on raw data (default)
-%
+% - BorneMaxWT = Max WT included in the analysis
 %
 
-function [SessionData] = Vevaiometric_fig(SessionData, Modality,nb_raw_fig,nb_col_fig,positn_fig, SensoORMvt,plotpointormean,normornot)
+function [SessionData] = Vevaiometric_fig(SessionData, Modality,nb_raw_fig,nb_col_fig,positn_fig, SensoORMvt,plotpointormean,normornot,BorneMaxWT)
 %% Plot settings:
 % default for the axis disposition of DV points 
 if ~exist('SensoORMvt','var')
@@ -27,7 +27,7 @@ end
 % Default: use of raw FeedbackTime data
 WTdata = 'FeedbackTime';
 ylabel = 'WT (s)';
-Ylimit = 'ylim([max([2 floor(min(Ymin))]) min([ceil(max(Ymax)) 12])])';
+Ylimit = 'ylim([max([2 floor(min(Ymin))]) min([ceil(max(Ymax)) 20])])';
 % if use of normalized FeedbackTime data
 if exist('normornot','var') && normornot==1 && isfield(SessionData.Custom,'FeedbackTimeNorm')
     WTdata = 'FeedbackTimeNorm';
@@ -36,7 +36,7 @@ if exist('normornot','var') && normornot==1 && isfield(SessionData.Custom,'Feedb
 end
 
 VevaiometricMinWT = 2;% FB time minimum included in the analysis
-VevaiometricMaxWT = 20; % FB time max included in the analysis
+VevaiometricMaxWT = BorneMaxWT; % FB time max included in the analysis
 
 % Axis limits and label
 % Default values:
@@ -70,7 +70,8 @@ Plot_displayed = 0;
 
 %% Retrieve trial index to analyse
 ndxIncl = SessionData.Custom.Modality(1:end) == Modality & SessionData.Custom.FeedbackTime > VevaiometricMinWT...
-    & SessionData.Custom.FeedbackTime < VevaiometricMaxWT; % Trials from the sensory modality and WT > minWT
+    & SessionData.Custom.FeedbackTime < VevaiometricMaxWT...
+    & SessionData.Custom.StartEasyTrial==0; % Trials from the sensory modality and WT > minWT
 ndxError = SessionData.Custom.ChoiceCorrect(1:end) == 0 ; % all (completed) error trials (including catch errors)
 ndxCorrectCatch = SessionData.Custom.CatchTrial(1:end) & SessionData.Custom.ChoiceCorrect(1:end) == 1; % correct catch trials
 ndxLeft=SessionData.Custom.ChoiceLeft(1:end)==1; % Left trials
@@ -266,11 +267,13 @@ if Plot_displayed == 1
     s.Parent.XLabel.FontSize = 14;s.Parent.YLabel.FontSize = 14; 
     % Axis limits
     xlim([xmin xmax]); 
-    if ~exist('Ymin','var')
+    if ~exist('Ymin','var') && strcmp(SessionData.Custom.Subject,'F01') ...
+            || strcmp(SessionData.Custom.Subject,'F02') || strcmp(SessionData.Custom.Subject,'MC7')
         Ymin = min([s.Parent.YLim(1) s2.Parent.YLim(1)]);
         Ymax = max([s.Parent.YLim(2) s2.Parent.YLim(2)]);
+            eval(Ylimit)
+        s.Parent.YTick = s.Parent.YLim(1):2:ceil(s.Parent.YLim(2));
     end
-    eval(Ylimit)
     % Axis tick
     s.Parent.XTick = -1:0.5:1; s.Parent.YTick = s.Parent.YLim(1):2:ceil(s.Parent.YLim(2));
     hold off;

@@ -103,7 +103,7 @@ get_SessionData_ConfidenceSettings(1);
 % Loop on every session to combine into the super-dataset
 for Day = 1 : size(filename,2)
     % load SessionData 
-    load([pathname '/' filename{Day}])
+    load([pathname filename{Day}])
     
     % Implementation of SessionData
     SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,Day);

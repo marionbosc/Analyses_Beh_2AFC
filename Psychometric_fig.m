@@ -34,7 +34,7 @@ if Modality==1
     % Index of olfactory trials
     ndxOlf = SessionData.Custom.Modality(1:end)==1; 
     % Index of trials not completed (ChoiceLeft = NaN)
-    ndxNan = isnan(SessionData.Custom.ChoiceLeft);
+    ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft);
 
     % Retrieve of the 6-8 odor fraction used during the training 
     setStim = reshape(unique(OdorFracA),1,[]);
@@ -46,8 +46,8 @@ if Modality==1
     % Loop to retrieve probability to go left for all DV point 
     for iStim = setStim
         ndxStim = reshape(OdorFracA == iStim,1,[]);
-        psyc(setStim==iStim) = sum(SessionData.Custom.ChoiceLeft(ndxStim&~ndxNan&ndxOlf))/...
-                        sum(ndxStim&~ndxNan&ndxOlf);
+        psyc(setStim==iStim) = sum(SessionData.Custom.ChoiceLeft(ndxStim&ndxIncl&ndxOlf))/...
+                        sum(ndxStim&ndxIncl&ndxOlf);
     end
 
     % Data for the plot (point + fitting curve)
@@ -96,27 +96,27 @@ if Modality==2
     % Auditory trials index
     ndxAud = SessionData.Custom.Modality==Modality;
     % Index of trials not completed (ChoiceLeft = NaN)
-    ndxNan = isnan(SessionData.Custom.ChoiceLeft);
+    ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft) & SessionData.Custom.StartEasyTrial==0;
     
     % Probability to go left for all DV bin/point
     if isfield(SessionData.Settings.GUI, 'AuditoryTrialSelection') && SessionData.Settings.GUI.AuditoryTrialSelection==2
-        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),SessionData.Custom.AuditoryOmega(ndxAud&~ndxNan),'mean');
-        PsycX = grpstats(SessionData.Custom.DV(ndxAud&~ndxNan),SessionData.Custom.AuditoryOmega(ndxAud&~ndxNan),'mean');
+        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl),SessionData.Custom.AuditoryOmega(ndxAud&ndxIncl),'mean');
+        PsycX = grpstats(SessionData.Custom.DV(ndxAud&ndxIncl),SessionData.Custom.AuditoryOmega(ndxAud&ndxIncl),'mean');
     else
         AudBin = 8; % DV bins
         BinIdx = discretize(AudDV,linspace(min(AudDV),max(AudDV),AudBin+1));
-        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),BinIdx(ndxAud&~ndxNan),'mean');
-        PsycX = unique(BinIdx(ndxAud&~ndxNan))/AudBin*2-1-1/AudBin;
+        PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl),BinIdx(ndxAud&ndxIncl),'mean');
+        PsycX = unique(BinIdx(ndxAud&ndxIncl))/AudBin*2-1-1/AudBin;
         PsycX = PsycX(~isnan(PsycX));
     end
 
     % Data for the plot (point + fitting curve)
     PsycAud.YData = PsycY;
     PsycAud.XData = PsycX;
-    if sum(ndxAud&~ndxNan) > 1
+    if sum(ndxAud&ndxIncl) > 1
         PsycAudFit.XData = linspace(min(AudDV),max(AudDV),100);
-        PsycAudFit.YData = glmval(glmfit(AudDV(ndxAud&~ndxNan),...
-            SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
+        PsycAudFit.YData = glmval(glmfit(AudDV(ndxAud&ndxIncl),...
+            SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
     end
     
     % Bias/Accuracy/Lapse rate calculation
@@ -167,15 +167,15 @@ if Modality==3
     
     % Probability to go left for all DV point
     PsycX = unique(BinIdx(~isnan(BinIdx)));
-    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),BinIdx(ndxAud&~ndxNan),'mean');
+    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl),BinIdx(ndxAud&ndxIncl),'mean');
     
     % Data for the plot (point + fitting curve)
     PsycAud.YData = PsycY;
     PsycAud.XData = PsycX;
-    if sum(ndxAud&~ndxNan) > 1
+    if sum(ndxAud&ndxIncl) > 1
         PsycAudFit.XData = linspace(min(BinIdx),max(BinIdx),100);
-        PsycAudFit.YData = glmval(glmfit(BinIdx(ndxAud&~ndxNan),...
-            SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(BinIdx),max(BinIdx),100),'logit');
+        PsycAudFit.YData = glmval(glmfit(BinIdx(ndxAud&ndxIncl),...
+            SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl)','binomial'),linspace(min(BinIdx),max(BinIdx),100),'logit');
     end
     
     % Bias/ Accuracy/Lapse rate calculation
@@ -217,16 +217,16 @@ if Modality==4
     ndxNan = isnan(SessionData.Custom.ChoiceLeft);
     
     % Probability to go left for all DV bin/point
-    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan),SessionData.Custom.StimulusOmega(ndxAud&~ndxNan),'mean');
-    PsycX = grpstats(SessionData.Custom.DV(ndxAud&~ndxNan),SessionData.Custom.StimulusOmega(ndxAud&~ndxNan),'mean');
+    PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl),SessionData.Custom.StimulusOmega(ndxAud&ndxIncl),'mean');
+    PsycX = grpstats(SessionData.Custom.DV(ndxAud&ndxIncl),SessionData.Custom.StimulusOmega(ndxAud&ndxIncl),'mean');
 
     % Data for the plot (point + fitting curve)
     PsycAud.YData = PsycY;
     PsycAud.XData = PsycX;
-    if sum(ndxAud&~ndxNan) > 1
+    if sum(ndxAud&ndxIncl) > 1
         PsycAudFit.XData = linspace(min(AudDV),max(AudDV),100);
-        PsycAudFit.YData = glmval(glmfit(AudDV(ndxAud&~ndxNan),...
-            SessionData.Custom.ChoiceLeft(ndxAud&~ndxNan)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
+        PsycAudFit.YData = glmval(glmfit(AudDV(ndxAud&ndxIncl),...
+            SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl)','binomial'),linspace(min(AudDV),max(AudDV),100),'logit');
     end
     
     % Bias/Accuracy/Lapse rate calculation

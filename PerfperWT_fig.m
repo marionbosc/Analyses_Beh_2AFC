@@ -12,7 +12,7 @@
 %
 %
 
-function PerfperWT_fig(SessionData, BorneMin, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Statornot,Modality)
+function PerfperWT_fig(SessionData, BorneMin,BorneMaxWT, NormorNot,nb_raw_fig,nb_col_fig,positn_fig,TitleExtra,Statornot,Modality)
 %% Sensory modality
 if Modality ==3
     Modality = 2;
@@ -20,7 +20,7 @@ end
 
 %% Analysis 
 % Trials index
-ndxNan = isnan(SessionData.Custom.ChoiceCorrect);
+ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft) & SessionData.Custom.StartEasyTrial==0;
 ndxModality = SessionData.Custom.Modality== Modality;
 ndxCatch = SessionData.Custom.CatchTrial==1 & SessionData.Custom.FeedbackTime>BorneMin;
 
@@ -39,7 +39,7 @@ if NormorNot == 1  && isfield(SessionData.Custom, 'FeedbackTimeNorm')% Case WT n
     BorneMax = max(SessionData.Custom.FeedbackTimeNorm(ndxCatch&ndxModality));  
     xlabel = 'Normalized WT (s)';  
 else % Case raw WT
-    BorneMax = round(max(SessionData.Custom.FeedbackTime(ndxCatch&ndxModality)));
+    BorneMax = BorneMaxWT;%round(max(SessionData.Custom.FeedbackTime(ndxCatch&ndxModality)));
     xlabel = 'WT (s)';
 end
 
@@ -53,8 +53,8 @@ else
 end
 
 % Accuracy per bin
-Perf_id = SessionData.Custom.ChoiceCorrect(ndxCatch&~ndxNan&ndxModality);
-BinWT_id = BinWT(ndxCatch&~ndxNan&ndxModality);
+Perf_id = SessionData.Custom.ChoiceCorrect(ndxCatch&ndxIncl&ndxModality);
+BinWT_id = BinWT(ndxCatch&ndxIncl&ndxModality);
 [PsycY, semY,PsycX] = grpstats(Perf_id,BinWT_id,{'mean','sem','gname'});
 PsycX = str2double(PsycX)';
 
