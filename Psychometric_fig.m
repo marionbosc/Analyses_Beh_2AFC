@@ -96,7 +96,11 @@ if Modality==2
     % Auditory trials index
     ndxAud = SessionData.Custom.Modality==Modality;
     % Index of trials not completed (ChoiceLeft = NaN)
-    ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft) & SessionData.Custom.StartEasyTrial==0;
+    if sum(SessionData.Custom.StartEasyTrial==0)> 30
+        ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft) & SessionData.Custom.StartEasyTrial==0;
+    else
+        ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft);
+    end
     
     % Probability to go left for all DV bin/point
     if isfield(SessionData.Settings.GUI, 'AuditoryTrialSelection') && SessionData.Settings.GUI.AuditoryTrialSelection==2
