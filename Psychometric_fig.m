@@ -167,7 +167,7 @@ if Modality==3
     % Auditory trials index
     ndxAud = SessionData.Custom.Modality==2;
     % Index of trials not completed (ChoiceLeft = NaN)
-    ndxNan = isnan(SessionData.Custom.ChoiceLeft);
+    ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft); 
     
     % Probability to go left for all DV point
     PsycX = unique(BinIdx(~isnan(BinIdx)));
@@ -218,7 +218,7 @@ if Modality==4
     % Auditory trials index
     ndxAud = SessionData.Custom.Modality==Modality;
     % Index of trials not completed (ChoiceLeft = NaN)
-    ndxNan = isnan(SessionData.Custom.ChoiceLeft);
+    ndxIncl = ~isnan(SessionData.Custom.ChoiceLeft);
     
     % Probability to go left for all DV bin/point
     PsycY = grpstats(SessionData.Custom.ChoiceLeft(ndxAud&ndxIncl),SessionData.Custom.StimulusOmega(ndxAud&ndxIncl),'mean');

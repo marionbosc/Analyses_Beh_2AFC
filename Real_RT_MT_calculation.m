@@ -7,6 +7,7 @@ if ~isfield(SessionData.Custom,'RT') || ~isfield(SessionData.Custom,'PostStimRT'
     % Create a NaN vector for Custom.RT and Custom.PostStimRT:
     SessionData.Custom.RT = nan(1,size(SessionData.Custom.ChoiceLeft,2));
     SessionData.Custom.PostStimRT = nan(1,size(SessionData.Custom.ChoiceLeft,2));
+    SessionData.Custom.MT = nan(1,size(SessionData.Custom.ChoiceLeft,2));
     
     % Determine the name of each port
     if isfield(SessionData.Settings.GUI,'Ports_LMRAir')
@@ -32,33 +33,38 @@ if ~isfield(SessionData.Custom,'RT') || ~isfield(SessionData.Custom,'PostStimRT'
         RT= SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(1);
         % Timepoint the stimulus stops
         endST = SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2);
-        % Timepoint the animal left the center port
-        MT(1) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
-            (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
-            > SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2))); 
-        % Check that the timepoint detected as the beginning of the MT is
-        % correct:
-        if MT(1) > SessionData.RawEvents.Trial{1, trial}.States.WaitForRewardStart(1)
-            MT(1) = SessionData.RawEvents.Trial{1, trial}.States.CenterPortRewardDelivery(1);
-        end
         
-        if isfield(SessionData.RawEvents.Trial{1, trial}.Events, LeftPortIn) && SessionData.Custom.ChoiceLeft(trial)==1
-            % Timepoint the animal entered the left response port
-            MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn))...
-                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn)) > MT(1)));               
-        elseif isfield(SessionData.RawEvents.Trial{1, trial}.Events, RightPortIn) && SessionData.Custom.ChoiceLeft(trial)==0
-            % Timepoint the animal entered the right response port
-            MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn))...
-                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn)) > MT(1)));       
-        else
-            assert(false, 'No existing event describing a response');
+        %
+        if SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
+            > SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2)
+            % Timepoint the animal left the center port
+            MT(1) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
+                (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(CenterPortOut))...
+                > SessionData.RawEvents.Trial{1, trial}.States.stimulus_delivery(2))); 
+            % Check that the timepoint detected as the beginning of the MT is
+            % correct:
+            if MT(1) > SessionData.RawEvents.Trial{1, trial}.States.WaitForRewardStart(1)
+                MT(1) = SessionData.RawEvents.Trial{1, trial}.States.CenterPortRewardDelivery(1);
+            end
+
+            if isfield(SessionData.RawEvents.Trial{1, trial}.Events, LeftPortIn) && SessionData.Custom.ChoiceLeft(trial)==1
+                % Timepoint the animal entered the left response port
+                MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn))...
+                    (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(LeftPortIn)) > MT(1)));               
+            elseif isfield(SessionData.RawEvents.Trial{1, trial}.Events, RightPortIn) && SessionData.Custom.ChoiceLeft(trial)==0
+                % Timepoint the animal entered the right response port
+                MT(2) = min(SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn))...
+                    (SessionData.RawEvents.Trial{1, trial}.Events.(matlab.lang.makeValidName(RightPortIn)) > MT(1)));       
+            else
+                assert(false, 'No existing event describing a response');
+            end
+            % Reaction time of the trial overwrite in Custom.RT
+            SessionData.Custom.RT(trial) = MT(1)-RT;
+            % Reaction time after the end of the stimulus overwrite in Custom.PostStimRT
+            SessionData.Custom.PostStimRT(trial) = MT(1)-endST;
+            % Movement time of the trial overwrite in Custom.MT
+            SessionData.Custom.MT(trial) = diff(MT);
         end
-        % Reaction time of the trial overwrite in Custom.RT
-        SessionData.Custom.RT(trial) = MT(1)-RT;
-        % Reaction time after the end of the stimulus overwrite in Custom.PostStimRT
-        SessionData.Custom.PostStimRT(trial) = MT(1)-endST;
-        % Movement time of the trial overwrite in Custom.MT
-        SessionData.Custom.MT(trial) = diff(MT);
         clear MT RT endST
     end
 end

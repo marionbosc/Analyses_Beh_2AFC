@@ -56,7 +56,7 @@ clear def dlg_title numlines prompt
 
 % Prompt windows to provide the animal's name
 prompt = {'Name = '}; dlg_title = 'Animal'; numlines = 1;
-def = {'Thy'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+def = {'WT'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt   
 
 % Localisation of data files:
