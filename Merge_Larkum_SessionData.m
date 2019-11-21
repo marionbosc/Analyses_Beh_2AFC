@@ -282,10 +282,10 @@ end
 % Path to Analyses folder of the animal
 cd([Pathtodata '/' AnimalName '/Analyses']); 
 
-% Plot of general behavior analysis
+% Plot of general behavior analysis : [f1,Error] = fig_beh(SessionData,normornot)
 fig_beh(SessionDataWeek);
 
-% Plot on Confidence behavior
-Analyse_Fig_Cfdce(SessionDataWeek, 4);
+% Plot on Confidence behavior : [f2,Perf]=Analyse_Fig_Cfdce(SessionData, Modality,BorneMaxWT)
+Analyse_Fig_Cfdce(SessionDataWeek, 4,19);
         
 
