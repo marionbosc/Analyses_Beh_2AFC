@@ -12,11 +12,11 @@ cd(pathname)
 Filename_name = uigetfile; % Select Filename file:
 load(Filename_name)
 % Folder to save figures:
-cd([Pathtodata '/' AnimalName '/Session Figures/']);
-mkdir(['Time_effect_' Filename_name(10:end-4)]);
-FigurePath = [Pathtodata '/' AnimalName '/Session Figures/Time_effect_' Filename_name(10:end-4)];
+cd([Pathtodata '/' AnimalName '/Analyses/']);
+mkdir(['FullTime_effect_' Filename_name(10:end-4)]);
+FigurePath = [Pathtodata '/' AnimalName '/Analyses/FullTime_effect_' Filename_name(10:end-4)];
 
-statornot = 0;
+statornot = 0; colorornot = 1;
 
 %% Number of trials executed 
 f1 = figure('units','normalized','position',[0,0,0.7,1]); hold on;
@@ -69,17 +69,17 @@ type_variable = 'ratio';
 bin_size = 100;
 epoch = '';
 Titre_parametre_analyse ='Skipped Correct Feedback (%)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 %fig = plot_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,bin_size,type_variable,epoch,Titre_parametre_analyse);
 saveas(fig,[FigurePath '/SkippedCorrectFB.png']); close
-%% Correct trials
+ %% Correct trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
 id_Total_code = 'SessionData.Custom.ChoiceCorrect==0 | SessionData.Custom.ChoiceCorrect==1';
 bin_size = 100;
 type_variable = 'ratio';
 epoch = '';
 Titre_parametre_analyse =' Correct trials (%)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/Accuracy.png']); close
 %% EWD trials
 id_Interet_code = 'SessionData.Custom.EarlyWithdrawal==1;';
@@ -88,7 +88,7 @@ bin_size = 100;
 type_variable = 'ratio';
 epoch = '';
 Titre_parametre_analyse =' EWD trials (%)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/EarlyWithDrawal.png']); close
 %% WT Correct trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
@@ -97,7 +97,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'FeedbackTime';
 Titre_parametre_analyse =' FB Waiting Time correct trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/WT_Correcttrials.png']); close
 %% WT Error trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
@@ -106,7 +106,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'FeedbackTime';
 Titre_parametre_analyse =' FB Waiting Time error trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/WT_Errortrials.png']); close
 %% WT Correct Catch trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1 & SessionData.Custom.CatchTrial;';
@@ -115,7 +115,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'FeedbackTime';
 Titre_parametre_analyse =' FB Waiting Time correct catched trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1); 
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot); 
 saveas(fig,[FigurePath '/WT_CorrectCatchtrials.png']); close
 %% MT Correct trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
@@ -124,7 +124,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'MT';
 Titre_parametre_analyse =' Movement Time correct trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/MT_Correcttrials.png']); close
 %% MT Error trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
@@ -133,7 +133,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'MT';
 Titre_parametre_analyse =' Movement Time error trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/MT_Errortrials.png']); close
 %% RT Correct trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
@@ -142,7 +142,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'PostStimRT';
 Titre_parametre_analyse =' Reaction Time post stimulus correct trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/RT_Correcttrials.png']); close
 %% RT Error trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
@@ -151,7 +151,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'PostStimRT';
 Titre_parametre_analyse =' Reaction Time post stimulus error trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/RT_Errortrials.png']); close
 %% ST Correct trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==1;';
@@ -160,7 +160,7 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'ST';
 Titre_parametre_analyse =' Sampling Time correct trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/ST_Correcttrials.png']); close
 %% ST Error trials
 id_Interet_code = 'SessionData.Custom.ChoiceCorrect==0;';
@@ -169,5 +169,5 @@ bin_size = 100;
 type_variable = 'duration';
 epoch = 'ST';
 Titre_parametre_analyse =' Sampling Time error trials (s)';
-fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,1);
+fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot);
 saveas(fig,[FigurePath '/ST_Errortrials.png']); close

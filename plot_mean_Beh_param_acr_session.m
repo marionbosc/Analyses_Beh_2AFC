@@ -2,7 +2,7 @@
 %
 %
 
-function fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot)
+function fig = plot_mean_Beh_param_acr_session (pathname, filename, id_Total_code, id_Interet_code,type_variable,epoch,Titre_parametre_analyse,statornot,colorornot,Uppertimelimit)
 % Figure 
 fig = figure('units','normalized','position',[0,0,0.5,1]); 
 subplot(2,1,1); hold on;
@@ -83,9 +83,9 @@ for manip= 1 : size(filename,2)
     
     % Plot of the variable of interest for the session
     if colorornot
-        p = plot(Xplot_nonan,Pct_Correct_nonan, 'Color',rand(1,3),'Marker','o','Visible','on','LineWidth',1); % version with one colored line per session
+        p = plot(Xplot_nonan,Pct_Correct_nonan, 'Color',rand(1,3),'Marker','none','Visible','on','LineWidth',1); % version with one colored line per session
     else
-        p = plot(Xplot_nonan,Pct_Correct_nonan, 'LineStyle','none','Color','k','Marker','+','Visible','on','LineWidth',1.5); % version with black dots without line
+        p = plot(Xplot_nonan,Pct_Correct_nonan, 'LineStyle','none','Color','k','Marker','+','Visible','on'); % version with black dots without line
     end
     
     
@@ -93,7 +93,7 @@ for manip= 1 : size(filename,2)
 end
 
 % Title/Label/Axis of the plot
-xlim ([SessionData.Custom.TrialStart(1) max(Xplot(:,end))]);
+% xlim ([SessionData.Custom.TrialStart(1) max(Xplot(:,end))]);
 title([Titre_parametre_analyse ' across session ' Nom],'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
 xlabel('Time from beginning session','fontsize',14);ylabel(Titre_parametre_analyse,'fontsize',14);hold off;    
 
@@ -106,7 +106,13 @@ subplot(2,1,2); hold on;
 Y_perf = []; X_Time_slot = [];
 Time_vector = datestr(max(Xplot),'HH:MM');
 Perf_per_Time_slot = Perf_per_Time_slot(:,1:size(Time_vector,1));
-for colonne = 1: size(Time_vector,1)
+if  exist('Uppertimelimit','var')
+    imaxTime = find(contains(cellstr(Time_vector),Uppertimelimit));
+else
+    imaxTime = size(Time_vector,1);
+end
+    
+for colonne = 1 : imaxTime  
     % Data array:
     idx_ligne = ~isnan(Perf_per_Time_slot(:,colonne));
     Y_perf = [Y_perf ; Perf_per_Time_slot(idx_ligne,colonne)];
@@ -148,12 +154,13 @@ else
 end
 
 % Plot mean+/-sem per time slot
-e=errorbar(datenum(PlotX,'HH:MM'),PlotY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
-    'MarkerSize',6,'Visible','on');hold on
+% e=errorbar(datenum(PlotX,'HH:MM'),PlotY,semY,'k','LineStyle','-','Marker','o','MarkerEdge','k','MarkerFace','b',...
+%     'MarkerSize',6,'Visible','on');hold on
+e=errorbar(datenum(PlotX,'HH:MM'),PlotY,semY,'k','LineStyle','-','Marker','none');hold on
 e.Parent.XGrid = 'on'; e.Parent.YGrid = 'on';
 datetick('x','HH:MM');
 max_fig = max(PlotY + semY);
-ylim([0 max_fig*1.2 ]); % xlim ([0 2]);
+% ylim([0 max_fig*1.2 ]); % xlim ([0 2]);
 title({[Titre_parametre_analyse ' across session ' Nom],TitleStat},'fontsize',12);  %;['WS = ' Tot_False '% /Error = ' Tot_Error ' %']  
 xlabel('Time from beginning session (h)','fontsize',14);
 ylabel(['Mean ' Titre_parametre_analyse ' (+/-SEM)'],'fontsize',14);
