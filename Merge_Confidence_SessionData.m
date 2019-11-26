@@ -103,7 +103,7 @@ get_SessionData_ConfidenceSettings(1);
 % Loop on every session to combine into the super-dataset
 for Day = 1 : size(filename,2)
     % load SessionData 
-    load([pathname filename{Day}])
+    load([pathname '/' filename{Day}])
     
     % Implementation of SessionData
     SessionData = Implementatn_SessionData_Offline(SessionData, filename, pathname,Day);
@@ -160,7 +160,7 @@ for Day = 1 : size(filename,2)
         else
             DayIncl = DayIncl + 1;
             % Retrieve the name of the fields of SessionData.Custom
-             CustomFields = fieldnames(SessionData.Custom);
+            CustomFields = fieldnames(SessionData.Custom);
 
              % Name of the fields that require a specific treatment
              WeirdFields = {'OdorID';'Rig';'Subject';'PsychtoolboxStartup';'OlfactometerStartup';...
@@ -242,7 +242,7 @@ clear def dlg_title numlines prompt
 
 if Modify == 1
     % Create GUI with checkbox for each previously selected session
-    nb_column = max(1,round(size(filename,2)/30));
+    nb_column = max(1,ceil(size(filename,2)/30));
     top = (20*30)+50;
     h.f = figure('Position',[100 100 350*nb_column top]);
     Day = 1; Xcoord = 10;keepgoing = 1;
@@ -293,6 +293,6 @@ cd([Pathtodata '/' AnimalName '/Session Figures']);
 fig_beh(SessionDataWeek);
 
 % Plot on Confidence behavior
-Analyse_Fig_Cfdce(SessionDataWeek, 2);
+Analyse_Fig_Cfdce(SessionDataWeek, 2,19);
         
 

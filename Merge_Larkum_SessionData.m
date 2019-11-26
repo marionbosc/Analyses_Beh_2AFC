@@ -235,7 +235,7 @@ clear def dlg_title numlines prompt
 
 if Modify == 1
     % Create GUI with checkbox for each previously selected session
-    nb_column = max(1,round(size(filename,2)/30));
+    nb_column = max(1,ceil(size(filename,2)/30));
     top = (20*30)+50;
     h.f = figure('Position',[100 100 350*nb_column top]);
     Day = 1; Xcoord = 10;keepgoing = 1;
@@ -280,7 +280,7 @@ end
 
 %% 5) Plot figures on general and confidence behavior on the combined dataset
 % Path to Analyses folder of the animal
-cd([Pathtodata '/' AnimalName '/Analyses']); 
+cd([Pathtodata '/' AnimalName]); mkdir('Analyses'); cd([Pathtodata '/' AnimalName '/Analyses']); 
 
 % Plot of general behavior analysis : [f1,Error] = fig_beh(SessionData,normornot)
 fig_beh(SessionDataWeek);
