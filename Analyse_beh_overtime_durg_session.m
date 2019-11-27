@@ -34,7 +34,7 @@ for manip= 1 : size(filename,2)
         SessionData.Custom.TrialStart(1:SessionData.nTrials) = t(1:SessionData.nTrials);
         SessionData.Custom.TrialStartSec(1:SessionData.nTrials) = Trialstart_sessiondata(1:SessionData.nTrials);
         if ~isfield(SessionData, 'pathname') && ~isfield(SessionData, 'filename')
-            % Enregistrement des datas implementees
+            % Save implemented data 
             cd(SessionData.pathname)
             save(SessionData.filename,'SessionData');
         end
