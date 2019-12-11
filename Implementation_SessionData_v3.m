@@ -51,7 +51,7 @@ if exist(['SessionData_' Nom '_' Date '.mat'],'file')==0
             SessionData.Custom.FixDur(iTrial) = diff(SessionData.RawEvents.Trial{iTrial}.States.Delay);
         end
 
-        % Temps de réaction = ST (temps durant lequel l'animal a echantillonne le stimulus)
+        % Temps de rï¿½action = ST (temps durant lequel l'animal a echantillonne le stimulus)
         if any(strcmp('DeliverStimulus',statesThisTrial))
             if any(strcmp('StillSampling',statesThisTrial))
                 SessionData.Custom.ST(iTrial) = SessionData.RawEvents.Trial{iTrial}.States.WaitForResponse(1,2) - SessionData.RawEvents.Trial{iTrial}.States.DeliverStimulus(1,1);
@@ -92,12 +92,12 @@ if exist(['SessionData_' Nom '_' Date '.mat'],'file')==0
             end
         end
 
-        % Feedback reçu = Feedback
+        % Feedback recu = Feedback
         if any(strcmp('EndWait',statesThisTrial))
             SessionData.Custom.Feedback(iTrial) = false;
         end
 
-        % Reward reçu = Rewarded
+        % Reward recu = Rewarded
         if any(strcmp('Reward',statesThisTrial))
             SessionData.Custom.Rewarded(iTrial) = true;
         end
@@ -109,7 +109,7 @@ if exist(['SessionData_' Nom '_' Date '.mat'],'file')==0
             SessionData.Custom.ChoiceLeft(iTrial) = 0;
         end
 
-        % Niveau de difficulté de l'essai = DV
+        % Niveau de difficulte de l'essai = DV
         if SessionData.Modality(iTrial) ==1 % essai olfactif
             SessionData.Custom.DV(iTrial) = (2 * SessionData.TrialOdor(iTrial) -100)/100;
         elseif SessionData.Modality(iTrial) ==2 % essai auditif
@@ -233,7 +233,7 @@ xlabel('beta','fontsize',16);ylabel('% left','fontsize',16);hold off;
 clear ndx* Psyc* Aud*
 %% Vevaiometric olfactory trials (3)
 
-% Paramètres de la figure:
+% Parametres de la figure:
 VevaiometricMinWT = 2; % FB time minimum pris en compte dans analyse WT
 VevaiometricNBin = 8; % nb de bin de valeur DV
     
@@ -281,7 +281,7 @@ xlabel('DV','fontsize',16);ylabel('WT (s)','fontsize',16);hold off;
 clear Vevaiometric* WT* X* ndx*
 %% Vevaiometric auditory trials (4)
 
-% Paramètres de la figure:
+% Parametres de la figure:
 VevaiometricMinWT = 2; % FB time minimum pris en compte dans analyse WT
 VevaiometricNBin = 8; % nb de bin de valeur DV
     
@@ -387,7 +387,7 @@ xlabel('Time (ms)','fontsize',16);ylabel('trial counts','fontsize',16);hold off;
 clear ndx* Mix* EW* J*
 %% Distribution des temps d'attente du FB pour essais corrects (6)
 
-% Recup datas à exclure de l'analyse:
+% Recup datas a exclure de l'analyse:
 if SessionData.ProtocolSettings.PunishmentSound==0
     ndxExclude = SessionData.CorrectChoice == 0; %exclude error trials if they are set on catch
 else

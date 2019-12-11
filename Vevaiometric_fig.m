@@ -37,6 +37,7 @@ end
 
 VevaiometricMinWT = 2;% FB time minimum included in the analysis
 VevaiometricMaxWT = BorneMaxWT; % FB time max included in the analysis
+nbbin = 4;
 
 % Axis limits and label
 % Default values:
@@ -106,7 +107,7 @@ if sum(ndxError&ndxIncl&ndxLeft)>9 || sum(ndxError&ndxIncl&ndxRight)>9
     % If plot of the mean WT per DV bin/DV discrete value:
     if plotpointormean ==2 
         % if DV distrib is discrete and less than 20 DV points:
-        if size(unique([DVerrLeft DVerrRight]),2)<=20 
+        if size(unique([DVerrLeft DVerrRight]),2)<=16 
             % Mean WT and sem for each bin
             [MeanWTLeft.Error, semWTLeft.Error, MeanDVLeft.Error] = grpstats(WTerrLeft,DVerrLeft,{'mean','sem','gname'});
             [MeanWTRight.Error, semWTRight.Error, MeanDVRight.Error] = grpstats(WTerrRight,DVerrRight,{'mean','sem','gname'});
@@ -114,16 +115,16 @@ if sum(ndxError&ndxIncl&ndxLeft)>9 || sum(ndxError&ndxIncl&ndxRight)>9
         else
             % Get DV bin bounds from all trials distrib percentile:
             DV_pctileLeft = min(DVerrLeft); DV_pctileRight = min(DVerrRight);
-            for j = 1:4
-                DV_pctileLeft(j+1) = prctile(DVerrLeft,25*j);
-                DV_pctileRight(j+1) = prctile(DVerrRight,25*j);
+            for j = 1:nbbin
+                DV_pctileLeft(j+1) = prctile(DVerrLeft,100/nbbin*j);
+                DV_pctileRight(j+1) = prctile(DVerrRight,100/nbbin*j);
             end
             % Binned DV value for all trials:
             BinIdxerrLeft = discretize(DVerrLeft,DV_pctileLeft);
             BinIdxerrRight = discretize(DVerrRight,DV_pctileRight);
             clear DV_pctile*
             % Mean DV of each bin
-            for  j = 1:4
+            for  j = 1:nbbin
                 MeanDVLeft.Error(j) = nanmean(DVerrLeft(BinIdxerrLeft==j));
                 MeanDVRight.Error(j) = nanmean(DVerrRight(BinIdxerrRight==j));
             end
@@ -190,7 +191,7 @@ if sum(ndxCorrectCatch&ndxIncl&ndxLeft)>10 || sum(ndxCorrectCatch&ndxIncl&ndxRig
     % If plot of the mean WT per DV bin/DV discrete value:
     if plotpointormean ==2 
         % if DV distrib is discrete and less than 20 DV points:
-        if size(unique([DVcatchLeft DVcatchRight]),2)<=20 
+        if size(unique([DVcatchLeft DVcatchRight]),2)<=16
             % Mean WT and sem for each bin
             [MeanWTLeft.Catch, semWTLeft.Catch, MeanDVLeft.Catch] = grpstats(WTcatchLeft,DVcatchLeft,{'mean','sem','gname'});
             [MeanWTRight.Catch, semWTRight.Catch, MeanDVRight.Catch] = grpstats(WTcatchRight,DVcatchRight,{'mean','sem','gname'});
@@ -198,15 +199,15 @@ if sum(ndxCorrectCatch&ndxIncl&ndxLeft)>10 || sum(ndxCorrectCatch&ndxIncl&ndxRig
         else
             % Get DV bin bounds from all trials distrib percentile:
             DV_pctileLeft = min(DVcatchLeft); DV_pctileRight = min(DVcatchRight);
-            for j = 1:4
-                DV_pctileLeft(j+1) = prctile(DVcatchLeft,25*j);
-                DV_pctileRight(j+1) = prctile(DVcatchRight,25*j);
+            for j = 1:nbbin
+                DV_pctileLeft(j+1) = prctile(DVcatchLeft,100/nbbin*j);
+                DV_pctileRight(j+1) = prctile(DVcatchRight,100/nbbin*j);
             end
             % Binned DV value for all trials:
             BinIdxcatchLeft = discretize(DVcatchLeft,DV_pctileLeft);
             BinIdxcatchRight = discretize(DVcatchRight,DV_pctileRight);
             % Mean DV of each bin
-            for  j = 1:4
+            for  j = 1:nbbin
                 MeanDVLeft.Catch(j) = nanmean(DVcatchLeft(BinIdxcatchLeft==j));
                 MeanDVRight.Catch(j) = nanmean(DVcatchRight(BinIdxcatchRight==j));
             end

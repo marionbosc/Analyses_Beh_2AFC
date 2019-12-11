@@ -107,7 +107,8 @@ Y_perf = []; X_Time_slot = [];
 Time_vector = datestr(max(Xplot),'HH:MM');
 Perf_per_Time_slot = Perf_per_Time_slot(:,1:size(Time_vector,1));
 if  exist('Uppertimelimit','var')
-    imaxTime = find(contains(cellstr(Time_vector),Uppertimelimit));
+    Maxduration = datestr(duration(0,Uppertimelimit,0, 'Format','hh:mm'),'HH:MM');
+    imaxTime = find(contains(cellstr(Time_vector),Maxduration));
 else
     imaxTime = size(Time_vector,1);
 end
