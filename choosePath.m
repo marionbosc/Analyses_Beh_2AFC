@@ -10,7 +10,7 @@ switch answer
         Pathtodata = '/Users/marionbosc/Documents/Kepecs_Lab_sc/Confidence_ACx/Datas/Datas_Beh';
     case 'Home server'
         disp(['Data will be saved on ' answer ])
-        Pathtodata = '/Volumes/marion/BpodData';
+        Pathtodata = '/Volumes/kepecs_nlsas_norepl_data/Bosc/BpodData';
     case 'new location'
         Pathtodata = uigetdir;
         disp(['Data will be saved on ' Pathtodata ])
