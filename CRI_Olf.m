@@ -9,7 +9,7 @@
 %
 
 
-function CRI_Olf(DataBefore, DataAfter,perside)
+function CRI_Olf(DataBefore, DataAfter,perside,AnimalName)
 %% Chargement data Before:
 % Chargement datas avant lesion:
 load(DataBefore);
@@ -29,9 +29,15 @@ end
 %%
 nbBin = 3;
 idx_DV_Before = cell(1,nbBin);
-idx_DV_Before{1} = [0 0.1 0.12]; % P28:[0 0.1 0.12]; % M7:[0 0.1]
-idx_DV_Before{2} = [0.16 0.24 0.3]; % P28:[0.16 0.24 0.3]; % M7:[0.24 0.3]
-idx_DV_Before{3} = [0.8]; % P28:[0.8]; % M7:[0.8]
+if strcmp(AnimalName,'M7')
+    idx_DV_Before{1} = [0 0.1];
+    idx_DV_Before{2} = [0.2 0.24 0.3];
+    idx_DV_Before{3} = 0.8;
+elseif strcmp(AnimalName,'P28')
+    idx_DV_Before{1} = [0 0.1 0.12]; 
+    idx_DV_Before{2} = [0.16 0.24 0.3]; 
+    idx_DV_Before{3} = 0.8; 
+end
 
 % index d'essais:
 ndxModality = SessionData.Custom.Modality==1;
@@ -117,9 +123,15 @@ for bin = 1: size(idx_DV_qty,2)
 end
 %%
 idx_DV_After = cell(1,nbBin);
-idx_DV_After{1} =  [0.12];% P28:[0.12]; % M7:[0.1]
-idx_DV_After{2} =  [0.16 0.3];% P28:[0.16 0.3]; % M7:[0.2 0.3]
-idx_DV_After{3} =  [0.8]; % P28:[0.8] % M7:[0.8];
+if strcmp(AnimalName,'M7')
+    idx_DV_After{1} = 0.1;
+    idx_DV_After{2} = [0.2 0.3];
+    idx_DV_After{3} = 0.8;
+elseif strcmp(AnimalName,'P28')
+    idx_DV_After{1} = 0.12; 
+    idx_DV_After{2} = [0.16 0.3]; 
+    idx_DV_After{3} = 0.8; 
+end
 
 % index d'essais:
 ndxModality = SessionData.Custom.Modality==1;
