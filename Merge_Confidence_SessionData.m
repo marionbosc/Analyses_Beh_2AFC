@@ -54,7 +54,7 @@ clear def dlg_title numlines prompt
 
 % Prompt windows to provide the animal's name
 prompt = {'Name = '}; dlg_title = 'Animal'; numlines = 1;
-def = {'MC'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+def = {'M'}; AnimalName = char(inputdlg(prompt,dlg_title,numlines,def)); 
 clear def dlg_title numlines prompt   
 
 % Prompt windows to select the localisation of data files:
@@ -62,14 +62,14 @@ Pathtodata = choosePath(BpodProtocol);
 cd(Pathtodata);
 
 % Prompt windows to select if dataset already exist or needs to be create
-answer = questdlg('Filenames need to be...','Dataset filenames', 'loaded','created','');
+answer = questdlg('Filenames need to be...','Dataset filenames', 'loaded','created','loaded and updated','');
 
 % Handle response
 switch answer
     case 'loaded'
         cd([Pathtodata '/' AnimalName '/Session Data/']);
         uiopen; pathname =cd;
-        DatasetName = '19';
+        DatasetName = '20';
     case 'created'
         % Finder windows open to select the data files of the session to include
         [filename,pathname] = uigetfile([Pathtodata '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
@@ -79,8 +79,34 @@ switch answer
         def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
         clear def dlg_title numlines prompt
 
-        DatasetName = '19';
+        DatasetName = '20';
 
+        % Case "Yes"
+        if saving==1
+            % Prompt windows to provide the name of the Dataset
+            prompt = {'Date of Sessions = '}; dlg_title = 'Name dataset'; numlines = 1;
+            def = {DatasetName}; DatasetName = char(inputdlg(prompt,dlg_title,numlines,def)); 
+            clear def dlg_title numlines prompt 
+
+            % Save pathname and filename from the population of session selected
+            cd([Pathtodata '/' AnimalName '/Session Data']);
+            save(['Filenames_' DatasetName],'filename')
+            save(['Pathname_Local_' AnimalName],'pathname')
+        end
+    case 'loaded and updated'
+        cd([Pathtodata '/' AnimalName '/Session Data/']);
+        uiopen; pathname =cd;
+        DatasetName = '20';
+        
+        % Finder windows open to select the data files of the session to include
+        filename2 = uigetfile([Pathtodata '/' AnimalName '/Session Data/*.mat'], 'MultiSelect','on');
+        filename = [filename filename2]; clear filename2
+        
+        % Prompt windows to inquire whether you want to save the filename and pathname 
+        prompt = {'Save filename and pathname? '}; dlg_title = '0=No / 1=Yes'; numlines = 1;
+        def = {'0'}; saving = str2num(cell2mat(inputdlg(prompt,dlg_title,numlines,def))); 
+        clear def dlg_title numlines prompt
+        
         % Case "Yes"
         if saving==1
             % Prompt windows to provide the name of the Dataset
@@ -97,7 +123,7 @@ end
 
 % Set criteria to include in the Confidence analysis:
 get_SessionData_ConfidenceSettings(1);
-
+pause
 %% 2) Session by session implementation and complementary analysis + Super-dataset creation
 
 % Loop on every session to combine into the super-dataset
@@ -138,7 +164,7 @@ for Day = 1 : size(filename,2)
     end    
 
     if takeabreak
-        pause; takeabreak = false;    
+        %pause; takeabreak = false;    
     end
     
     close all
@@ -252,7 +278,7 @@ if Modify == 1
                       'Value', 1,...
                       'Position',[Xcoord top-(20*(Day-30*(column-1))) 300 15]);
             Day = Day+1; keepgoing=0;
-            if Day< size(filename,2)
+            if Day<= size(filename,2)
                 keepgoing = 1;
             end
         end
@@ -286,8 +312,11 @@ end
 
 
 %% 5) Plot figures on general and confidence behavior on the combined dataset
+
+Pathtodata = choosePath(BpodProtocol);
+
 % Path to Analyses folder of the animal
-cd([Pathtodata '/' AnimalName '/Session Figures']); 
+mkdir([Pathtodata '/' AnimalName '/Analyses']);cd([Pathtodata '/' AnimalName '/Analyses']); 
 
 % Plot of general behavior analysis
 fig_beh(SessionDataWeek);
